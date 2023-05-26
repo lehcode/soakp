@@ -1,21 +1,33 @@
+/**
+ * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
+ * Copyright: (C)2023.
+ */
 import express from 'express';
 import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
+import { createHash } from 'crypto';
 import sqlite3 from 'sqlite3';
-import fs from 'fs';
+import storage from 'node-persist';
+import { JsonResponse } from './json-response';
 
-// import { process } from 'child_process';
+interface KeyServerConfigInterface {
+  storage: StorageType;
+  port: number;
+  dataFileLocation?: string;
+  sql?: {
+    dbName: string;
+    tableName: string;
+  };
+}
 
 enum StorageType {
   sqlite = 'STORAGE_SQLITE',
   file = 'STORAGE_FILE'
 }
 
-interface KeyServerConfigInterface {
-  storage: StorageType;
-  port: number;
-  dataFile?: string;
+interface StorageConfigInterface {
+  dataFileLocation?: string;
   sql?: {
     dbName: string;
     tableName: string;
@@ -25,7 +37,7 @@ interface KeyServerConfigInterface {
 const defaults: KeyServerConfigInterface = {
   storage: StorageType.sqlite,
   port: 3050,
-  dataFile: 'uploads/',
+  dataFileLocation: 'uploads/',
   sql: {
     dbName: 'databaseName.db',
     tableName: 'tokens'
@@ -35,35 +47,53 @@ const defaults: KeyServerConfigInterface = {
 class OpenAIProxy {
   private readonly app: express.Application;
   private readonly config: KeyServerConfigInterface;
-  private jwtSecret: string;
-  private jwtExpiration: number;
+  private jwtSecret = '';
+  private jwtExpiration = 86400; // 24 hours
   private openAIKey = '';
-  private db: sqlite3.Database | undefined;
+  private basicUser = '';
+  private basicPass = '';
+  private readonly keyStorage: KeyStorage;
 
   constructor(private readonly configuration: KeyServerConfigInterface) {
     this.app = express();
     this.config = { ...defaults, ...configuration };
+    this.basicUser = <string>process.env.AUTH_USER;
+    this.basicPass = <string>process.env.AUTH_PASS;
 
     // Configure middleware
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
-    this.app.post(
-      '/get-jwt',
-      basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS } }),
-      this.handleGetJwt.bind(this)
-    );
+    this.initializeEdnpoints();
+
+    this.keyStorage = new KeyStorage(this.config.storage, <StorageConfigInterface>{
+      port: this.config.port,
+      dataFileLocation: this.config.dataFileLocation,
+      sql: {
+        dbName: this.config.sql.dbName,
+        tableName: this.config.sql.tableName
+      }
+    });
+
+    this.start(this.config.port);
+  }
+
+  /**
+   * Initialize API ednpoints
+   *
+   * @private
+   */
+  private initializeEdnpoints() {
+    this.app.post('/get-jwt', basicAuth({ users: { [this.basicUser]: this.basicPass } }), this.handleGetJwt.bind(this));
     this.app.post('/openai/query', this.handleOpenAIQuery.bind(this));
+  }
 
-    this.jwtSecret = 'my-secret-key';
-    this.jwtExpiration = 60 * 60 * 24; // 24 hours
+  private setJWTSecret(openAIKey: string): void {
+    this.jwtSecret = createHash('sha256').update(openAIKey).digest('hex');
+  }
 
-    if (this.config.storage === StorageType.sqlite) {
-      this.db = new sqlite3.Database(`./${this.config.sql?.dbName}`);
-      this.db.run(`CREATE TABLE IF NOT EXISTS ${this.config.sql?.tableName} (id INTEGER PRIMARY KEY, token TEXT)`);
-    }
-
-    this.start(3033);
+  private setOpenAIKey(key: string): void {
+    this.openAIKey = key;
   }
 
   /**
@@ -74,35 +104,29 @@ class OpenAIProxy {
    * @private
    */
   private handleGetJwt(req: express.Request, res: express.Response) {
-    const { username, password } = req.body;
-    const openaiKey = req.body.openaiKey;
+    this.setOpenAIKey(req.body.openaiKey.trim());
+    this.setJWTSecret(req.body.openaiKey.trim());
 
-    // if (username !== this.username || password !== this.password) {
-    //   res.status(401).send('Unauthorized');
-    //   return;
-    // }
+    const token = jwt.sign({ key: this.openAIKey }, this.jwtSecret, { expiresIn: this.jwtExpiration });
 
-    const token = jwt.sign({ openaiKey }, this.jwtSecret, { expiresIn: this.jwtExpiration });
+    this.keyStorage.storeJWT(token, res);
+  }
 
+  private async loadOpenAIKey(): Promise<void> {
     if (this.config.storage === StorageType.sqlite) {
-      // @ts-ignore
-      this.db.run('INSERT INTO tokens (token) VALUES (?)', [token], (err) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send('Internal Server Error');
-          return;
-        }
-        res.send(token);
-      });
+      try {
+        const token = await this.keyStorage.loadFromDB('openai');
+        this.openAIKey = token;
+      } catch (err) {
+        console.error(err);
+      }
     } else {
-      fs.writeFile('jwt.txt', token, (err) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send('Internal Server Error');
-          return;
-        }
-        res.send(token);
-      });
+      try {
+        const data = await this.keyStorage.loadFromFile('openai');
+        this.openAIKey = data;
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
@@ -119,7 +143,7 @@ class OpenAIProxy {
 
     jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
       if (err) {
-        res.status(401).send('Unauthorized');
+        res.status(401).json(JsonResponse.getText(401));
         return;
       }
 
@@ -141,29 +165,148 @@ class OpenAIProxy {
     this.app.listen(port, () => {
       console.log(`OpenAIController listening on port ${port}`);
     });
+  }
+}
 
-    setInterval(function () {
-      console.log('Keeping the event loop active...');
-    }, 1000 * 60 * 60); // Log a message every hour
+/**
+ * SQLite/File storage for tokens
+ *
+ * TODO: More to follow
+ */
+class KeyStorage {
+  private readonly type: StorageType;
+  private db: sqlite3.Database;
+  private config: StorageConfigInterface;
+
+  /**
+   *
+   * @param type
+   * @param configuration
+   */
+  constructor(type: StorageType, configuration: StorageConfigInterface) {
+    this.config = { ...configuration };
+    this.type = type; // Assign the type parameter to the this.type property
+
+    switch (this.type) {
+      default:
+      case StorageType.sqlite:
+        this.initializeDatabase('sqlite');
+        break;
+
+      case StorageType.file:
+        this.initializeFileStorage();
+        break;
+    }
   }
 
   /**
-   * Generate a new API key and save it to the desired storage (sqlite or file) based on the config
-   * @public
+   * Initialize database table
+   *
+   * @private
    */
-  private saveKey(userKey: string): void {
-    if (this.config.storage === StorageType.sqlite) {
-      this.db?.run(`INSERT INTO ${this.config.sql?.tableName}(key) VALUES(?)`, userKey, function (err: Error) {
-        if (err) {
-          console.error(err.message);
+  private initializeDatabase(type: string): void {
+    if (type === 'sqlite') {
+      this.db = new sqlite3.Database(`./${this.config.sql?.dbName}`);
+    }
+  }
+
+  /**
+   * Initialize file storage
+   */
+  async initializeFileStorage(): Promise<void> {
+    await storage.init({ dir: this.config.dataFileLocation });
+  }
+
+  /**
+   * Create SQL table
+   *
+   * @private
+   */
+  private createSqlTable(): void {
+    this.db.run(
+      `CREATE TABLE IF NOT EXISTS ${this.config.sql?.tableName} (id INTEGER PRIMARY KEY, token_type TEXT, token TEXT)`
+    );
+  }
+
+  /**
+   * Run user query on DB
+   *
+   * @param query
+   */
+  runQuery(query: string): void {
+    try {
+      this.db.run(query);
+    } catch (error) {
+      throw new Error(<string>error);
+    }
+  }
+
+  storeJWT(token: string, res: express.Response) {
+    let status: number;
+
+    if (this.type === StorageType.sqlite) {
+      this.sqlInsert('jwt', token)
+        .then(() => {
+          status = 201;
+          res.status(status).json(JsonResponse.getText(status));
+        })
+        .catch((err) => JsonResponse.err500(err, res));
+    } else {
+      storage
+        .setItem('jwt', token)
+        .then(() => {
+          status = 200;
+          res.status(status).json(JsonResponse.getText(status, { token: token }));
+        })
+        .catch((err: string) => JsonResponse.err500(err, res));
+    }
+  }
+
+  /**
+   * Inset SQL record
+   *
+   * @private
+   */
+  private async sqlInsert(token_type: string, token: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `INSERT INTO ${this.config.sql?.tableName} (token_type, token) VALUES (?, ?)`,
+        [token_type, token],
+        (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve();
         }
-      });
-    } else if (this.config.storage === StorageType.file) {
-      fs.writeFile(<string>this.config.dataFile, userKey, (err) => {
-        if (err) {
-          console.error(err);
+      );
+    });
+  }
+
+  public async loadFromDB(type: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        `SELECT token FROM ${this.config.sql?.tableName} WHERE token_type = ? LIMIT 1`,
+        type,
+        (err, row: Record<string, any>) => {
+          if (err) {
+            console.error(err);
+            reject(err);
+          } else {
+            resolve(row.token);
+          }
         }
-      });
+      );
+    });
+  }
+
+  public async loadFromFile(type: string): Promise<string> {
+    try {
+      const data = await storage.getItem(type);
+      return data;
+    } catch (err) {
+      console.error(`Error reading file from disk: ${err}`);
+      return '';
     }
   }
 }
@@ -171,9 +314,11 @@ class OpenAIProxy {
 new OpenAIProxy({
   storage: <StorageType>process.env.STORAGE,
   port: Number(process.env.SERVER_PORT),
-  dataFile: <string>process.env.DATA_FILE_NAME,
+  dataFileLocation: <string>process.env.DATA_FILE_LOC,
   sql: {
     dbName: <string>process.env.SQL_DB_NAME,
     tableName: <string>process.env.SQL_TABLE_NAME
   }
 });
+
+export { OpenAIProxy };

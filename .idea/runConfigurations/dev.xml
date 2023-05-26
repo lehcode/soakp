@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="dev" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="docker-compose://[$PROJECT_DIR$/docker-compose.yml]:server/node" />
+    <node-options value="--inspect" />
+    <envs>
+      <env name="AUTH_PASS" value="test_123" />
+      <env name="AUTH_USER" value="testuser" />
+      <env name="DATA_FILE_NAME" value="ws-debug" />
+      <env name="SERVER_PORT" value="3366" />
+      <env name="SQL_DB_NAME" value="debug.db" />
+      <env name="SQL_TABLE_NAME" value="mysecrets" />
+      <env name="STORAGE" value="STORAGE_SQLITE" />
+    </envs>
+    <method v="2">
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_rename to .mjs" />
+    </method>
+  </configuration>
+</component>

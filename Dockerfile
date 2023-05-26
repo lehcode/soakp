@@ -23,9 +23,9 @@ WORKDIR ${workdir}
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig.json .
-COPY to-mjs.sh .
-COPY src/*.ts ./src/
-COPY docker/server/entrypoint.sh /init.sh
+# COPY to-mjs.sh .
+COPY keyserver.ts .
+COPY entrypoint.sh /init.sh
 
 RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && sh -c 'export DEBIAN_FRONTEND="noninteractive"' \
@@ -40,7 +40,7 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && npm install -g npm \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
-  && chmod a+x /init.sh ${workdir}/to-mjs.sh \
+  && chmod a+x /init.sh \
   && chown -R node:node ${workdir}
 
 # Stage 1: Build the Node.js application

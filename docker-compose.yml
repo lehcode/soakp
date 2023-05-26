@@ -7,10 +7,10 @@ services:
     image: lehcode/openai-proxy:1.0.1
     container_name: ${CONTAINER_NAME:-openai-proxy}
     hostname: ${SERVER_HOST:-openai-proxy}
-    entrypoint: /init.sh
+    command: npm start
     build:
       context: .
-      dockerfile: docker/server/Dockerfile
+      dockerfile: Dockerfile
       args:
         workdir: ${WORKDIR:-/srv}
         node_version: ${USE_NODE_VERSION:-16.20.0}
@@ -23,10 +23,10 @@ services:
       SERVER_PORT: ${SERVER_PORT:-3000}
       SERVERLESS: ${SERVERLESS:-no}
       SERVER_HOST: ${SERVER_HOST:?}
-      STORAGE: ${STORAGE:-sqlite}
+      STORAGE: ${STORAGE:-STORAGE_SQLITE}
       SQL_DB_NAME: ${SQL_DB_NAME:-data.db}
       SQL_TABLE: ${SQL_TABLE_NAME:-tokens}
-      DATA_FILE: ${FILE_STORAGE_PATH:-/etc}/${DATA_FILE:-.data.txt}
+      DATA_FILE: ${DATA_FILE_LOC:-/etc}/}
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ${LOCAL_KEYS_FOLDER:?}:/etc/ssl/certs/
