@@ -1,0 +1,1177 @@
+2023-05-24 14:12:51,777:DEBUG:certbot._internal.main:certbot version: 2.6.0
+2023-05-24 14:12:51,777:DEBUG:certbot._internal.main:Location of certbot entry point: /usr/local/bin/certbot
+2023-05-24 14:12:51,777:DEBUG:certbot._internal.main:Arguments: ['-n', '-d', 'sandrabeauty.studio,*.sandrabeauty.studio', '--dns-route53', '--dry-run', '--agree-tos', '--email=sandra@sandrabeauty.studio']
+2023-05-24 14:12:51,777:DEBUG:certbot._internal.main:Discovered plugins: PluginsRegistry(PluginEntryPoint#certbot-route53:auth,PluginEntryPoint#dns-route53,PluginEntryPoint#manual,PluginEntryPoint#null,PluginEntryPoint#standalone,PluginEntryPoint#webroot)
+2023-05-24 14:12:51,785:DEBUG:certbot._internal.log:Root logging level set at 30
+2023-05-24 14:12:51,786:DEBUG:certbot._internal.plugins.selection:Requested authenticator dns-route53 and installer None
+2023-05-24 14:12:51,789:DEBUG:botocore.hooks:Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+2023-05-24 14:12:51,790:DEBUG:botocore.hooks:Changing event name from before-call.apigateway to before-call.api-gateway
+2023-05-24 14:12:51,791:DEBUG:botocore.hooks:Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+2023-05-24 14:12:51,792:DEBUG:botocore.hooks:Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+2023-05-24 14:12:51,792:DEBUG:botocore.hooks:Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+2023-05-24 14:12:51,792:DEBUG:botocore.hooks:Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+2023-05-24 14:12:51,793:DEBUG:botocore.hooks:Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+2023-05-24 14:12:51,794:DEBUG:botocore.hooks:Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+2023-05-24 14:12:51,795:DEBUG:botocore.hooks:Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+2023-05-24 14:12:51,795:DEBUG:botocore.hooks:Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+2023-05-24 14:12:51,795:DEBUG:botocore.hooks:Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+2023-05-24 14:12:51,797:DEBUG:botocore.utils:IMDS ENDPOINT: http://169.254.169.254/
+2023-05-24 14:12:51,798:DEBUG:botocore.credentials:Looking for credentials via: env
+2023-05-24 14:12:51,798:INFO:botocore.credentials:Found credentials in environment variables.
+2023-05-24 14:12:51,800:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/endpoints.json
+2023-05-24 14:12:51,809:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/sdk-default-configuration.json
+2023-05-24 14:12:51,810:DEBUG:botocore.hooks:Event choose-service-name: calling handler <function handle_service_name_alias at 0x7fc51ab4d000>
+2023-05-24 14:12:51,846:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/route53/2013-04-01/service-2.json
+2023-05-24 14:12:51,861:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/route53/2013-04-01/endpoint-rule-set-1.json.gz
+2023-05-24 14:12:51,862:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/partitions.json
+2023-05-24 14:12:51,863:DEBUG:botocore.hooks:Event creating-client-class.route-53: calling handler <function add_generate_presigned_url at 0x7fc51ad74670>
+2023-05-24 14:12:51,864:DEBUG:botocore.endpoint:Setting route53 timeout as (60, 60)
+2023-05-24 14:12:51,865:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/_retry.json
+2023-05-24 14:12:51,866:DEBUG:botocore.client:Registering retry handlers for service: route53
+2023-05-24 14:12:51,866:DEBUG:certbot._internal.plugins.selection:Single candidate plugin: * dns-route53
+Description: Obtain certificates using a DNS TXT record (if you are using AWS Route53 for DNS).
+Interfaces: Authenticator, Plugin
+Entry point: dns-route53 = certbot_dns_route53._internal.dns_route53:Authenticator
+Initialized: <certbot_dns_route53._internal.dns_route53.Authenticator object at 0x7fc51aeb2c50>
+Prep: True
+2023-05-24 14:12:51,866:DEBUG:certbot._internal.plugins.selection:Selected authenticator <certbot_dns_route53._internal.dns_route53.Authenticator object at 0x7fc51aeb2c50> and installer None
+2023-05-24 14:12:51,867:INFO:certbot._internal.plugins.selection:Plugins selected: Authenticator dns-route53, Installer None
+2023-05-24 14:12:51,898:DEBUG:certbot._internal.main:Picked account: <Account(RegistrationResource(body=Registration(key=None, contact=(), agreement=None, status=None, terms_of_service_agreed=None, only_return_existing=None, external_account_binding=None), uri='https://acme-staging-v02.api.letsencrypt.org/acme/acct/103524564', new_authzr_uri=None, terms_of_service=None), 0421b70a6b4e0deb8728ba0f1c25dcb9, Meta(creation_dt=datetime.datetime(2023, 5, 24, 13, 24, 55, tzinfo=<UTC>), creation_host='e5c53c9fc7ed', register_to_eff=None))>
+2023-05-24 14:12:51,899:DEBUG:acme.client:Sending GET request to https://acme-staging-v02.api.letsencrypt.org/directory.
+2023-05-24 14:12:51,900:DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): acme-staging-v02.api.letsencrypt.org:443
+2023-05-24 14:12:52,588:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "GET /directory HTTP/1.1" 200 826
+2023-05-24 14:12:52,589:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:12:53 GMT
+Content-Type: application/json
+Content-Length: 826
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "P7h2L7rymEw": "https://community.letsencrypt.org/t/adding-random-entries-to-the-directory/33417",
+  "keyChange": "https://acme-staging-v02.api.letsencrypt.org/acme/key-change",
+  "meta": {
+    "caaIdentities": [
+      "letsencrypt.org"
+    ],
+    "termsOfService": "https://letsencrypt.org/documents/LE-SA-v1.3-September-21-2022.pdf",
+    "website": "https://letsencrypt.org/docs/staging-environment/"
+  },
+  "newAccount": "https://acme-staging-v02.api.letsencrypt.org/acme/new-acct",
+  "newNonce": "https://acme-staging-v02.api.letsencrypt.org/acme/new-nonce",
+  "newOrder": "https://acme-staging-v02.api.letsencrypt.org/acme/new-order",
+  "renewalInfo": "https://acme-staging-v02.api.letsencrypt.org/draft-ietf-acme-ari-01/renewalInfo/",
+  "revokeCert": "https://acme-staging-v02.api.letsencrypt.org/acme/revoke-cert"
+}
+2023-05-24 14:12:52,589:DEBUG:certbot._internal.display.obj:Notifying user: Simulating a certificate request for sandrabeauty.studio and *.sandrabeauty.studio
+2023-05-24 14:12:52,593:DEBUG:acme.client:Requesting fresh nonce
+2023-05-24 14:12:52,593:DEBUG:acme.client:Sending HEAD request to https://acme-staging-v02.api.letsencrypt.org/acme/new-nonce.
+2023-05-24 14:12:52,792:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "HEAD /acme/new-nonce HTTP/1.1" 200 0
+2023-05-24 14:12:52,792:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:12:53 GMT
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: EA57g6t6YhiHEPuoy9_HkO37zB-vJ5uW_wMhp1yjXSVMLdg
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+
+2023-05-24 14:12:52,793:DEBUG:acme.client:Storing nonce: EA57g6t6YhiHEPuoy9_HkO37zB-vJ5uW_wMhp1yjXSVMLdg
+2023-05-24 14:12:52,793:DEBUG:acme.client:JWS payload:
+b'{\n  "identifiers": [\n    {\n      "type": "dns",\n      "value": "sandrabeauty.studio"\n    },\n    {\n      "type": "dns",\n      "value": "*.sandrabeauty.studio"\n    }\n  ]\n}'
+2023-05-24 14:12:52,795:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/new-order:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiRUE1N2c2dDZZaGlIRVB1b3k5X0hrTzM3ekItdko1dVdfd01ocDF5alhTVk1MZGciLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvbmV3LW9yZGVyIn0",
+  "signature": "tAtTpFItbfwD5zNB7DUPbXWeqtP-2UcDlqhULhDz1v0945zsvG2HAXKnSyf8iKdAAjsegJI8CQCM_miLfuvUkrMlljlbxTgUio59kZ-4ofvY9_xFAztOzoCQnAFbgbq55zjwzLEIIdIFQ-MjveX7xhJPO4J56rxeaHGQdizG4f5I4EG72faTiAcmqHvtxDkWTNSPUQ9rxVqMejwsbSvMhpuo5sKzBLJD0V6uocB6GQobJ_NKN3C01jCaZqrUP41GXWXU2XBvobAvE7Aqo5zt_G_jwjgT6VkTDXXVSN325WjeQ883IC5UzgYgQKiu7CK3LJS9hx8Bq0ibRF-JW0_kMA",
+  "payload": "ewogICJpZGVudGlmaWVycyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAiZG5zIiwKICAgICAgInZhbHVlIjogInNhbmRyYWJlYXV0eS5zdHVkaW8iCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJkbnMiLAogICAgICAidmFsdWUiOiAiKi5zYW5kcmFiZWF1dHkuc3R1ZGlvIgogICAgfQogIF0KfQ"
+}
+2023-05-24 14:12:53,012:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/new-order HTTP/1.1" 201 506
+2023-05-24 14:12:53,013:DEBUG:acme.client:Received response:
+HTTP 201
+Server: nginx
+Date: Wed, 24 May 2023 14:12:54 GMT
+Content-Type: application/json
+Content-Length: 506
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Location: https://acme-staging-v02.api.letsencrypt.org/acme/order/103524564/8905147214
+Replay-Nonce: BEB9LxTHqE8BNCNN8njx1CrUS9SSKR8JvTuX84youimvVCk
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "status": "pending",
+  "expires": "2023-05-31T13:24:57Z",
+  "identifiers": [
+    {
+      "type": "dns",
+      "value": "*.sandrabeauty.studio"
+    },
+    {
+      "type": "dns",
+      "value": "sandrabeauty.studio"
+    }
+  ],
+  "authorizations": [
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354",
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364"
+  ],
+  "finalize": "https://acme-staging-v02.api.letsencrypt.org/acme/finalize/103524564/8905147214"
+}
+2023-05-24 14:12:53,013:DEBUG:acme.client:Storing nonce: BEB9LxTHqE8BNCNN8njx1CrUS9SSKR8JvTuX84youimvVCk
+2023-05-24 14:12:53,013:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:12:53,014:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOUx4VEhxRThCTkNOTjhuangxQ3JVUzlTU0tSOEp2VHVYODR5b3VpbXZWQ2siLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYXV0aHotdjMvNjYwODg5NTM1NCJ9",
+  "signature": "LrhxaY1uYR3fgsp9Gd16PA5RtFKaSTKLkWXw5TTA_HX7rZ-LDo8XfyomofcRtqxcmW8w_GUfVSEDetKhoqm5ahod4eKyhtXdLdAKxymszMQDTt7rtqBL3bFwoVmoYdcQMdlbhJ_YaX4JyoSGX_rtYBZByQ0aVWHxOI0hu4lkLM5MGdDGuHJyaeG8XNyKepKApkxGRaj8KAIPAfMuSEWgBIRcZ9L7lF0mfGJc6O0UFw6GC3GZ1m8LaJE7K_A8nWWQeNVUESRTYeGCPnHvQOLKclBm2Lkkh2RoiaCellM_ZHiUDCgkyIXc3OyfivsCnjmULgqt4Xp-SeTkV2kLA_z-WA",
+  "payload": ""
+}
+2023-05-24 14:12:53,212:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/authz-v3/6608895354 HTTP/1.1" 200 399
+2023-05-24 14:12:53,213:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:12:54 GMT
+Content-Type: application/json
+Content-Length: 399
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB9lLM2NaS37heNmecMmA8NErFkN8mOGIxWuAyitHAfbLQ
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "identifier": {
+    "type": "dns",
+    "value": "sandrabeauty.studio"
+  },
+  "status": "pending",
+  "expires": "2023-05-31T13:24:57Z",
+  "challenges": [
+    {
+      "type": "dns-01",
+      "status": "pending",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895354/jVmu4A",
+      "token": "0UbN5-X09yCk4onB_zMJzM03NZYshQQhcdHKX5nPa8Q"
+    }
+  ],
+  "wildcard": true
+}
+2023-05-24 14:12:53,213:DEBUG:acme.client:Storing nonce: BEB9lLM2NaS37heNmecMmA8NErFkN8mOGIxWuAyitHAfbLQ
+2023-05-24 14:12:53,213:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:12:53,214:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOWxMTTJOYVMzN2hlTm1lY01tQThORXJGa044bU9HSXhXdUF5aXRIQWZiTFEiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYXV0aHotdjMvNjYwODg5NTM2NCJ9",
+  "signature": "iJz0lDGgAnldjzkRZEdMMp9OYPo23pGUQ3mbwhTVwtohvqYIZmWkb7SygYIN1XWYbF3d7oxEhP_CNDMLanc2JKzgAOZaKRG7mJeGADW_vcEcdxPT4PuceTymmn1hEnOzg2T20YTpyP7Q81JH_HivbvtXx3jKP4O12SEdLyTaA0lyy7nmL0n4HVwjllzC6NFPQsLVUkLWFpNJLEcFkM_B1AqOAYNzDZ6iM81q1jPQLePC5emvzmuylzHA645_VrqfeADEfxe-BuWaYGWZwWqbE-bY9JbVQZy5R62HkwsWvX1-jH_DefDVu88rnCqpCdRGRf8d1KbrPTLskcwmEuLWvQ",
+  "payload": ""
+}
+2023-05-24 14:12:53,416:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/authz-v3/6608895364 HTTP/1.1" 200 821
+2023-05-24 14:12:53,417:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:12:54 GMT
+Content-Type: application/json
+Content-Length: 821
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB9RPOa23rHN5DCiAB5Ddql2LFSunqiAdBLuDyevNJP7c8
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "identifier": {
+    "type": "dns",
+    "value": "sandrabeauty.studio"
+  },
+  "status": "pending",
+  "expires": "2023-05-31T13:24:57Z",
+  "challenges": [
+    {
+      "type": "http-01",
+      "status": "pending",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/0gYBNg",
+      "token": "lgmLp7W70UU4arUFJ_4NrPhZI3UBNWU4K_rVeeiyJs4"
+    },
+    {
+      "type": "dns-01",
+      "status": "pending",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/gvnnwQ",
+      "token": "lgmLp7W70UU4arUFJ_4NrPhZI3UBNWU4K_rVeeiyJs4"
+    },
+    {
+      "type": "tls-alpn-01",
+      "status": "pending",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/44taXw",
+      "token": "lgmLp7W70UU4arUFJ_4NrPhZI3UBNWU4K_rVeeiyJs4"
+    }
+  ]
+}
+2023-05-24 14:12:53,417:DEBUG:acme.client:Storing nonce: BEB9RPOa23rHN5DCiAB5Ddql2LFSunqiAdBLuDyevNJP7c8
+2023-05-24 14:12:53,417:INFO:certbot._internal.auth_handler:Performing the following challenges:
+2023-05-24 14:12:53,417:INFO:certbot._internal.auth_handler:dns-01 challenge for sandrabeauty.studio
+2023-05-24 14:12:53,418:INFO:certbot._internal.auth_handler:dns-01 challenge for sandrabeauty.studio
+2023-05-24 14:12:53,428:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/route53/2013-04-01/paginators-1.json
+2023-05-24 14:12:53,429:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:12:53,429:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:12:53,429:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:12:53,429:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:12:53,430:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:12:53,430:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:12:53,430:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:12:53,430:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:12:53,430:DEBUG:botocore.endpoint:Making request for OperationModel(name=ListHostedZones) with params: {'url_path': '/2013-04-01/hostedzone', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:12:53,431:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:12:53,431:DEBUG:botocore.hooks:Event choose-signer.route-53.ListHostedZones: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:12:53,431:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:12:53,431:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/hostedzone
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141253Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:12:53,431:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141253Z
+20230524/us-east-1/route53/aws4_request
+88edbd280d1f2dc34f38387bb8b8f09e026b53276479271205af92fa4e74c00b
+2023-05-24 14:12:53,431:DEBUG:botocore.auth:Signature:
+3efa96a0c4bde1f85e8acc5fd4b28cdaa95eac929aa27d1a4002983199c98c87
+2023-05-24 14:12:53,431:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:12:53,432:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/hostedzone, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141253Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=3efa96a0c4bde1f85e8acc5fd4b28cdaa95eac929aa27d1a4002983199c98c87', 'amz-sdk-invocation-id': b'025623c9-f659-4030-90f1-53c79bdd3d06', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:12:53,432:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:12:53,432:DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): route53.amazonaws.com:443
+2023-05-24 14:12:54,520:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/hostedzone HTTP/1.1" 200 505
+2023-05-24 14:12:54,520:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '642608bb-a218-4134-b13e-5686ad00ebee', 'Content-Type': 'text/xml', 'Content-Length': '505', 'Date': 'Wed, 24 May 2023 14:12:55 GMT'}
+2023-05-24 14:12:54,520:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ListHostedZonesResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><HostedZones><HostedZone><Id>/hostedzone/Z0504793FH99BR3JB8SW</Id><Name>sandrabeauty.studio.</Name><CallerReference>43087aec-6d22-4d7d-a4ae-ea7c7776f44a</CallerReference><Config><Comment>Testing</Comment><PrivateZone>false</PrivateZone></Config><ResourceRecordSetCount>2</ResourceRecordSetCount></HostedZone></HostedZones><IsTruncated>false</IsTruncated><MaxItems>100</MaxItems></ListHostedZonesResponse>'
+2023-05-24 14:12:54,521:DEBUG:botocore.hooks:Event needs-retry.route-53.ListHostedZones: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:12:54,521:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:12:54,521:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:12:54,521:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:12:54,521:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:12:54,522:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:12:54,522:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:12:54,522:DEBUG:botocore.handlers:HostedZoneId /hostedzone/Z0504793FH99BR3JB8SW -> Z0504793FH99BR3JB8SW
+2023-05-24 14:12:54,522:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:12:54,522:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:12:54,523:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:12:54,523:DEBUG:botocore.endpoint:Making request for OperationModel(name=ChangeResourceRecordSets) with params: {'url_path': '/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'query_string': {}, 'method': 'POST', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'<ChangeResourceRecordSetsRequest xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeBatch><Comment>certbot-dns-route53 certificate validation UPSERT</Comment><Changes><Change><Action>UPSERT</Action><ResourceRecordSet><Name>_acme-challenge.sandrabeauty.studio</Name><Type>TXT</Type><TTL>10</TTL><ResourceRecords><ResourceRecord><Value>"MnvZqPg_o_Kx-x5eGMbou4kA3KrbZLX0zmPsfoxj2q4"</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:12:54,523:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:12:54,523:DEBUG:botocore.hooks:Event choose-signer.route-53.ChangeResourceRecordSets: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:12:54,523:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:12:54,523:DEBUG:botocore.auth:CanonicalRequest:
+POST
+/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141254Z
+
+host;x-amz-date
+0662e992d5afbba07bd20f2d917355ff46a4f1cf7c253910211216313eb74ddb
+2023-05-24 14:12:54,523:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141254Z
+20230524/us-east-1/route53/aws4_request
+6e717e73b3efa56acf2d913809f67069a045b4bcfc5be46047fb8f6eb36b02c6
+2023-05-24 14:12:54,523:DEBUG:botocore.auth:Signature:
+c28059f7211fd2ce08491c9b72a69e3c4baee57ae10cfc347faa158c597cc0b8
+2023-05-24 14:12:54,524:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:12:54,524:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141254Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=c28059f7211fd2ce08491c9b72a69e3c4baee57ae10cfc347faa158c597cc0b8', 'amz-sdk-invocation-id': b'07605c86-d828-4bae-ad0d-bf7521f22854', 'amz-sdk-request': b'attempt=1', 'Content-Length': '519'}>
+2023-05-24 14:12:54,524:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:12:54,768:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "POST /2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/ HTTP/1.1" 200 350
+2023-05-24 14:12:54,768:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '84d0085a-326c-44d3-a49f-750305ada836', 'Content-Type': 'text/xml', 'Content-Length': '350', 'Date': 'Wed, 24 May 2023 14:12:55 GMT'}
+2023-05-24 14:12:54,769:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ChangeResourceRecordSetsResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></ChangeResourceRecordSetsResponse>'
+2023-05-24 14:12:54,769:DEBUG:botocore.hooks:Event needs-retry.route-53.ChangeResourceRecordSets: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:12:54,769:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:12:54,770:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:12:54,770:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:12:54,770:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:12:54,770:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:12:54,770:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:12:54,770:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:12:54,770:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:12:54,771:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:12:54,771:DEBUG:botocore.endpoint:Making request for OperationModel(name=ListHostedZones) with params: {'url_path': '/2013-04-01/hostedzone', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:12:54,771:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:12:54,771:DEBUG:botocore.hooks:Event choose-signer.route-53.ListHostedZones: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:12:54,771:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:12:54,771:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/hostedzone
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141254Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:12:54,771:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141254Z
+20230524/us-east-1/route53/aws4_request
+2ec8e91e83592b6e05d078a9ec8c0c59031ae5ab9a877be524f8d07680b7f21b
+2023-05-24 14:12:54,771:DEBUG:botocore.auth:Signature:
+35c1ad383cdfe474b28e8858996f073309a8a2b65d80d3f97f5428fd0b1e6aa6
+2023-05-24 14:12:54,771:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:12:54,772:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/hostedzone, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141254Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=35c1ad383cdfe474b28e8858996f073309a8a2b65d80d3f97f5428fd0b1e6aa6', 'amz-sdk-invocation-id': b'63438436-63d0-44b8-af4a-0ab26edf5643', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:12:54,772:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:12:55,020:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/hostedzone HTTP/1.1" 200 505
+2023-05-24 14:12:55,021:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '86511cf8-3039-4557-80d1-c7ceb4e30cf2', 'Content-Type': 'text/xml', 'Content-Length': '505', 'Date': 'Wed, 24 May 2023 14:12:55 GMT'}
+2023-05-24 14:12:55,021:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ListHostedZonesResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><HostedZones><HostedZone><Id>/hostedzone/Z0504793FH99BR3JB8SW</Id><Name>sandrabeauty.studio.</Name><CallerReference>43087aec-6d22-4d7d-a4ae-ea7c7776f44a</CallerReference><Config><Comment>Testing</Comment><PrivateZone>false</PrivateZone></Config><ResourceRecordSetCount>3</ResourceRecordSetCount></HostedZone></HostedZones><IsTruncated>false</IsTruncated><MaxItems>100</MaxItems></ListHostedZonesResponse>'
+2023-05-24 14:12:55,021:DEBUG:botocore.hooks:Event needs-retry.route-53.ListHostedZones: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:12:55,021:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:12:55,021:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:12:55,022:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:12:55,022:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:12:55,022:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:12:55,022:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:12:55,022:DEBUG:botocore.handlers:HostedZoneId /hostedzone/Z0504793FH99BR3JB8SW -> Z0504793FH99BR3JB8SW
+2023-05-24 14:12:55,022:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:12:55,022:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:12:55,023:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:12:55,023:DEBUG:botocore.endpoint:Making request for OperationModel(name=ChangeResourceRecordSets) with params: {'url_path': '/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'query_string': {}, 'method': 'POST', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'<ChangeResourceRecordSetsRequest xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeBatch><Comment>certbot-dns-route53 certificate validation UPSERT</Comment><Changes><Change><Action>UPSERT</Action><ResourceRecordSet><Name>_acme-challenge.sandrabeauty.studio</Name><Type>TXT</Type><TTL>10</TTL><ResourceRecords><ResourceRecord><Value>"MnvZqPg_o_Kx-x5eGMbou4kA3KrbZLX0zmPsfoxj2q4"</Value></ResourceRecord><ResourceRecord><Value>"fQSv_K5kzPuvgIAMiqmigHPxhzEFoE7KWo0YkaIFUkA"</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:12:55,023:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:12:55,023:DEBUG:botocore.hooks:Event choose-signer.route-53.ChangeResourceRecordSets: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:12:55,023:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:12:55,023:DEBUG:botocore.auth:CanonicalRequest:
+POST
+/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141255Z
+
+host;x-amz-date
+779b01f47d3956d775609aef5d7a2ea1a521e4311176129514047cc7c2b58ec0
+2023-05-24 14:12:55,023:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141255Z
+20230524/us-east-1/route53/aws4_request
+2080f135d91b8a19a8315b80aa72ff3f3f8aaa205c25c3670840bc629fd0e590
+2023-05-24 14:12:55,023:DEBUG:botocore.auth:Signature:
+0382abfe94d4647adf1ce086b85ab99b9ccf1d9a57ddd95af9010cc97d0280ff
+2023-05-24 14:12:55,024:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:12:55,024:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141255Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=0382abfe94d4647adf1ce086b85ab99b9ccf1d9a57ddd95af9010cc97d0280ff', 'amz-sdk-invocation-id': b'648be5f5-32d9-4bc9-8387-16622a815557', 'amz-sdk-request': b'attempt=1', 'Content-Length': '612'}>
+2023-05-24 14:12:55,024:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:12:55,256:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "POST /2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/ HTTP/1.1" 200 351
+2023-05-24 14:12:55,257:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '28026f56-4b37-4be2-89b7-7e55b3df5d76', 'Content-Type': 'text/xml', 'Content-Length': '351', 'Date': 'Wed, 24 May 2023 14:12:55 GMT'}
+2023-05-24 14:12:55,257:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ChangeResourceRecordSetsResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C06449662XCG18F39I910</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:56.416Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></ChangeResourceRecordSetsResponse>'
+2023-05-24 14:12:55,257:DEBUG:botocore.hooks:Event needs-retry.route-53.ChangeResourceRecordSets: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:12:55,257:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:12:55,258:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:12:55,258:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:12:55,258:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:12:55,258:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:12:55,258:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:12:55,258:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:12:55,258:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:12:55,258:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:12:55,258:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:12:55,259:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:12:55,259:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:12:55,259:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:12:55,259:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:12:55,259:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141255Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:12:55,259:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141255Z
+20230524/us-east-1/route53/aws4_request
+5d247a54d725172fd4daf13725e2206b7353e3f2200d5bd9a066fe08bd11b57e
+2023-05-24 14:12:55,259:DEBUG:botocore.auth:Signature:
+f0b6ed9fd16eb0c0adee0b034c94d89c1b68985de7203fd5faa829f91cf062c9
+2023-05-24 14:12:55,260:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:12:55,260:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141255Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=f0b6ed9fd16eb0c0adee0b034c94d89c1b68985de7203fd5faa829f91cf062c9', 'amz-sdk-invocation-id': b'65755de9-42d5-44ff-888f-9e42ac00ebb0', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:12:55,260:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:12:55,644:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:12:55,645:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '34646943-cd09-4e5d-8de5-32b464e0248d', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:12:56 GMT'}
+2023-05-24 14:12:55,645:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:12:55,645:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:12:55,645:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:00,651:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:00,651:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:00,651:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:00,651:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:00,651:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:00,651:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:00,651:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:00,652:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:00,652:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:00,652:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:00,652:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:00,652:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:00,652:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:00,652:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141300Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:00,653:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141300Z
+20230524/us-east-1/route53/aws4_request
+c92b72b86ebcd90da1d065046be2883fe8997ec6353c10790a26da924c969c8d
+2023-05-24 14:13:00,653:DEBUG:botocore.auth:Signature:
+b82a08ed8bb6d105a3da9becc1835eda9af16222c5a0b540711332e2d6fd1c9c
+2023-05-24 14:13:00,653:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:00,653:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141300Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=b82a08ed8bb6d105a3da9becc1835eda9af16222c5a0b540711332e2d6fd1c9c', 'amz-sdk-invocation-id': b'2d625542-5c50-4700-b6ad-0d853e5b2f29', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:00,653:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:01,094:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:13:01,095:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': 'd8df568b-bad4-499c-938e-bb4d44be12c6', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:01 GMT'}
+2023-05-24 14:13:01,095:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:01,096:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:01,096:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:06,101:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:06,101:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:06,101:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:06,102:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:06,102:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:06,102:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:06,102:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:06,102:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:06,102:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:06,102:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:06,103:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:06,103:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:06,103:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:06,103:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141306Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:06,103:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141306Z
+20230524/us-east-1/route53/aws4_request
+931014ed99ed9cd8d7b4d4b128f2252fc517b042c62a6989aee9fab49bfb7dec
+2023-05-24 14:13:06,103:DEBUG:botocore.auth:Signature:
+13dfd6cf92dfc65592dbac93e403755460547d813ca5a1ac116388a3c517e88e
+2023-05-24 14:13:06,103:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:06,103:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141306Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=13dfd6cf92dfc65592dbac93e403755460547d813ca5a1ac116388a3c517e88e', 'amz-sdk-invocation-id': b'ad03b546-9a29-4ab2-bc84-6548141d94c7', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:06,104:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:06,499:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:13:06,500:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '971ac0ca-cd94-407d-a1fd-178c20371330', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:07 GMT'}
+2023-05-24 14:13:06,500:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:06,500:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:06,500:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:11,506:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:11,506:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:11,506:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:11,506:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:11,506:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:11,506:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:11,506:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:11,507:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:11,507:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:11,507:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:11,507:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:11,507:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:11,507:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:11,507:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141311Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:11,507:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141311Z
+20230524/us-east-1/route53/aws4_request
+b6bcd93df2bf2bde0d15e37537af404131fa689d525ee564d8990a5122cf0337
+2023-05-24 14:13:11,507:DEBUG:botocore.auth:Signature:
+4cc988805d07376f35e647f8cf2fdb6d84f6e4a718d40e3f341801fc787c2686
+2023-05-24 14:13:11,508:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:11,508:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141311Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=4cc988805d07376f35e647f8cf2fdb6d84f6e4a718d40e3f341801fc787c2686', 'amz-sdk-invocation-id': b'c9c425fd-90ac-4651-9e23-43005c6a46e5', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:11,508:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:11,953:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:13:11,954:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': 'eb1dc91e-8c37-4fd1-896b-3b52074dc681', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:12 GMT'}
+2023-05-24 14:13:11,954:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:11,954:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:11,954:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:16,955:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:16,955:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:16,956:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:16,956:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:16,956:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:16,956:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:16,956:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:16,956:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:16,956:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:16,956:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:16,957:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:16,957:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:16,957:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:16,957:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141316Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:16,957:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141316Z
+20230524/us-east-1/route53/aws4_request
+68917327b31484d61ad80ab94a2d8a4c7f6d4a288c35cb115481bcd1f30981ca
+2023-05-24 14:13:16,957:DEBUG:botocore.auth:Signature:
+d4350151c32c2a081b3e60484a63f2be326cc197b3f44d9c8f4835ed67dcfe06
+2023-05-24 14:13:16,957:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:16,958:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141316Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=d4350151c32c2a081b3e60484a63f2be326cc197b3f44d9c8f4835ed67dcfe06', 'amz-sdk-invocation-id': b'72efe0b1-6f80-44ef-802c-3cc0d451d5d3', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:16,958:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:17,421:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:13:17,422:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': 'f468ecbf-9068-461a-ad96-2d3da04e933d', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:17 GMT'}
+2023-05-24 14:13:17,422:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:17,422:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:17,422:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:22,428:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:22,428:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:22,428:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:22,428:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:22,428:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:22,428:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:22,429:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:22,429:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:22,429:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:22,429:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:22,429:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:22,429:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:22,429:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:22,430:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141322Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:22,430:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141322Z
+20230524/us-east-1/route53/aws4_request
+60c5f4122edd5d9bbad13a9a139a2a6dc1dc7aeba411129b5e6f93d69dbaa936
+2023-05-24 14:13:22,430:DEBUG:botocore.auth:Signature:
+a984732335fe4304a5f1a2a23d7cef48bdf7802dc8efa1dc53ac89b15657df35
+2023-05-24 14:13:22,430:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:22,430:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141322Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=a984732335fe4304a5f1a2a23d7cef48bdf7802dc8efa1dc53ac89b15657df35', 'amz-sdk-invocation-id': b'4709cf53-eedf-4fd0-bff6-7106274ab1f3', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:22,430:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:22,733:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 320
+2023-05-24 14:13:22,733:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '8df51d34-41d7-4921-87f3-04e0209024d3', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:23 GMT'}
+2023-05-24 14:13:22,733:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:22,734:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:22,734:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:27,739:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:27,739:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:27,740:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:27,740:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:27,740:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:27,740:DEBUG:botocore.handlers:Id /change/C0639417WRQ5063V2KLS -> C0639417WRQ5063V2KLS
+2023-05-24 14:13:27,740:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:27,740:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:27,740:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:27,740:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C0639417WRQ5063V2KLS', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:27,740:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:27,741:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:27,741:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:27,741:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C0639417WRQ5063V2KLS
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141327Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:27,741:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141327Z
+20230524/us-east-1/route53/aws4_request
+1b7d49bbb596a3543717d1134532efa540b8df2e806414a5ab337e5bd25f741a
+2023-05-24 14:13:27,741:DEBUG:botocore.auth:Signature:
+809e58876ee5f779fccce897f43b0569ccf66136996102eff828bf20796ed88a
+2023-05-24 14:13:27,741:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:27,741:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C0639417WRQ5063V2KLS, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141327Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=809e58876ee5f779fccce897f43b0569ccf66136996102eff828bf20796ed88a', 'amz-sdk-invocation-id': b'5d38c474-5db3-4b1f-a571-fcae697adbe0', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:27,742:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:28,077:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C0639417WRQ5063V2KLS HTTP/1.1" 200 319
+2023-05-24 14:13:28,077:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '5d028519-d7a8-4df2-9b54-b8c9286cf5c9', 'Content-Type': 'text/xml', 'Content-Length': '319', 'Date': 'Wed, 24 May 2023 14:13:28 GMT'}
+2023-05-24 14:13:28,078:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C0639417WRQ5063V2KLS</Id><Status>INSYNC</Status><SubmittedAt>2023-05-24T14:12:55.933Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:28,078:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:28,078:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:28,078:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:28,078:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:28,079:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:28,079:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:28,079:DEBUG:botocore.handlers:Id /change/C06449662XCG18F39I910 -> C06449662XCG18F39I910
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event before-parameter-build.route-53.GetChange: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event before-call.route-53.GetChange: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:28,079:DEBUG:botocore.endpoint:Making request for OperationModel(name=GetChange) with params: {'url_path': '/2013-04-01/change/C06449662XCG18F39I910', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/change/C06449662XCG18F39I910', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:28,079:DEBUG:botocore.hooks:Event choose-signer.route-53.GetChange: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:28,080:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:28,080:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/change/C06449662XCG18F39I910
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141328Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:28,080:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141328Z
+20230524/us-east-1/route53/aws4_request
+f2b600619a4919f4721ffce16ceb11dcd170938fe92146bcfbd1dd35ee852677
+2023-05-24 14:13:28,080:DEBUG:botocore.auth:Signature:
+2fa5df755be1efa591f71fb6eb1e3f1aaf551db0670d0b4eebcf2eedc60a7509
+2023-05-24 14:13:28,080:DEBUG:botocore.hooks:Event request-created.route-53.GetChange: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:28,080:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/change/C06449662XCG18F39I910, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141328Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=2fa5df755be1efa591f71fb6eb1e3f1aaf551db0670d0b4eebcf2eedc60a7509', 'amz-sdk-invocation-id': b'53e2c9f0-1dd2-4394-b92e-155a63ebcdf5', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:28,080:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:28,389:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/change/C06449662XCG18F39I910 HTTP/1.1" 200 320
+2023-05-24 14:13:28,389:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '2bfc5b91-298e-4817-ab64-718b5757d77e', 'Content-Type': 'text/xml', 'Content-Length': '320', 'Date': 'Wed, 24 May 2023 14:13:28 GMT'}
+2023-05-24 14:13:28,390:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<GetChangeResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C06449662XCG18F39I910</Id><Status>INSYNC</Status><SubmittedAt>2023-05-24T14:12:56.416Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></GetChangeResponse>'
+2023-05-24 14:13:28,390:DEBUG:botocore.hooks:Event needs-retry.route-53.GetChange: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:28,390:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:28,391:DEBUG:acme.client:JWS payload:
+b'{}'
+2023-05-24 14:13:28,392:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895354/jVmu4A:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOVJQT2EyM3JITjVEQ2lBQjVEZHFsMkxGU3VucWlBZEJMdUR5ZXZOSlA3YzgiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvY2hhbGwtdjMvNjYwODg5NTM1NC9qVm11NEEifQ",
+  "signature": "r4zyMz-tWwJ_c8pSNAQhJAcmkZnysK9gHtTS9M8AVuakaUo_Xrt65ShcjYIAhJb4cfgRXKtQ8oHFJetknlfYV_na2MkEPIaVwKeeWZ_uGowrigp3YSiPOz-E9u_x1xGFRGATwA_F-z_f8tqFs2y_nWJHbBScZ3g_lmLdgqH3mCviJYbZbPbhLl-ikH0Bii2AItFsEABdP9mppYCTLp2GNQhfgVBj2gAYE_y-vHnnzw68zL9ixGk-pdsg8XolH8pZdRA_ooB4D8bjGwPBq2HpS30QSKwMkxZM9yhKy-OH0AQZHJmOmCXeq9jT1DXOS0jjBx25KTXBPSKiAGK91mQmgg",
+  "payload": "e30"
+}
+2023-05-24 14:13:28,613:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/chall-v3/6608895354/jVmu4A HTTP/1.1" 200 192
+2023-05-24 14:13:28,613:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:29 GMT
+Content-Type: application/json
+Content-Length: 192
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index", <https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354>;rel="up"
+Location: https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895354/jVmu4A
+Replay-Nonce: EA57kVDzDQtYb1fkt1bnHkRkoleHjuVVH9AMHyhYyASObYM
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "type": "dns-01",
+  "status": "pending",
+  "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895354/jVmu4A",
+  "token": "0UbN5-X09yCk4onB_zMJzM03NZYshQQhcdHKX5nPa8Q"
+}
+2023-05-24 14:13:28,613:DEBUG:acme.client:Storing nonce: EA57kVDzDQtYb1fkt1bnHkRkoleHjuVVH9AMHyhYyASObYM
+2023-05-24 14:13:28,614:DEBUG:acme.client:JWS payload:
+b'{}'
+2023-05-24 14:13:28,615:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/gvnnwQ:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiRUE1N2tWRHpEUXRZYjFma3QxYm5Ia1Jrb2xlSGp1VlZIOUFNSHloWXlBU09iWU0iLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvY2hhbGwtdjMvNjYwODg5NTM2NC9ndm5ud1EifQ",
+  "signature": "MBapz_t_73KNxCtm-VSVeQvBEJU06h2Kp_7GRvmM8ZGAS5ykI5WvvddFK7OFz1mPnu9fiOrAJ0A6oUKPM8H2nApFCQi86GWTiS8V2Vv6C2rlGs0cwiiB3FN3IWfrHLiaC-AEQSQh-bhXQ5h3mK8NC33g5OV5NiVCtPouD8OYHIzPIHp-DIbeno_95-yTbrqn9_ZisNUxFbSMqkRwJXiUw8T9MkKpfeQO1xOwZsn2G0FcMc3_9DDvRdCpONE-lL05lVvtmUrrbmzH-loCmV9OIrAPlV1o99QOHwGXnugS1LxC7V-4P9UhWudR7feR5sbdhsnxuWpLXqkzRyA9fr1OoQ",
+  "payload": "e30"
+}
+2023-05-24 14:13:28,837:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/chall-v3/6608895364/gvnnwQ HTTP/1.1" 200 192
+2023-05-24 14:13:28,837:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:29 GMT
+Content-Type: application/json
+Content-Length: 192
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index", <https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364>;rel="up"
+Location: https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/gvnnwQ
+Replay-Nonce: EA57CtLj8K5S21fC69j9papIRz0dCFWoZjagq2BPnGofLNs
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "type": "dns-01",
+  "status": "pending",
+  "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/gvnnwQ",
+  "token": "lgmLp7W70UU4arUFJ_4NrPhZI3UBNWU4K_rVeeiyJs4"
+}
+2023-05-24 14:13:28,838:DEBUG:acme.client:Storing nonce: EA57CtLj8K5S21fC69j9papIRz0dCFWoZjagq2BPnGofLNs
+2023-05-24 14:13:28,838:INFO:certbot._internal.auth_handler:Waiting for verification...
+2023-05-24 14:13:29,839:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:13:29,840:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiRUE1N0N0TGo4SzVTMjFmQzY5ajlwYXBJUnowZENGV29aamFncTJCUG5Hb2ZMTnMiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYXV0aHotdjMvNjYwODg5NTM1NCJ9",
+  "signature": "RqrAJaDNfmS1nLqez9_u8JSUnk_d9tZzHigzz4t_rgK7BKOHRGsdqYhP_33cKQDNHxoP0VSZhlSqy1HEmzrUt7Ma4_gmGTjVkDkE41qRlxzA5Gbzq6OI0THgHsvzq78rXJ21S15sUkEdYkjr5k_j09_WBkqUG56X0JAD5oHFGpuvXCWO9LQYHKgAOaDy_ZoKSles3VSBQMzB__oziZfthPv3qnVU6CMVu-qK2eBTr1wXt3vtxuZLx-0AilTfVvI2OymQVeva5VbFmxzfeuVbGxzZ7cB544_7xDRW8cdFjwS7pbfrmfcPPUknX-IiU2SMpkZhZWgnTqz-_-cKYhrfww",
+  "payload": ""
+}
+2023-05-24 14:13:30,057:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/authz-v3/6608895354 HTTP/1.1" 200 539
+2023-05-24 14:13:30,057:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:31 GMT
+Content-Type: application/json
+Content-Length: 539
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB9AlIlhAA3U1Ji2VgNsBalniqagvIC-kEB6dy5wfvHio0
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "identifier": {
+    "type": "dns",
+    "value": "sandrabeauty.studio"
+  },
+  "status": "valid",
+  "expires": "2023-06-23T14:13:30Z",
+  "challenges": [
+    {
+      "type": "dns-01",
+      "status": "valid",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895354/jVmu4A",
+      "token": "0UbN5-X09yCk4onB_zMJzM03NZYshQQhcdHKX5nPa8Q",
+      "validationRecord": [
+        {
+          "hostname": "sandrabeauty.studio"
+        }
+      ],
+      "validated": "2023-05-24T14:13:29Z"
+    }
+  ],
+  "wildcard": true
+}
+2023-05-24 14:13:30,057:DEBUG:acme.client:Storing nonce: BEB9AlIlhAA3U1Ji2VgNsBalniqagvIC-kEB6dy5wfvHio0
+2023-05-24 14:13:30,058:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:13:30,059:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOUFsSWxoQUEzVTFKaTJWZ05zQmFsbmlxYWd2SUMta0VCNmR5NXdmdkhpbzAiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYXV0aHotdjMvNjYwODg5NTM2NCJ9",
+  "signature": "aT1S4jAb7FMAftkdh51UW-qJ_oxid7v1Amw_DPxXdZDl5VRvKKy_YBl0ADGMqNHC1nxXWna1c4HzBz4o4-xKHdfoznUq9DE31fjNEXxzbKYm1d9IR6egKHznAMquRqDDsQ-BLsIXs7BJGSr14E-Wnmj99QtYZdxymxNnocMLJngjXpXZjhG8_TleagLvAfIn80Wor80fJpiTe4JbTsxZzi3Q9VydnLZrXQzt-jfL1ZR837xidQ_rokswIK6Ql5C6OZdNsLyrXuSt_3ZyYB7DLpT3Pp-LJs1nWGRwUtsVuYj2T1XNwlb0lF9d9bOpvcTi9Bc7BfcIeiqAdSAYtWxzzQ",
+  "payload": ""
+}
+2023-05-24 14:13:30,280:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/authz-v3/6608895364 HTTP/1.1" 200 519
+2023-05-24 14:13:30,281:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:31 GMT
+Content-Type: application/json
+Content-Length: 519
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: EA57TzA-v2MNOqXbTi6Dnlz8NMXFitbxRVcAvzuO1BTBqtI
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "identifier": {
+    "type": "dns",
+    "value": "sandrabeauty.studio"
+  },
+  "status": "valid",
+  "expires": "2023-06-23T14:13:30Z",
+  "challenges": [
+    {
+      "type": "dns-01",
+      "status": "valid",
+      "url": "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/6608895364/gvnnwQ",
+      "token": "lgmLp7W70UU4arUFJ_4NrPhZI3UBNWU4K_rVeeiyJs4",
+      "validationRecord": [
+        {
+          "hostname": "sandrabeauty.studio"
+        }
+      ],
+      "validated": "2023-05-24T14:13:29Z"
+    }
+  ]
+}
+2023-05-24 14:13:30,281:DEBUG:acme.client:Storing nonce: EA57TzA-v2MNOqXbTi6Dnlz8NMXFitbxRVcAvzuO1BTBqtI
+2023-05-24 14:13:30,281:DEBUG:certbot._internal.error_handler:Calling registered functions
+2023-05-24 14:13:30,281:INFO:certbot._internal.auth_handler:Cleaning up challenges
+2023-05-24 14:13:30,282:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:30,282:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:30,282:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:30,282:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:30,282:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:30,282:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:30,282:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:30,283:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:30,283:DEBUG:botocore.endpoint:Making request for OperationModel(name=ListHostedZones) with params: {'url_path': '/2013-04-01/hostedzone', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:30,283:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:30,283:DEBUG:botocore.hooks:Event choose-signer.route-53.ListHostedZones: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:30,283:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:30,283:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/hostedzone
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141330Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:30,283:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141330Z
+20230524/us-east-1/route53/aws4_request
+15d4d4aa5294c232f9e1b356038ba2b7c8d4333550425fee76ddde7fffbcc48e
+2023-05-24 14:13:30,283:DEBUG:botocore.auth:Signature:
+023a51f83d58b41e9fdf27c2781d94522ae7775e133b030b7071288d403a886e
+2023-05-24 14:13:30,283:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:30,284:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/hostedzone, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141330Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=023a51f83d58b41e9fdf27c2781d94522ae7775e133b030b7071288d403a886e', 'amz-sdk-invocation-id': b'057c80ce-e2ab-40c6-8370-4e2f0d50f43b', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:30,284:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:30,528:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/hostedzone HTTP/1.1" 200 505
+2023-05-24 14:13:30,529:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': 'e263037b-2412-4f58-8382-87b1abcad6da', 'Content-Type': 'text/xml', 'Content-Length': '505', 'Date': 'Wed, 24 May 2023 14:13:30 GMT'}
+2023-05-24 14:13:30,529:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ListHostedZonesResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><HostedZones><HostedZone><Id>/hostedzone/Z0504793FH99BR3JB8SW</Id><Name>sandrabeauty.studio.</Name><CallerReference>43087aec-6d22-4d7d-a4ae-ea7c7776f44a</CallerReference><Config><Comment>Testing</Comment><PrivateZone>false</PrivateZone></Config><ResourceRecordSetCount>3</ResourceRecordSetCount></HostedZone></HostedZones><IsTruncated>false</IsTruncated><MaxItems>100</MaxItems></ListHostedZonesResponse>'
+2023-05-24 14:13:30,529:DEBUG:botocore.hooks:Event needs-retry.route-53.ListHostedZones: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:30,529:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:30,529:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:30,530:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:30,530:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:30,530:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:30,530:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:30,530:DEBUG:botocore.handlers:HostedZoneId /hostedzone/Z0504793FH99BR3JB8SW -> Z0504793FH99BR3JB8SW
+2023-05-24 14:13:30,530:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:30,530:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:30,530:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:30,531:DEBUG:botocore.endpoint:Making request for OperationModel(name=ChangeResourceRecordSets) with params: {'url_path': '/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'query_string': {}, 'method': 'POST', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'<ChangeResourceRecordSetsRequest xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeBatch><Comment>certbot-dns-route53 certificate validation UPSERT</Comment><Changes><Change><Action>UPSERT</Action><ResourceRecordSet><Name>_acme-challenge.sandrabeauty.studio</Name><Type>TXT</Type><TTL>10</TTL><ResourceRecords><ResourceRecord><Value>"fQSv_K5kzPuvgIAMiqmigHPxhzEFoE7KWo0YkaIFUkA"</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:30,531:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:30,531:DEBUG:botocore.hooks:Event choose-signer.route-53.ChangeResourceRecordSets: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:30,531:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:30,531:DEBUG:botocore.auth:CanonicalRequest:
+POST
+/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141330Z
+
+host;x-amz-date
+92490e2fb1cbcd0f80aaac40543463a90ea9923404a38b776d42dee3463a429f
+2023-05-24 14:13:30,531:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141330Z
+20230524/us-east-1/route53/aws4_request
+09d59c067d6d57c17b610996ac3d1f1ab64ae57c86b5c863846421b030dc576f
+2023-05-24 14:13:30,531:DEBUG:botocore.auth:Signature:
+14146119ca8385afe8914941f0779cb23c8c3147c0b7337a3f9b5af83a3aea2f
+2023-05-24 14:13:30,531:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:30,531:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141330Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=14146119ca8385afe8914941f0779cb23c8c3147c0b7337a3f9b5af83a3aea2f', 'amz-sdk-invocation-id': b'b82903b4-afcc-43e4-9554-6c2abc8438d0', 'amz-sdk-request': b'attempt=1', 'Content-Length': '519'}>
+2023-05-24 14:13:30,532:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:30,848:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "POST /2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/ HTTP/1.1" 200 351
+2023-05-24 14:13:30,849:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '9f33c934-a503-48e6-95da-dde42469d609', 'Content-Type': 'text/xml', 'Content-Length': '351', 'Date': 'Wed, 24 May 2023 14:13:31 GMT'}
+2023-05-24 14:13:30,849:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ChangeResourceRecordSetsResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C01872893NKJ2CRUGABFE</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:13:31.999Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation UPSERT</Comment></ChangeInfo></ChangeResourceRecordSetsResponse>'
+2023-05-24 14:13:30,849:DEBUG:botocore.hooks:Event needs-retry.route-53.ChangeResourceRecordSets: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:30,849:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:30,850:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:30,850:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:30,850:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:30,850:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:30,850:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:30,850:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ListHostedZones: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:30,850:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:30,850:DEBUG:botocore.hooks:Event before-call.route-53.ListHostedZones: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:30,850:DEBUG:botocore.endpoint:Making request for OperationModel(name=ListHostedZones) with params: {'url_path': '/2013-04-01/hostedzone', 'query_string': {}, 'method': 'GET', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:30,851:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:30,851:DEBUG:botocore.hooks:Event choose-signer.route-53.ListHostedZones: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:30,851:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:30,851:DEBUG:botocore.auth:CanonicalRequest:
+GET
+/2013-04-01/hostedzone
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141330Z
+
+host;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2023-05-24 14:13:30,851:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141330Z
+20230524/us-east-1/route53/aws4_request
+15d4d4aa5294c232f9e1b356038ba2b7c8d4333550425fee76ddde7fffbcc48e
+2023-05-24 14:13:30,851:DEBUG:botocore.auth:Signature:
+023a51f83d58b41e9fdf27c2781d94522ae7775e133b030b7071288d403a886e
+2023-05-24 14:13:30,851:DEBUG:botocore.hooks:Event request-created.route-53.ListHostedZones: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:30,851:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=GET, url=https://route53.amazonaws.com/2013-04-01/hostedzone, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141330Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=023a51f83d58b41e9fdf27c2781d94522ae7775e133b030b7071288d403a886e', 'amz-sdk-invocation-id': b'e1920967-cb63-453e-b5f9-70e78885e8fd', 'amz-sdk-request': b'attempt=1'}>
+2023-05-24 14:13:30,852:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:31,164:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "GET /2013-04-01/hostedzone HTTP/1.1" 200 505
+2023-05-24 14:13:31,165:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': '3b4ad110-2a69-4114-b9ed-d478af5adccb', 'Content-Type': 'text/xml', 'Content-Length': '505', 'Date': 'Wed, 24 May 2023 14:13:31 GMT'}
+2023-05-24 14:13:31,165:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ListHostedZonesResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><HostedZones><HostedZone><Id>/hostedzone/Z0504793FH99BR3JB8SW</Id><Name>sandrabeauty.studio.</Name><CallerReference>43087aec-6d22-4d7d-a4ae-ea7c7776f44a</CallerReference><Config><Comment>Testing</Comment><PrivateZone>false</PrivateZone></Config><ResourceRecordSetCount>3</ResourceRecordSetCount></HostedZone></HostedZones><IsTruncated>false</IsTruncated><MaxItems>100</MaxItems></ListHostedZonesResponse>'
+2023-05-24 14:13:31,165:DEBUG:botocore.hooks:Event needs-retry.route-53.ListHostedZones: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:31,165:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:31,166:DEBUG:botocore.regions:Calling endpoint provider with parameters: {'Region': 'aws-global', 'UseDualStack': False, 'UseFIPS': False}
+2023-05-24 14:13:31,166:DEBUG:botocore.regions:Endpoint provider result: https://route53.amazonaws.com
+2023-05-24 14:13:31,166:DEBUG:botocore.regions:Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2023-05-24 14:13:31,166:DEBUG:botocore.regions:Selected auth type "v4" as "v4" with signing context params: {'region': 'us-east-1', 'signing_name': 'route53'}
+2023-05-24 14:13:31,166:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function fix_route53_ids at 0x7fc51ab635b0>
+2023-05-24 14:13:31,166:DEBUG:botocore.handlers:HostedZoneId /hostedzone/Z0504793FH99BR3JB8SW -> Z0504793FH99BR3JB8SW
+2023-05-24 14:13:31,166:DEBUG:botocore.hooks:Event before-parameter-build.route-53.ChangeResourceRecordSets: calling handler <function generate_idempotent_uuid at 0x7fc51ab62710>
+2023-05-24 14:13:31,167:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function add_recursion_detection_header at 0x7fc51ab623b0>
+2023-05-24 14:13:31,167:DEBUG:botocore.hooks:Event before-call.route-53.ChangeResourceRecordSets: calling handler <function inject_api_version_header_if_needed at 0x7fc51ab63f40>
+2023-05-24 14:13:31,167:DEBUG:botocore.endpoint:Making request for OperationModel(name=ChangeResourceRecordSets) with params: {'url_path': '/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'query_string': {}, 'method': 'POST', 'headers': {'User-Agent': 'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113'}, 'body': b'<ChangeResourceRecordSetsRequest xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeBatch><Comment>certbot-dns-route53 certificate validation DELETE</Comment><Changes><Change><Action>DELETE</Action><ResourceRecordSet><Name>_acme-challenge.sandrabeauty.studio</Name><Type>TXT</Type><TTL>10</TTL><ResourceRecords><ResourceRecord><Value>"fQSv_K5kzPuvgIAMiqmigHPxhzEFoE7KWo0YkaIFUkA"</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>', 'url': 'https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/', 'context': {'client_region': 'aws-global', 'client_config': <botocore.config.Config object at 0x7fc51aec2260>, 'has_streaming_input': False, 'auth_type': 'v4', 'signing': {'region': 'us-east-1', 'signing_name': 'route53'}}}
+2023-05-24 14:13:31,167:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x7fc51aec2200>>
+2023-05-24 14:13:31,167:DEBUG:botocore.hooks:Event choose-signer.route-53.ChangeResourceRecordSets: calling handler <function set_operation_specific_signer at 0x7fc51ab625f0>
+2023-05-24 14:13:31,167:DEBUG:botocore.auth:Calculating signature using v4 auth.
+2023-05-24 14:13:31,167:DEBUG:botocore.auth:CanonicalRequest:
+POST
+/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/
+
+host:route53.amazonaws.com
+x-amz-date:20230524T141331Z
+
+host;x-amz-date
+d5f46d51ed27182f56a2dd51f65b365738ec6186769df06df2ba40acc8b79ec6
+2023-05-24 14:13:31,167:DEBUG:botocore.auth:StringToSign:
+AWS4-HMAC-SHA256
+20230524T141331Z
+20230524/us-east-1/route53/aws4_request
+a8e2391e193dbeec655533300c96b1a87cd1b2891f38f5ba9a3e2493237d4bdc
+2023-05-24 14:13:31,168:DEBUG:botocore.auth:Signature:
+95ca3d0b94965dc390a373c0a42375968b47d53a94f7423df648683dc43bc936
+2023-05-24 14:13:31,168:DEBUG:botocore.hooks:Event request-created.route-53.ChangeResourceRecordSets: calling handler <function add_retry_headers at 0x7fc51ab78670>
+2023-05-24 14:13:31,168:DEBUG:botocore.endpoint:Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://route53.amazonaws.com/2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/, headers={'User-Agent': b'Boto3/1.26.113 Python/3.10.11 Linux/5.15.90.1-microsoft-standard-WSL2 Botocore/1.29.113', 'X-Amz-Date': b'20230524T141331Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAWXS3ENDYWQQCFQXZ/20230524/us-east-1/route53/aws4_request, SignedHeaders=host;x-amz-date, Signature=95ca3d0b94965dc390a373c0a42375968b47d53a94f7423df648683dc43bc936', 'amz-sdk-invocation-id': b'5f630acd-b256-4df6-a319-1b1f3ab4ab60', 'amz-sdk-request': b'attempt=1', 'Content-Length': '519'}>
+2023-05-24 14:13:31,168:DEBUG:botocore.httpsession:Certificate path: /usr/local/lib/python3.10/site-packages/certifi/cacert.pem
+2023-05-24 14:13:31,452:DEBUG:urllib3.connectionpool:https://route53.amazonaws.com:443 "POST /2013-04-01/hostedzone/Z0504793FH99BR3JB8SW/rrset/ HTTP/1.1" 200 351
+2023-05-24 14:13:31,453:DEBUG:botocore.parsers:Response headers: {'x-amzn-RequestId': 'd1a5927a-d074-40ca-9d12-d3feade32cc5', 'Content-Type': 'text/xml', 'Content-Length': '351', 'Date': 'Wed, 24 May 2023 14:13:31 GMT'}
+2023-05-24 14:13:31,453:DEBUG:botocore.parsers:Response body:
+b'<?xml version="1.0"?>\n<ChangeResourceRecordSetsResponse xmlns="https://route53.amazonaws.com/doc/2013-04-01/"><ChangeInfo><Id>/change/C06712492LL5FK03LY6W2</Id><Status>PENDING</Status><SubmittedAt>2023-05-24T14:13:32.596Z</SubmittedAt><Comment>certbot-dns-route53 certificate validation DELETE</Comment></ChangeInfo></ChangeResourceRecordSetsResponse>'
+2023-05-24 14:13:31,453:DEBUG:botocore.hooks:Event needs-retry.route-53.ChangeResourceRecordSets: calling handler <botocore.retryhandler.RetryHandler object at 0x7fc51af28a90>
+2023-05-24 14:13:31,453:DEBUG:botocore.retryhandler:No retry needed.
+2023-05-24 14:13:31,453:DEBUG:certbot._internal.client:CSR: CSR(file=None, data=b'-----BEGIN CERTIFICATE REQUEST-----\nMIIBAjCBqgIBADAAMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZH4j4456p3Gp\nX3/q+EWAj3bmGWqmjJtmhx6A4sJXw4XSjNKR5EFdK4eF908H8Q5Qo3pbpDIyb8Nb\n4wkeVLLsJqBIMEYGCSqGSIb3DQEJDjE5MDcwNQYDVR0RBC4wLIITc2FuZHJhYmVh\ndXR5LnN0dWRpb4IVKi5zYW5kcmFiZWF1dHkuc3R1ZGlvMAoGCCqGSM49BAMCA0cA\nMEQCIAdKyRY3tKh38y8mB3ANYpjDWfnmEq/Uh6TY3qyjvabnAiBZMS8sYo6NoRNJ\nFUPWbDAfb+ziZXac2xlJ5XwPxBKvvg==\n-----END CERTIFICATE REQUEST-----\n', form='pem')
+2023-05-24 14:13:31,454:DEBUG:certbot._internal.client:Will poll for certificate issuance until 2023-05-24 14:15:01.454317
+2023-05-24 14:13:31,455:DEBUG:acme.client:JWS payload:
+b'{\n  "csr": "MIIBAjCBqgIBADAAMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZH4j4456p3GpX3_q-EWAj3bmGWqmjJtmhx6A4sJXw4XSjNKR5EFdK4eF908H8Q5Qo3pbpDIyb8Nb4wkeVLLsJqBIMEYGCSqGSIb3DQEJDjE5MDcwNQYDVR0RBC4wLIITc2FuZHJhYmVhdXR5LnN0dWRpb4IVKi5zYW5kcmFiZWF1dHkuc3R1ZGlvMAoGCCqGSM49BAMCA0cAMEQCIAdKyRY3tKh38y8mB3ANYpjDWfnmEq_Uh6TY3qyjvabnAiBZMS8sYo6NoRNJFUPWbDAfb-ziZXac2xlJ5XwPxBKvvg"\n}'
+2023-05-24 14:13:31,456:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/finalize/103524564/8905147214:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiRUE1N1R6QS12Mk1OT3FYYlRpNkRubHo4Tk1YRml0YnhSVmNBdnp1TzFCVEJxdEkiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvZmluYWxpemUvMTAzNTI0NTY0Lzg5MDUxNDcyMTQifQ",
+  "signature": "tOeHC6CmB9zcdss6rRXzh1bFaM6y8UcpdBRH0l-6DbFLqQA3FWS5JUU7wXUJA0C_ORoaFW6bSkEmeOkJIze05qQpad5zkUKw0UoZYT29JwMl7DVqoQYN3VHeaaPTLmq1m40XkDkfy085rT2ROnaW8VBEORmfyDs9rKXCxob9-MrDxR6HGQ4qFEQmORWyd3v9Hwz7j90y5RJKs7WAJkBbdhrxj_nHqZRlpBLXH0nM2cgemaAVcH-uzYhii-b0AcdlBg4u_XGM4QsdlrRGtRhQD4yPy94dd5prtl5HjWeB2h-q4MENIDPpMieD9Pa0B1i_B6yvnEXL4_QLuClLq1jZBQ",
+  "payload": "ewogICJjc3IiOiAiTUlJQkFqQ0JxZ0lCQURBQU1Ga3dFd1lIS29aSXpqMENBUVlJS29aSXpqMERBUWNEUWdBRVpINGo0NDU2cDNHcFgzX3EtRVdBajNibUdXcW1qSnRtaHg2QTRzSlh3NFhTak5LUjVFRmRLNGVGOTA4SDhRNVFvM3BicERJeWI4TmI0d2tlVkxMc0pxQklNRVlHQ1NxR1NJYjNEUUVKRGpFNU1EY3dOUVlEVlIwUkJDNHdMSUlUYzJGdVpISmhZbVZoZFhSNUxuTjBkV1JwYjRJVktpNXpZVzVrY21GaVpXRjFkSGt1YzNSMVpHbHZNQW9HQ0NxR1NNNDlCQU1DQTBjQU1FUUNJQWRLeVJZM3RLaDM4eThtQjNBTllwakRXZm5tRXFfVWg2VFkzcXlqdmFibkFpQlpNUzhzWW82Tm9STkpGVVBXYkRBZmItemlaWGFjMnhsSjVYd1B4Qkt2dmciCn0"
+}
+2023-05-24 14:13:31,681:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/finalize/103524564/8905147214 HTTP/1.1" 200 509
+2023-05-24 14:13:31,682:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:32 GMT
+Content-Type: application/json
+Content-Length: 509
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Location: https://acme-staging-v02.api.letsencrypt.org/acme/order/103524564/8905147214
+Replay-Nonce: BEB9WG6JAfbA12ISR0FRZ3HpNZVoWRAMn4E2aGG5Sj_Y7VU
+Retry-After: 3
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "status": "processing",
+  "expires": "2023-05-31T13:24:57Z",
+  "identifiers": [
+    {
+      "type": "dns",
+      "value": "*.sandrabeauty.studio"
+    },
+    {
+      "type": "dns",
+      "value": "sandrabeauty.studio"
+    }
+  ],
+  "authorizations": [
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354",
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364"
+  ],
+  "finalize": "https://acme-staging-v02.api.letsencrypt.org/acme/finalize/103524564/8905147214"
+}
+2023-05-24 14:13:31,682:DEBUG:acme.client:Storing nonce: BEB9WG6JAfbA12ISR0FRZ3HpNZVoWRAMn4E2aGG5Sj_Y7VU
+2023-05-24 14:13:32,683:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:13:32,685:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/order/103524564/8905147214:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOVdHNkpBZmJBMTJJU1IwRlJaM0hwTlpWb1dSQU1uNEUyYUdHNVNqX1k3VlUiLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvb3JkZXIvMTAzNTI0NTY0Lzg5MDUxNDcyMTQifQ",
+  "signature": "XkU-3e0UTp-7YLmk2jtH_LG6DFwCNXJud-d5CYsQEVQd7ORH9k5OihK_V2aDxaJyjjNkRlGSEpRo2Ei8gw7fDOpnVsH1cUXXHBHtFFuhIoJt9GeKYOkqS0gMNJfpeXsTanZbJZ80vD8zPQEbPTkOBRFQBA1OvSOPhPkiseYTzdvnybuQTEWt89yanbzLQXIZeAc5KXiqIkapadu08r0dmbryYZXyEifYjfJeLGiDAncLmPNnbbWVf8pr99dhYN1-OB76wAZq-CQ8KMliXlKLbWrxJ13TICqI9GHwpWt9gcELFACq1dmLnXOFVHM_lToJFESUbHf3QIXes2n64vHVzg",
+  "payload": ""
+}
+2023-05-24 14:13:32,908:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/order/103524564/8905147214 HTTP/1.1" 200 616
+2023-05-24 14:13:32,909:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:34 GMT
+Content-Type: application/json
+Content-Length: 616
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB9kLJy4KE6pO6B8vI5qipySutmKEv7IHEK6JOAoI4nLio
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "status": "valid",
+  "expires": "2023-05-31T13:24:57Z",
+  "identifiers": [
+    {
+      "type": "dns",
+      "value": "*.sandrabeauty.studio"
+    },
+    {
+      "type": "dns",
+      "value": "sandrabeauty.studio"
+    }
+  ],
+  "authorizations": [
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895354",
+    "https://acme-staging-v02.api.letsencrypt.org/acme/authz-v3/6608895364"
+  ],
+  "finalize": "https://acme-staging-v02.api.letsencrypt.org/acme/finalize/103524564/8905147214",
+  "certificate": "https://acme-staging-v02.api.letsencrypt.org/acme/cert/fafdfbed5860e233d2538e941f1108c6d442"
+}
+2023-05-24 14:13:32,909:DEBUG:acme.client:Storing nonce: BEB9kLJy4KE6pO6B8vI5qipySutmKEv7IHEK6JOAoI4nLio
+2023-05-24 14:13:32,909:DEBUG:acme.client:JWS payload:
+b''
+2023-05-24 14:13:32,910:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/cert/fafdfbed5860e233d2538e941f1108c6d442:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiQkVCOWtMSnk0S0U2cE82Qjh2STVxaXB5U3V0bUtFdjdJSEVLNkpPQW9JNG5MaW8iLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvY2VydC9mYWZkZmJlZDU4NjBlMjMzZDI1MzhlOTQxZjExMDhjNmQ0NDIifQ",
+  "signature": "Z1DiYY87uIR89tjU_aeiDfNT_CYX-XVHOxJzwTGbWLwLK4cjxosl2WAe-YvrKVhuYT-9qZVuEThpz3oO9sOk_0erRWAWB_1A8fsiYfkSdfmDjDwW53sTY5xY3lmWbGw6xgSGY0xPqU0dHecnpmUM7_3yAS9UtNU1Re1uBY7kZEwJl8BSTRN1Z1M_Bd5koCIe7AVwHA5aSR9Iu0r3WK_z6QHpliwdZHLZVBwzhZCVzNL_GqoucRe4mYzILs8gEpomc1ROsALnfk4ik6v2dZUjjiYMBmkDAf1MkHdOqZStLQkZuYvElnQW_RLJwM87LDA4MfrP5K_Z5_oDw7iJK-k3HA",
+  "payload": ""
+}
+2023-05-24 14:13:33,133:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/cert/fafdfbed5860e233d2538e941f1108c6d442 HTTP/1.1" 200 4147
+2023-05-24 14:13:33,134:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 14:13:34 GMT
+Content-Type: application/pem-certificate-chain
+Content-Length: 4147
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB99zF90qcqacQO_ni-qQyDlfmKU7zS_qQMDScbg9QGPUE
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+-----BEGIN CERTIFICATE-----
+MIIDyTCCA0+gAwIBAgITAPr9++1YYOIz0lOOlB8RCMbUQjAKBggqhkjOPQQDAzBV
+MQswCQYDVQQGEwJVUzEgMB4GA1UEChMXKFNUQUdJTkcpIExldCdzIEVuY3J5cHQx
+JDAiBgNVBAMTGyhTVEFHSU5HKSBFcnNhdHogRWRhbWFtZSBFMTAeFw0yMzA1MjQx
+MzEzMzJaFw0yMzA4MjIxMzEzMzFaMB4xHDAaBgNVBAMTE3NhbmRyYWJlYXV0eS5z
+dHVkaW8wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARkfiPjjnqncalff+r4RYCP
+duYZaqaMm2aHHoDiwlfDhdKM0pHkQV0rh4X3TwfxDlCjelukMjJvw1vjCR5Usuwm
+o4ICMzCCAi8wDgYDVR0PAQH/BAQDAgeAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+BgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBSQRRDOQLNsBvsAiV5ncWZ8
+NxZ6NzAfBgNVHSMEGDAWgBTr+SXCgChm4m0IkjLzwuGtw/81RTBdBggrBgEFBQcB
+AQRRME8wJQYIKwYBBQUHMAGGGWh0dHA6Ly9zdGctZTEuby5sZW5jci5vcmcwJgYI
+KwYBBQUHMAKGGmh0dHA6Ly9zdGctZTEuaS5sZW5jci5vcmcvMDUGA1UdEQQuMCyC
+FSouc2FuZHJhYmVhdXR5LnN0dWRpb4ITc2FuZHJhYmVhdXR5LnN0dWRpbzATBgNV
+HSAEDDAKMAgGBmeBDAECATCCAQMGCisGAQQB1nkCBAIEgfQEgfEA7wB1ALDMg+Wl
++X1rr3wJzChJBIcqx+iLEyxjULfG/SbhbGx3AAABiE4bnk4AAAQDAEYwRAIgJs6u
+Bf4hv6zJCGRwer6hw18hStxrqSMBMfpa4AdimsMCICsb6ZwI85fw/DxYuHWvcCTQ
+8Dy8ssbvirQBYEP95M/PAHYA7audHd2Dc5Wf9SqI5Gu0vMPEzE12imDM/042LX+4
+1mgAAAGIThugWQAABAMARzBFAiEA7Z+ApIMyGGi3mDqic5pK4JpHTImvefZrIllF
+c3e9GP8CIDz17AkPlHQk8ccdyL4wuigy8sV/yCQtWKtG/fi9Imr9MAoGCCqGSM49
+BAMDA2gAMGUCMQCzbMJHYfN+qT+XUHIGoFMUSXjHxWouB/xdtls8OZCcTJTe+9/A
+ct4agM83LlWBdvgCMBcFdKMNR/0kYqNBoEcER2ATvXsR/sjIl1DaiP2bFNixtRoE
+WAKWBgDbaKxfXeH0Yw==
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+MIIDCzCCApGgAwIBAgIRALRY4992FVxZJKOJ3bpffWIwCgYIKoZIzj0EAwMwaDEL
+MAkGA1UEBhMCVVMxMzAxBgNVBAoTKihTVEFHSU5HKSBJbnRlcm5ldCBTZWN1cml0
+eSBSZXNlYXJjaCBHcm91cDEkMCIGA1UEAxMbKFNUQUdJTkcpIEJvZ3VzIEJyb2Nj
+b2xpIFgyMB4XDTIwMDkwNDAwMDAwMFoXDTI1MDkxNTE2MDAwMFowVTELMAkGA1UE
+BhMCVVMxIDAeBgNVBAoTFyhTVEFHSU5HKSBMZXQncyBFbmNyeXB0MSQwIgYDVQQD
+ExsoU1RBR0lORykgRXJzYXR6IEVkYW1hbWUgRTEwdjAQBgcqhkjOPQIBBgUrgQQA
+IgNiAAT9v/PJUtHOTk28nXCXrpP665vI4Z094h8o7R+5E6yNajZa0UubqjpZFoGq
+u785/vGXj6mdfIzc9boITGusZCSWeMj5ySMZGZkS+VSvf8VQqj+3YdEu4PLZEjBA
+ivRFpEejggEQMIIBDDAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUH
+AwIGCCsGAQUFBwMBMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFOv5JcKA
+KGbibQiSMvPC4a3D/zVFMB8GA1UdIwQYMBaAFN7Ro1lkDsGaNqNG7rAQdu+ul5Vm
+MDYGCCsGAQUFBwEBBCowKDAmBggrBgEFBQcwAoYaaHR0cDovL3N0Zy14Mi5pLmxl
+bmNyLm9yZy8wKwYDVR0fBCQwIjAgoB6gHIYaaHR0cDovL3N0Zy14Mi5jLmxlbmNy
+Lm9yZy8wIgYDVR0gBBswGTAIBgZngQwBAgEwDQYLKwYBBAGC3xMBAQEwCgYIKoZI
+zj0EAwMDaAAwZQIwXcZbdgxcGH9rTErfSTkXfBKKygU0yO7OpbuNeY1id0FZ/hRY
+N5fdLOGuc+aHfCsMAjEA0P/xwKr6NQ9MN7vrfGAzO397PApdqfM7VdFK18aEu1xm
+3HMFKzIR8eEPsMx4smMl
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+MIIEmTCCAoGgAwIBAgIRAJJVIr2Em/sOzhBD2bEnEJwwDQYJKoZIhvcNAQELBQAw
+ZjELMAkGA1UEBhMCVVMxMzAxBgNVBAoTKihTVEFHSU5HKSBJbnRlcm5ldCBTZWN1
+cml0eSBSZXNlYXJjaCBHcm91cDEiMCAGA1UEAxMZKFNUQUdJTkcpIFByZXRlbmQg
+UGVhciBYMTAeFw0yMDA5MDQwMDAwMDBaFw0yNTA5MTUxNjAwMDBaMGgxCzAJBgNV
+BAYTAlVTMTMwMQYDVQQKEyooU1RBR0lORykgSW50ZXJuZXQgU2VjdXJpdHkgUmVz
+ZWFyY2ggR3JvdXAxJDAiBgNVBAMTGyhTVEFHSU5HKSBCb2d1cyBCcm9jY29saSBY
+MjB2MBAGByqGSM49AgEGBSuBBAAiA2IABDr0vsNZAswMWDiWwNOgMNBxT9rSwSyj
+6BUKkfQDLJJdZwtve+XkKsnEfgAr2HpQPK38BVzmzB2Fydt1ywfnQIzyVTidjnLI
+01ajuHXA1rvq0NlSC3ZyUWMqZ1dTDE4VcaOB7TCB6jAOBgNVHQ8BAf8EBAMCAQYw
+DwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU3tGjWWQOwZo2o0busBB2766XlWYw
+HwYDVR0jBBgwFoAUtfNl8v6wCpIf+zx980SgrGMlwxQwNgYIKwYBBQUHAQEEKjAo
+MCYGCCsGAQUFBzAChhpodHRwOi8vc3RnLXgxLmkubGVuY3Iub3JnLzArBgNVHR8E
+JDAiMCCgHqAchhpodHRwOi8vc3RnLXgxLmMubGVuY3Iub3JnLzAiBgNVHSAEGzAZ
+MAgGBmeBDAECATANBgsrBgEEAYLfEwEBATANBgkqhkiG9w0BAQsFAAOCAgEAMkp5
+etLOxM4+a6EqX2hmAd+yNUSNCA7+MYn/VrwJnpkWe8zuC+fILYMYRuByWs/zeFmo
+56Jc7td5N9I+QN0rYSeEbgdTAMeaBjZ3P6eJxM1Aa76Abrj5ULfq8XhOE37SYgFb
+ZS9YPOQ4wuisCXHrrmu4ZdZJmzXIQX562xBeJxf0o4LBqS2C3SmpkPY+f8lTtmFO
+/I6qSSl8T5XyNE385zNXaRd8rMJqNC9fIHDjPeJMIaou0TZYT0uNb9OZ7ZhT7smQ
+SaHcGxtK0SVmJvGNagc6RldrHFbemLbwVpeI4NopRHynQqzkVtsfAlK8VD92SYbp
+olFsJZWuHVkHgccuI1Hx0+RUp1VGj1PPV+0JmGZeG2ybLloU2rjjMbRmkNjTxub2
+U1vzCGpBSaBfYQLjLHDwQk1AqRENlZxDqCkXFro8eqT6TFHdtw27KIT+ov1Qyofi
+q3Uj1w7tPpcFMSDfiWNRE0XGYCjELDo19oPqQthIMQ5X+/3YpCqZceR4vMR6n9ol
+Lp/0KmjAzqU+LqD2fmFLttKvZUxW8aECTGIcDHGCPJDklwDW3l7DUQ08Wj5Fh/KE
+f5c9fF3u87WUAJu4Vh9C+ewXZtzL0LD46lYgpn7fv5w9sLS4zQ3CIC3udjJ5Gc/v
+8VhPQaU1Enn7NW+4IHnfSeP6G5rzLEtl0PreC4k=
+-----END CERTIFICATE-----
+
+2023-05-24 14:13:33,134:DEBUG:acme.client:Storing nonce: BEB99zF90qcqacQO_ni-qQyDlfmKU7zS_qQMDScbg9QGPUE
+2023-05-24 14:13:33,135:DEBUG:certbot._internal.client:Dry run: Skipping creating new lineage for sandrabeauty.studio
+2023-05-24 14:13:33,135:DEBUG:certbot._internal.display.obj:Notifying user: The dry run was successful.

@@ -1,0 +1,143 @@
+2023-05-24 15:26:59,761:DEBUG:certbot._internal.main:certbot version: 2.6.0
+2023-05-24 15:26:59,761:DEBUG:certbot._internal.main:Location of certbot entry point: /usr/local/bin/certbot
+2023-05-24 15:26:59,761:DEBUG:certbot._internal.main:Arguments: ['-n', '-d', 'localhost', '--dns-route53', '--dry-run', '--agree-tos', '--email=admin@example.com']
+2023-05-24 15:26:59,761:DEBUG:certbot._internal.main:Discovered plugins: PluginsRegistry(PluginEntryPoint#certbot-route53:auth,PluginEntryPoint#dns-route53,PluginEntryPoint#manual,PluginEntryPoint#null,PluginEntryPoint#standalone,PluginEntryPoint#webroot)
+2023-05-24 15:26:59,770:DEBUG:certbot._internal.log:Root logging level set at 30
+2023-05-24 15:26:59,771:DEBUG:certbot._internal.plugins.selection:Requested authenticator dns-route53 and installer None
+2023-05-24 15:26:59,774:DEBUG:botocore.hooks:Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+2023-05-24 15:26:59,775:DEBUG:botocore.hooks:Changing event name from before-call.apigateway to before-call.api-gateway
+2023-05-24 15:26:59,776:DEBUG:botocore.hooks:Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+2023-05-24 15:26:59,777:DEBUG:botocore.hooks:Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+2023-05-24 15:26:59,777:DEBUG:botocore.hooks:Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+2023-05-24 15:26:59,777:DEBUG:botocore.hooks:Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+2023-05-24 15:26:59,778:DEBUG:botocore.hooks:Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+2023-05-24 15:26:59,779:DEBUG:botocore.hooks:Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+2023-05-24 15:26:59,780:DEBUG:botocore.hooks:Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+2023-05-24 15:26:59,780:DEBUG:botocore.hooks:Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+2023-05-24 15:26:59,780:DEBUG:botocore.hooks:Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+2023-05-24 15:26:59,782:DEBUG:botocore.utils:IMDS ENDPOINT: http://169.254.169.254/
+2023-05-24 15:26:59,783:DEBUG:botocore.credentials:Looking for credentials via: env
+2023-05-24 15:26:59,783:INFO:botocore.credentials:Found credentials in environment variables.
+2023-05-24 15:26:59,785:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/endpoints.json
+2023-05-24 15:26:59,794:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/sdk-default-configuration.json
+2023-05-24 15:26:59,795:DEBUG:botocore.hooks:Event choose-service-name: calling handler <function handle_service_name_alias at 0x7fca845ed000>
+2023-05-24 15:26:59,835:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/route53/2013-04-01/service-2.json
+2023-05-24 15:26:59,852:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/route53/2013-04-01/endpoint-rule-set-1.json.gz
+2023-05-24 15:26:59,853:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/partitions.json
+2023-05-24 15:26:59,854:DEBUG:botocore.hooks:Event creating-client-class.route-53: calling handler <function add_generate_presigned_url at 0x7fca84800670>
+2023-05-24 15:26:59,855:DEBUG:botocore.endpoint:Setting route53 timeout as (60, 60)
+2023-05-24 15:26:59,856:DEBUG:botocore.loaders:Loading JSON file: /usr/local/lib/python3.10/site-packages/botocore/data/_retry.json
+2023-05-24 15:26:59,857:DEBUG:botocore.client:Registering retry handlers for service: route53
+2023-05-24 15:26:59,857:DEBUG:certbot._internal.plugins.selection:Single candidate plugin: * dns-route53
+Description: Obtain certificates using a DNS TXT record (if you are using AWS Route53 for DNS).
+Interfaces: Authenticator, Plugin
+Entry point: dns-route53 = certbot_dns_route53._internal.dns_route53:Authenticator
+Initialized: <certbot_dns_route53._internal.dns_route53.Authenticator object at 0x7fca84684820>
+Prep: True
+2023-05-24 15:26:59,858:DEBUG:certbot._internal.plugins.selection:Selected authenticator <certbot_dns_route53._internal.dns_route53.Authenticator object at 0x7fca84684820> and installer None
+2023-05-24 15:26:59,858:INFO:certbot._internal.plugins.selection:Plugins selected: Authenticator dns-route53, Installer None
+2023-05-24 15:26:59,891:DEBUG:certbot._internal.main:Picked account: <Account(RegistrationResource(body=Registration(key=None, contact=(), agreement=None, status=None, terms_of_service_agreed=None, only_return_existing=None, external_account_binding=None), uri='https://acme-staging-v02.api.letsencrypt.org/acme/acct/103524564', new_authzr_uri=None, terms_of_service=None), 0421b70a6b4e0deb8728ba0f1c25dcb9, Meta(creation_dt=datetime.datetime(2023, 5, 24, 13, 24, 55, tzinfo=<UTC>), creation_host='e5c53c9fc7ed', register_to_eff=None))>
+2023-05-24 15:26:59,891:DEBUG:acme.client:Sending GET request to https://acme-staging-v02.api.letsencrypt.org/directory.
+2023-05-24 15:26:59,893:DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): acme-staging-v02.api.letsencrypt.org:443
+2023-05-24 15:27:00,685:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "GET /directory HTTP/1.1" 200 826
+2023-05-24 15:27:00,686:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 15:27:01 GMT
+Content-Type: application/json
+Content-Length: 826
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "BgLWnMxPrwQ": "https://community.letsencrypt.org/t/adding-random-entries-to-the-directory/33417",
+  "keyChange": "https://acme-staging-v02.api.letsencrypt.org/acme/key-change",
+  "meta": {
+    "caaIdentities": [
+      "letsencrypt.org"
+    ],
+    "termsOfService": "https://letsencrypt.org/documents/LE-SA-v1.3-September-21-2022.pdf",
+    "website": "https://letsencrypt.org/docs/staging-environment/"
+  },
+  "newAccount": "https://acme-staging-v02.api.letsencrypt.org/acme/new-acct",
+  "newNonce": "https://acme-staging-v02.api.letsencrypt.org/acme/new-nonce",
+  "newOrder": "https://acme-staging-v02.api.letsencrypt.org/acme/new-order",
+  "renewalInfo": "https://acme-staging-v02.api.letsencrypt.org/draft-ietf-acme-ari-01/renewalInfo/",
+  "revokeCert": "https://acme-staging-v02.api.letsencrypt.org/acme/revoke-cert"
+}
+2023-05-24 15:27:00,686:DEBUG:certbot._internal.display.obj:Notifying user: Simulating a certificate request for localhost
+2023-05-24 15:27:00,691:DEBUG:acme.client:Requesting fresh nonce
+2023-05-24 15:27:00,692:DEBUG:acme.client:Sending HEAD request to https://acme-staging-v02.api.letsencrypt.org/acme/new-nonce.
+2023-05-24 15:27:00,881:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "HEAD /acme/new-nonce HTTP/1.1" 200 0
+2023-05-24 15:27:00,882:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Wed, 24 May 2023 15:27:02 GMT
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: EA57glVUvRq_15XnfFHUfmq3mDPPZk3EOESz3noHlRgDJTo
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+
+2023-05-24 15:27:00,882:DEBUG:acme.client:Storing nonce: EA57glVUvRq_15XnfFHUfmq3mDPPZk3EOESz3noHlRgDJTo
+2023-05-24 15:27:00,882:DEBUG:acme.client:JWS payload:
+b'{\n  "identifiers": [\n    {\n      "type": "dns",\n      "value": "localhost"\n    }\n  ]\n}'
+2023-05-24 15:27:00,884:DEBUG:acme.client:Sending POST request to https://acme-staging-v02.api.letsencrypt.org/acme/new-order:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvYWNjdC8xMDM1MjQ1NjQiLCAibm9uY2UiOiAiRUE1N2dsVlV2UnFfMTVYbmZGSFVmbXEzbURQUFprM0VPRVN6M25vSGxSZ0RKVG8iLCAidXJsIjogImh0dHBzOi8vYWNtZS1zdGFnaW5nLXYwMi5hcGkubGV0c2VuY3J5cHQub3JnL2FjbWUvbmV3LW9yZGVyIn0",
+  "signature": "ALLQe11kgxYEZpZ91-oD_QteFEod09ReFs68epS8_nY6XwWvnhle8aC1z8yO46Jn6DmoesP9TinNtvqPR31BW5L1oy1eyJKkcBHtxj_OUBxg5HMQEmRzP78vwfL-Ef4AM8a_oA-79rmV6VK9tyfZ924qo0fyC8F0uWmyF9c7TteZUmnAy8skA9BwKcGhIL_JxGs73K4VFRoQ_PaVyQFd1UMeFqucnpekbwaV6RZRAJT2M2KgdexR79WbRMNbddH0uxCnx6UpGx19t525BvXwfflA5zrDvD0CKyuoqB56oapXHDNdFViwF687c_bB-GRmdoANkmEzSR8orqcc_maPsw",
+  "payload": "ewogICJpZGVudGlmaWVycyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAiZG5zIiwKICAgICAgInZhbHVlIjogImxvY2FsaG9zdCIKICAgIH0KICBdCn0"
+}
+2023-05-24 15:27:01,082:DEBUG:urllib3.connectionpool:https://acme-staging-v02.api.letsencrypt.org:443 "POST /acme/new-order HTTP/1.1" 400 188
+2023-05-24 15:27:01,082:DEBUG:acme.client:Received response:
+HTTP 400
+Server: nginx
+Date: Wed, 24 May 2023 15:27:02 GMT
+Content-Type: application/problem+json
+Content-Length: 188
+Connection: keep-alive
+Boulder-Requester: 103524564
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-staging-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: BEB9TxDbcb6NMJEYzPhg43SiHI_c1eA4m0c-TNZpVC67QKE
+
+{
+  "type": "urn:ietf:params:acme:error:rejectedIdentifier",
+  "detail": "Error creating new order :: Cannot issue for \"localhost\": Domain name needs at least one dot",
+  "status": 400
+}
+2023-05-24 15:27:01,082:DEBUG:certbot._internal.log:Exiting abnormally:
+Traceback (most recent call last):
+  File "/usr/local/bin/certbot", line 33, in <module>
+    sys.exit(load_entry_point('certbot', 'console_scripts', 'certbot')())
+  File "/opt/certbot/src/certbot/certbot/main.py", line 19, in main
+    return internal_main.main(cli_args)
+  File "/opt/certbot/src/certbot/certbot/_internal/main.py", line 1864, in main
+    return config.func(config, plugins)
+  File "/opt/certbot/src/certbot/certbot/_internal/main.py", line 1597, in certonly
+    lineage = _get_and_save_cert(le_client, config, domains, certname, lineage)
+  File "/opt/certbot/src/certbot/certbot/_internal/main.py", line 141, in _get_and_save_cert
+    lineage = le_client.obtain_and_enroll_certificate(domains, certname)
+  File "/opt/certbot/src/certbot/certbot/_internal/client.py", line 517, in obtain_and_enroll_certificate
+    cert, chain, key, _ = self.obtain_certificate(domains)
+  File "/opt/certbot/src/certbot/certbot/_internal/client.py", line 428, in obtain_certificate
+    orderr = self._get_order_and_authorizations(csr.data, self.config.allow_subset_of_names)
+  File "/opt/certbot/src/certbot/certbot/_internal/client.py", line 478, in _get_order_and_authorizations
+    orderr = self.acme.new_order(csr_pem)
+  File "/opt/certbot/src/acme/acme/client.py", line 138, in new_order
+    response = self._post(self.directory['newOrder'], order)
+  File "/opt/certbot/src/acme/acme/client.py", line 366, in _post
+    return self.net.post(*args, **kwargs)
+  File "/opt/certbot/src/acme/acme/client.py", line 739, in post
+    return self._post_once(*args, **kwargs)
+  File "/opt/certbot/src/acme/acme/client.py", line 752, in _post_once
+    response = self._check_response(response, content_type=content_type)
+  File "/opt/certbot/src/acme/acme/client.py", line 603, in _check_response
+    raise messages.Error.from_json(jobj)
+acme.messages.Error: urn:ietf:params:acme:error:rejectedIdentifier :: The server will not issue certificates for the identifier :: Error creating new order :: Cannot issue for "localhost": Domain name needs at least one dot
+2023-05-24 15:27:01,083:ERROR:certbot._internal.log:An unexpected error occurred:
+2023-05-24 15:27:01,084:ERROR:certbot._internal.log:Error creating new order :: Cannot issue for "localhost": Domain name needs at least one dot
