@@ -28,10 +28,10 @@ class JsonResponse {
         json = { status: 'error', message: 'Not Authorized' };
         break;
       case 200:
-        json = { status: 'success', message: 'Success', data: data };
+        json = { status: 'success', message: 'Success', content: data };
         break;
       case 201:
-        json = { status: 'success', message: 'Created' };
+        json = { status: 'success', message: 'Created', content: data };
         break;
     }
 

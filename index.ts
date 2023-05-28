@@ -3,4 +3,4 @@
  * Copyright: (C)2023.
  */
 export * from './json-response';
-export * from './keyserver';
+export * from './key-server';

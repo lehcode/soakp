@@ -1,32 +1,18 @@
 /**
  * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
- * Copyright: (C)2023.
+ * Copyright: (C)2023
  */
 import express from 'express';
 import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
-import sqlite3 from 'sqlite3';
-import storage from 'node-persist';
+import { KeyStorage, StorageConfigInterface, StorageType } from './key-storage';
 import { JsonResponse } from './json-response';
 
 interface KeyServerConfigInterface {
   storage: StorageType;
   port: number;
-  dataFileLocation?: string;
-  sql?: {
-    dbName: string;
-    tableName: string;
-  };
-}
-
-enum StorageType {
-  sqlite = 'STORAGE_SQLITE',
-  file = 'STORAGE_FILE'
-}
-
-interface StorageConfigInterface {
   dataFileLocation?: string;
   sql?: {
     dbName: string;
@@ -165,149 +151,6 @@ class OpenAIProxy {
     this.app.listen(port, () => {
       console.log(`OpenAIController listening on port ${port}`);
     });
-  }
-}
-
-/**
- * SQLite/File storage for tokens
- *
- * TODO: More to follow
- */
-class KeyStorage {
-  private readonly type: StorageType;
-  private db: sqlite3.Database;
-  private config: StorageConfigInterface;
-
-  /**
-   *
-   * @param type
-   * @param configuration
-   */
-  constructor(type: StorageType, configuration: StorageConfigInterface) {
-    this.config = { ...configuration };
-    this.type = type; // Assign the type parameter to the this.type property
-
-    switch (this.type) {
-      default:
-      case StorageType.sqlite:
-        this.initializeDatabase('sqlite');
-        break;
-
-      case StorageType.file:
-        this.initializeFileStorage();
-        break;
-    }
-  }
-
-  /**
-   * Initialize database table
-   *
-   * @private
-   */
-  private initializeDatabase(type: string): void {
-    if (type === 'sqlite') {
-      this.db = new sqlite3.Database(`./${this.config.sql?.dbName}`);
-    }
-  }
-
-  /**
-   * Initialize file storage
-   */
-  async initializeFileStorage(): Promise<void> {
-    await storage.init({ dir: this.config.dataFileLocation });
-  }
-
-  /**
-   * Create SQL table
-   *
-   * @private
-   */
-  private createSqlTable(): void {
-    this.db.run(
-      `CREATE TABLE IF NOT EXISTS ${this.config.sql?.tableName} (id INTEGER PRIMARY KEY, token_type TEXT, token TEXT)`
-    );
-  }
-
-  /**
-   * Run user query on DB
-   *
-   * @param query
-   */
-  runQuery(query: string): void {
-    try {
-      this.db.run(query);
-    } catch (error) {
-      throw new Error(<string>error);
-    }
-  }
-
-  storeJWT(token: string, res: express.Response) {
-    let status: number;
-
-    if (this.type === StorageType.sqlite) {
-      this.sqlInsert('jwt', token)
-        .then(() => {
-          status = 201;
-          res.status(status).json(JsonResponse.getText(status));
-        })
-        .catch((err) => JsonResponse.err500(err, res));
-    } else {
-      storage
-        .setItem('jwt', token)
-        .then(() => {
-          status = 200;
-          res.status(status).json(JsonResponse.getText(status, { token: token }));
-        })
-        .catch((err: string) => JsonResponse.err500(err, res));
-    }
-  }
-
-  /**
-   * Inset SQL record
-   *
-   * @private
-   */
-  private async sqlInsert(token_type: string, token: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.run(
-        `INSERT INTO ${this.config.sql?.tableName} (token_type, token) VALUES (?, ?)`,
-        [token_type, token],
-        (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        }
-      );
-    });
-  }
-
-  public async loadFromDB(type: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.db.get(
-        `SELECT token FROM ${this.config.sql?.tableName} WHERE token_type = ? LIMIT 1`,
-        type,
-        (err, row: Record<string, any>) => {
-          if (err) {
-            console.error(err);
-            reject(err);
-          } else {
-            resolve(row.token);
-          }
-        }
-      );
-    });
-  }
-
-  public async loadFromFile(type: string): Promise<string> {
-    try {
-      const data = await storage.getItem(type);
-      return data;
-    } catch (err) {
-      console.error(`Error reading file from disk: ${err}`);
-      return '';
-    }
   }
 }
 
