@@ -7,7 +7,7 @@ services:
     image: lehcode/openai-proxy:1.0.1
     container_name: ${CONTAINER_NAME:-openai-proxy}
     hostname: ${SERVER_HOST:-openai-proxy}
-    command: npm start
+    command: /init.sh
     build:
       context: .
       dockerfile: Dockerfile

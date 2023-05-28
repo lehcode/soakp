@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 
 set -e
-if [ "${DEBUG}" == "yes" ]; then
+if [ "${DEBUG}" = "yes" ]; then
   set -ex
   env
 fi
 
-#npm install
+# if [ ! -d "node_modules" ]; then yarn install; fi
+yarn install
 
-#if [ "${DEBUG}" == "yes" ]; then
-#  npm run dev
-#fi
-
-if [ "${NODE_ENV}" == "development" ]; then
-  npm run dev
+if [ "${NODE_ENV}" = "development" ]; then
+  yarn dev
 else
-  npm serve
+  yarn serve
 fi

@@ -21,10 +21,10 @@ ENV AUTH_PASS=${auth_pass}
 WORKDIR ${workdir}
 
 COPY package.json .
-COPY package-lock.json .
+COPY yarn.lock .
 COPY tsconfig.json .
 # COPY to-mjs.sh .
-COPY keyserver.ts .
+COPY *.ts .
 COPY entrypoint.sh /init.sh
 
 RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
