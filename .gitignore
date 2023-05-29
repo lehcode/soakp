@@ -2,3 +2,5 @@ docker/certbot/var/log/
 debug.db
 dist/
 node_modules/
+ws-settings.zip
+docker/.secret/
