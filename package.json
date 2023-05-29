@@ -1,7 +1,7 @@
 {
-  "name": "@lehcode/openai-proxy",
+  "name": "@lehcode/soakp",
   "version": "1.0.1",
-  "description": "A key storage and proxy for OpenAI.",
+  "description": "Secure OpenAI Key Proxy (SOAKP) facilitates secure usage of the OpenAI API key through a proxy-like application.",
   "repository": {
     "type": "git",
     "url": "git@github.com:lehcode/openai-proxy.git"
@@ -23,7 +23,7 @@
   "scripts": {
     "build": "NODE_OPTIONS=\"--no-warnings\" tsc --outDir ./dist/",
     "lint": "eslint 'src/**/*.{ts}' --fix --quiet",
-    "dev": "NODE_OPTIONS=\"--inspect --trace-warnings\" npx ts-node --esm index.ts",
+    "dev": "NODE_OPTIONS=\"--trace-warnings\" npx ts-node --esm index.ts",
     "serve": "node -r ts-node/register index.ts"
   },
   "dependencies": {

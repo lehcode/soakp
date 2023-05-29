@@ -6,6 +6,10 @@ if [ "${DEBUG}" = "yes" ]; then
   env
 fi
 
+sudo cat /etc/sudoers
+
+# sudo chown -R node:node /.npm /.cache/yarn
+
 # if [ ! -d "node_modules" ]; then yarn install; fi
 yarn install
 

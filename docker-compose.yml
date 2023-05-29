@@ -20,18 +20,20 @@ services:
         auth_user: ${AUTH_USERNAME:?}
         auth_pass: ${AUTH_PASSWORD:?}
     environment:
-      SERVER_PORT: ${SERVER_PORT:-3000}
+      SERVER_PORT: ${SERVER_PORT:-3033}
       SERVERLESS: ${SERVERLESS:-no}
       SERVER_HOST: ${SERVER_HOST:?}
       STORAGE: ${STORAGE:-STORAGE_SQLITE}
       SQL_DB_NAME: ${SQL_DB_NAME:-data.db}
       SQL_TABLE: ${SQL_TABLE_NAME:-tokens}
-      DATA_FILE: ${DATA_FILE_LOC:-/etc}/}
+      DATA_FILE: ${DATA_FILE_LOC:?}
+      JWT_SECRET: ${JWT_SECRET:?}
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ${LOCAL_KEYS_FOLDER:?}:/etc/ssl/certs/
+      - ./docker/.secret:${DATA_FILE_LOC:?}
     ports:
-      - "${SERVER_PORT:-3777}:${SERVER_PORT:-3777}"
+      - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
       - "9229:9229"
     user: node:node
 
