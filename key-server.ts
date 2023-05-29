@@ -2,15 +2,15 @@
  * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
  * Copyright: (C)2023
  */
-import express from 'express';
-import bodyParser from 'body-parser';
-import basicAuth from 'express-basic-auth';
-import jwt from 'jsonwebtoken';
-import { createHash } from 'crypto';
-import { KeyStorage, StorageConfigInterface, StorageType } from './key-storage';
-import { JsonResponse } from './json-response';
+import express from "express";
+import bodyParser from "body-parser";
+import basicAuth from "express-basic-auth";
+import jwt from "jsonwebtoken";
+import { createHash } from "crypto";
+import { KeyStorage, StorageConfigInterface, StorageType } from "./key-storage";
+import { JsonResponse } from "./json-response";
 
-interface KeyServerConfigInterface {
+interface ServerConfigInterface {
   storage: StorageType;
   port: number;
   dataFileLocation?: string;
@@ -20,7 +20,7 @@ interface KeyServerConfigInterface {
   };
 }
 
-const defaults: KeyServerConfigInterface = {
+const defaults: ServerConfigInterface = {
   storage: StorageType.sqlite,
   port: 3033,
   dataFileLocation: 'uploads/',
@@ -30,9 +30,9 @@ const defaults: KeyServerConfigInterface = {
   }
 };
 
-class OpenAIProxy {
+class Soakp {
   private readonly app: express.Application;
-  private readonly config: KeyServerConfigInterface;
+  private readonly config: ServerConfigInterface;
   private jwtSecret = '';
   private jwtExpiration = 86400; // 24 hours
   private openAIKey = '';
@@ -40,7 +40,7 @@ class OpenAIProxy {
   private basicPass = '';
   private readonly keyStorage: KeyStorage;
 
-  constructor(private readonly configuration: KeyServerConfigInterface) {
+  constructor(private readonly configuration: ServerConfigInterface) {
     this.app = express();
     this.config = { ...defaults, ...configuration };
     this.basicUser = <string>process.env.AUTH_USER;
