@@ -22,7 +22,7 @@ interface KeyServerConfigInterface {
 
 const defaults: KeyServerConfigInterface = {
   storage: StorageType.sqlite,
-  port: 3050,
+  port: 3033,
   dataFileLocation: 'uploads/',
   sql: {
     dbName: 'databaseName.db',
@@ -45,6 +45,7 @@ class OpenAIProxy {
     this.config = { ...defaults, ...configuration };
     this.basicUser = <string>process.env.AUTH_USER;
     this.basicPass = <string>process.env.AUTH_PASS;
+    this.jwtSecret = <string>process.env.JWT_SECRET;
 
     // Configure middleware
     this.app.use(bodyParser.json());
@@ -126,6 +127,7 @@ class OpenAIProxy {
     const token = req.body.token;
     const query = req.body.query;
     const parameters = req.body.parameters;
+    const openAiAPIKey = req.header('Authorization');
 
     jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
       if (err) {
@@ -149,19 +151,9 @@ class OpenAIProxy {
    */
   public start(port: number) {
     this.app.listen(port, () => {
-      console.log(`OpenAIController listening on port ${port}`);
+      console.log(`Secure OpenAI Key Proxy is listening on port ${port}.\nPlease help to support project `);
     });
   }
 }
-
-new OpenAIProxy({
-  storage: <StorageType>process.env.STORAGE,
-  port: Number(process.env.SERVER_PORT),
-  dataFileLocation: <string>process.env.DATA_FILE_LOC,
-  sql: {
-    dbName: <string>process.env.SQL_DB_NAME,
-    tableName: <string>process.env.SQL_TABLE_NAME
-  }
-});
 
 export { OpenAIProxy };

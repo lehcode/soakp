@@ -5,6 +5,7 @@
 import sqlite3 from 'sqlite3';
 import storage from 'node-persist';
 import { JsonResponse } from './json-response';
+import express from 'express';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
