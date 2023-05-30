@@ -11,12 +11,14 @@ ARG tz
 ARG workdir
 ARG auth_user
 ARG auth_pass
+ARG data_file_dir
 
 ENV DEBUG=${debug}
 ENV NODE_ENV=${node_env}
 ENV NODE_VERSION=${node_version}
 ENV AUTH_USER=${auth_user}
 ENV AUTH_PASS=${auth_pass}
+ENV DATA_FILE_DIR=${data_file_dir}
 
 WORKDIR ${workdir}
 
@@ -30,23 +32,22 @@ COPY entrypoint.sh /init.sh
 RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && sh -c 'export DEBIAN_FRONTEND="noninteractive"' \
   && userdel node \
-  # && groupdel node \
   && groupadd -g 1000 node \
   && useradd -d /home/node -g 1000 -m -u 1000 node \
   && apt-get update \
   && apt-get -y upgrade \
-  && apt-get -y --no-install-recommends --no-install-suggests install curl tzdata locales gnupg ca-certificates apache2-utils sudo nmap \
+  && apt-get -y --no-install-recommends --no-install-suggests install curl tzdata locales gnupg ca-certificates apache2-utils \
   && ln -fs /usr/share/zoneinfo/${tz} /etc/localtime \
   && echo ${tz} > /etc/timezone \
   && dpkg-reconfigure -f noninteractive tzdata \
   && apt-get clean \
-  && echo "node   ALL=(ALL:ALL)    NOPASSWD:ALL" | tee -a /etc/sudoers \
   && npm install -g npm \
   && npm --force install -g yarn \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
-  && chown -R node:node ${workdir}
+  && chown -R node:node ${workdir} \
+  && chown -R 777 /tmp ${data_file_dir}
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build
