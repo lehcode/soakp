@@ -13,8 +13,6 @@
         <option name="upDetach" value="false" />
       </settings>
     </deployment>
-    <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_rename to .mjs" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
