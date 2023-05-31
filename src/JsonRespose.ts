@@ -4,9 +4,10 @@
  */
 
 import express from 'express';
+import { Messages } from './enums/Messages';
 
 /**
- * JSON rsponses for convenience and consistency
+ * JSON responses for convenience and consistency
  */
 class JsonResponse {
   /**
@@ -19,19 +20,19 @@ class JsonResponse {
 
     switch (status) {
       default:
-        json = { status: 'error', message: 'Unknown Error' };
+        json = { status: 'error', message: Messages.UNKNOWN_ERROR };
         break;
       case 500:
-        json = { status: 'error', message: 'Internal Server Error' };
+        json = { status: 'error', message: Messages.INTERNAL_SERVER_ERROR };
         break;
       case 401:
-        json = { status: 'error', message: 'Not Authorized' };
+        json = { status: 'error', message: Messages.NOT_AUTHORIZED_ERROR };
         break;
       case 200:
-        json = { status: 'success', message: 'Success', content: data };
+        json = { status: 'success', message: Messages.SUCCESS, content: data };
         break;
       case 201:
-        json = { status: 'success', message: 'Created', content: data };
+        json = { status: 'success', message: Messages.CREATED, content: data };
         break;
     }
 

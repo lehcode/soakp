@@ -1,0 +1,19 @@
+import sqlite3 from 'sqlite3';
+import * as fileDb from 'node-persist';
+import * as Datastore from 'nedb';
+
+abstract class StorageStrategy {
+  abstract db: sqlite3.Database | fileDb | Datastore;
+
+  abstract insert(openAIKey: string): Promise<Record<string, any>>;
+
+  abstract update(where: string[], values: string[]): Promise<Record<string, any>>;
+
+  abstract find(what: string, where: string[]): Promise<Record<string, any>>;
+
+  abstract query(query: string, vars: string[]): Promise<Record<string, any>>;
+
+  abstract archive(what: string): Promise<Record<string, any>>;
+}
+
+export { StorageStrategy };
