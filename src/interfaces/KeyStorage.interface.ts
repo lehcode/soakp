@@ -1,6 +1,7 @@
 import { Database } from 'sqlite3';
 import * as fileDb from 'node-persist';
 import Nedb from 'nedb';
+import { StatusCode } from '../enums/StatusCode';
 
 export interface KeyStorageInterface {
   readonly backend: Database | fileDb | Nedb;
@@ -9,9 +10,9 @@ export interface KeyStorageInterface {
 
   fetchKey(openAIKey: string): Promise<string>;
 
-  keyExists(key: string): Promise<boolean>;
+  keyExists(openAIKey: string, jwtSigned: string): Promise<string | boolean>;
 
-  saveJWT(jwtToken: string, openAIKey: string): Promise<void>;
+  saveJWT(jwtToken: string, openAIKey: string): Promise<StatusCode>;
 
   fetchJWT(where: string): Promise<string>;
 

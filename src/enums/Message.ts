@@ -1,4 +1,4 @@
-export enum Messages {
+export enum Message {
   CREATED = 'Created',
   FOUND = 'Found',
   INTERNAL_SERVER_ERROR = 'Internal server error',

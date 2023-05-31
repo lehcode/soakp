@@ -22,8 +22,8 @@ const fallback = {
 const storageConfig = {
   dataFileLocation: path.resolve(process.env.DATA_FILE_DIR) || fallback.dataFileLocation,
   sql: {
-    dbName: process.env.SQL_DB_NAME || fallback.dbName,
-    tableName: process.env.SQL_TABLE_NAME || fallback.tableName
+    dbName: process.env.SQLITE_DB || fallback.dbName,
+    tableName: process.env.SQLITE_TABLE || fallback.tableName
   }
 };
 

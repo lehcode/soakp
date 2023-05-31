@@ -1,8 +1,8 @@
 import { StorageStrategy } from './Storage.strategy';
-import { StatusCodes } from '../enums/Codes';
+import { StatusCode } from '../enums/StatusCode';
 import fs from 'fs/promises';
 import { Database } from 'sqlite3';
-import { Messages } from '../enums/Messages';
+import { Message } from '../enums/Message';
 import { SchemeInterface } from '../interfaces/Scheme.interface';
 
 class SqliteStorage implements StorageStrategy {
@@ -29,20 +29,20 @@ class SqliteStorage implements StorageStrategy {
    * Initialize database
    */
   static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    // Delete the existing database file if it exists
-    try {
-      await fs.access(dbFile);
-      await fs.unlink(dbFile);
-    } catch (err) {
-      // File doesn't exist, do nothing
-    }
+    // // Delete the existing database file if it exists
+    // try {
+    //   await fs.access(dbFile);
+    //   await fs.unlink(dbFile);
+    // } catch (err) {
+    //   // File doesn't exist, do nothing
+    // }
 
     const db = new Database(dbFile);
 
     console.log(`Database '${dbName}' created`);
 
     await db.run(
-      `CREATE TABLE '${tableName}'
+      `CREATE TABLE IF NOT EXISTS '${tableName}'
         (
           id INTEGER PRIMARY KEY,
           key TEXT NOT NULL UNIQUE
@@ -100,7 +100,7 @@ id, key, token, created_at, updated_at, token_last_access, archived
         if (err) {
           reject(err);
         } else {
-          resolve(StatusCodes.CREATED);
+          resolve(StatusCode.CREATED);
         }
       });
     });
@@ -134,7 +134,7 @@ id, key, token, created_at, updated_at, token_last_access, archived
         if (err) {
           reject(err);
         } else {
-          resolve(StatusCodes.ACCEPTED);
+          resolve(StatusCode.ACCEPTED);
         }
       });
     });
@@ -155,16 +155,16 @@ id, key, token, created_at, updated_at, token_last_access, archived
    * @param where
    */
   async find(what: string, where: string[]): Promise<Record<string, any>> {
-    const whereQuery = [...where].join(' AND ');
+    const qWhere = [...where].join(' AND ');
 
     return new Promise((resolve, reject) => {
-      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${whereQuery}`, (err, row) => {
+      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT 1`, (err, row) => {
         if (err) {
           reject(err);
         } else {
           resolve({
-            status: row === undefined ? StatusCodes.NOT_FOUND : StatusCodes.SUCCESS,
-            message: row === undefined ? Messages.NOT_FOUND : Messages.FOUND,
+            status: row === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
+            message: row === undefined ? Message.NOT_FOUND : Message.FOUND,
             data: row === undefined ? [] : [row]
           });
         }
@@ -176,8 +176,8 @@ id, key, token, created_at, updated_at, token_last_access, archived
     return Promise.resolve(this.db.run(query, ...vars)).then((rows) => {
       debugger;
       return {
-        status: StatusCodes.SUCCESS,
-        message: Messages.SUCCESS
+        status: StatusCode.SUCCESS,
+        message: Message.SUCCESS
       };
     });
   }

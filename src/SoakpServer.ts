@@ -9,8 +9,8 @@ import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import { KeyStorage, StorageType } from './KeyStorage';
 import { JsonResponse } from './JsonRespose';
-import { StatusCodes } from './enums/Codes';
-import { Messages } from './enums/Messages';
+import { StatusCode } from './enums/StatusCode';
+import { Message } from './enums/Message';
 
 interface ServerConfigInterface {
   port: number;
@@ -80,8 +80,16 @@ class SoakpServer {
    * @private
    */
   private get secret(): string {
-    const secret = <string>process.env.JWT_SECRET.trim();
-    return createHash('sha256').update(secret).digest('hex');
+    const secret = (<string>process.env.JWT_SECRET) as string;
+    return secret.trim();
+  }
+
+  /**
+   *
+   * @private
+   */
+  private get jwtHash(): string {
+    return createHash('sha256').update(this.secret).digest('hex');
   }
 
   /**
@@ -93,25 +101,37 @@ class SoakpServer {
    */
   private async handleGetJwt(req: express.Request, res: express.Response) {
     this.openAIKey = req.body.key;
-    const jwtString = jwt.sign({ key: this.openAIKey }, this.secret, { expiresIn: this.jwtExpiration });
+    const jwtSigned = jwt.sign({ key: this.openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+    const existingKey = await this.keyStorage.keyExists(this.openAIKey, jwtSigned);
 
-    try {
-      const keySaved = await this.keyStorage.saveKey(this.openAIKey);
+    if (existingKey) {
+      res.json({
+        status: StatusCode.SUCCESS,
+        message: Message.FOUND,
+        data: { jwt: existingKey }
+      });
+    } else {
+      try {
+        const keySaved = await this.keyStorage.saveKey(this.openAIKey);
 
-      if (keySaved === StatusCodes.CREATED) {
-        const jwtSaved = await this.keyStorage.saveJWT(jwtString, this.openAIKey);
+        if (keySaved === StatusCode.CREATED) {
+          const jwtSaved = await this.keyStorage.saveJWT(jwtSigned, this.openAIKey);
 
-        if (jwtSaved === StatusCodes.ACCEPTED) {
-          res.json({
-            status: StatusCodes.CREATED,
-            message: Messages.OPENAI_KEY_SAVED,
-            data: { jwt: jwtString }
-          });
+          if (jwtSaved === StatusCode.ACCEPTED) {
+            res.json({
+              status: StatusCode.CREATED,
+              message: Message.OPENAI_KEY_SAVED,
+              data: { jwt: jwtSigned }
+            });
+          }
         }
+      } catch (e) {
+        console.error(e);
+        res.json({
+          status: StatusCode.INTERNAL_ERROR,
+          message: Message.INTERNAL_SERVER_ERROR
+        });
       }
-    } catch (e) {
-      console.error(e);
-      return;
     }
   }
 
@@ -132,9 +152,9 @@ class SoakpServer {
     } else {
     }
 
-    jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
+    jwt.verify(token, this.secret, (err: any, decoded: any) => {
       if (err) {
-        res.status(Codes.NOT_AUTHORIZED).json(JsonResponse.getText(Codes.NOT_AUTHORIZED));
+        res.status(StatusCode.NOT_AUTHORIZED).json(JsonResponse.getText(StatusCode.NOT_AUTHORIZED));
         return;
       }
 

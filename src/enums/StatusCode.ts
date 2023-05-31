@@ -1,4 +1,4 @@
-export enum StatusCodes {
+export enum StatusCode {
   BAD_REQUEST = 400,
   CREATED = 201,
   FORBIDDEN = 403,

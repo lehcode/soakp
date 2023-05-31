@@ -7,7 +7,7 @@ abstract class StorageStrategy {
 
   abstract insert(column: string, value: string): Promise<Record<string, any>>;
 
-  abstract update(where: string, value: string): Promise<Record<string, any>>;
+  abstract update(where: string[], values: string[]): Promise<Record<string, any>>;
 
   abstract find(what: string, where: string[]): Promise<Record<string, any>>;
 

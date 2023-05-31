@@ -7,7 +7,7 @@ import { SqliteStorage } from './backends/SQLite';
 // import { FileStorage } from './backends/File';
 import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
 import { Tokens } from './enums/Tokens';
-import { StatusCodes } from './enums/Codes';
+import { StatusCode } from './enums/StatusCode';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
@@ -83,14 +83,19 @@ class KeyStorage implements KeyStorageInterface {
   /**
    * @param openAIKey
    */
-  async saveKey(openAIKey: string) {
+  async saveKey(openAIKey: string): Promise<boolean | StatusCode> {
     try {
       const statusCode = await this.backend.insert('key', openAIKey);
       console.log('OpenAI key successfully saved');
-      return statusCode;
+
+      if (statusCode === StatusCode.SUCCESS) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
-      console.error('Error saving OpenAI key:', error);
-      return StatusCodes.INTERNAL_ERROR;
+      console.warn('Error saving OpenAI key:', error);
+      return StatusCode.INTERNAL_ERROR;
     }
   }
 
@@ -107,9 +112,27 @@ class KeyStorage implements KeyStorageInterface {
    * Check for OpenAI key existence
    *
    * @param openAIKey
+   * @param jwtSigned
    */
-  async keyExists(openAIKey: string) {
-    const result = await this.backend.find(Tokens.OPENAI_KEY, [`key = ${openAIKey}`]);
+  async keyExists(openAIKey: string, jwtSigned: string): Promise<string | boolean> {
+    try {
+      const result = await this.backend.find('*', [`key ='${openAIKey}'`]);
+
+      if (result.status === StatusCode.SUCCESS) {
+        console.log('OpenAI key already exists in DB');
+
+        if (!result.data[0].token) {
+          throw new Error(`JWT for key '${openAIKey}' was not found in DB`);
+        }
+
+        return result.data[0].token;
+      } else {
+        console.log('OpenAI key was not found in DB. Adding it...');
+        return false;
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -117,19 +140,17 @@ class KeyStorage implements KeyStorageInterface {
    * @param jwtToken
    * @param openAIKey
    */
-  async saveJWT(jwtToken: string, openAIKey: string) {
+  async saveJWT(jwtToken: string, openAIKey: string): Promise<StatusCode> {
     try {
       const statusCode = await this.backend.update([`key ='${openAIKey}'`], [`token ='${jwtToken}'`]);
 
-      if (statusCode === StatusCodes.ACCEPTED) {
+      if (statusCode === StatusCode.ACCEPTED) {
         console.log('JWT token successfully saved');
-        return statusCode;
-      } else {
-        console.error('Error saving JWT token:', statusCode);
       }
+
+      return statusCode;
     } catch (e) {
       console.error(e);
-      return;
     }
   }
 
