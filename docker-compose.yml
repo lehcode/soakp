@@ -24,8 +24,8 @@ services:
       SERVERLESS: ${SERVERLESS:-no}
       SERVER_HOST: ${SERVER_HOST:?}
       STORAGE: ${STORAGE:-STORAGE_SQLITE}
-      SQL_DB_NAME: ${SQL_DB_NAME:-data.db}
-      SQL_TABLE: ${SQL_TABLE_NAME:-tokens}
+      SQLITE_DB: ${SQLITE_DB:-data.db}
+      SQLITE_TABLE: ${SQLITE_TABLE:-tokens}
       DATA_FILE_DIR: ${DATA_FILE_DIR:?}
       DATA_FILE_NAME: ${DATA_FILE_NAME:-.secrets.db}
       JWT_SECRET: ${JWT_SECRET:?}
