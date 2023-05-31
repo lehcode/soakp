@@ -17,8 +17,8 @@ services:
         node_env: ${NODE_ENV:-development}
         debug: ${DEBUG:-yes}
         tz: ${TZ:-Etc/UTC}
-        auth_user: ${AUTH_USERNAME:?}
-        auth_pass: ${AUTH_PASSWORD:?}
+        auth_user: ${AUTH_USER:?}
+        auth_pass: ${AUTH_PASS:?}
     environment:
       SERVER_PORT: ${SERVER_PORT:-3033}
       SERVERLESS: ${SERVERLESS:-no}
@@ -32,7 +32,7 @@ services:
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ssl_keystore:/etc/ssl/certs/
-      - soakpdb:${DATA_FILE_DIR:?}/
+      - ./docker/.db/:${DATA_FILE_DIR:?}/
       - ./src:${WORKDIR:-/srv}/src
     ports:
       - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
@@ -77,5 +77,5 @@ services:
       - ssl_keystore:/etc/ssl/certs/
 
 volumes:
-  soakpdb:
+  soakp_db:
   ssl_keystore:
