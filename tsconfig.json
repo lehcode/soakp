@@ -12,7 +12,6 @@
   "module": "commonjs",
   "compilerOptions": {
     "target": "es6",
-//    "module": "esnext",
     "strict": true,
     "outDir": "dist",
     "rootDir": ".",
