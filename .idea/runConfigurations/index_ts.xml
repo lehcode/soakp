@@ -1,16 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="index.ts" type="NodeJSConfigurationType" path-to-node="wsl://Ubuntu-22.04@/home/dev/.nvm/versions/node/v16.20.0/bin/node" nameIsGenerated="true" node-parameters="-r ts-node/register" path-to-js-file="index.ts" working-dir="$PROJECT_DIR$">
-    <envs pass-parent-envs="false">
-      <env name="AUTH_PASS" value="testuser123" />
-      <env name="AUTH_USER" value="testuser" />
-      <env name="DATA_FILE_DIR" value="/tmp" />
-      <env name="DATA_FILE_NAME" value="ws-debug" />
-      <env name="JWT_SECRET" value="anyString" />
-      <env name="SERVER_PORT" value="3033" />
-      <env name="SQL_DB_NAME" value="develop.db" />
-      <env name="SQL_TABLE_NAME" value="tokens" />
-      <env name="STORAGE_TYPE" value="STORAGE_SQLITE" />
-    </envs>
+    <envs pass-parent-envs="false" />
     <method v="2" />
   </configuration>
 </component>
