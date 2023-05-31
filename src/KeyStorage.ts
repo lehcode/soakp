@@ -122,7 +122,8 @@ class KeyStorage implements KeyStorageInterface {
         console.log('OpenAI key already exists in DB');
 
         if (!result.data[0].token) {
-          throw new Error(`JWT for key '${openAIKey}' was not found in DB`);
+          console.warn(`JWT for key '${openAIKey}' was not found in DB. Adding it`);
+          this.saveJWT(jwtSigned, openAIKey);
         }
 
         return result.data[0].token;
@@ -148,7 +149,7 @@ class KeyStorage implements KeyStorageInterface {
         console.log('JWT token successfully saved');
       }
 
-      return statusCode;
+      return StatusCode.ACCEPTED;
     } catch (e) {
       console.error(e);
     }
