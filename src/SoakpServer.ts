@@ -59,7 +59,7 @@ class SoakpServer {
   }
 
   /**
-   * Initialize API endnpoints
+   * Initialize API endpoints
    *
    * @private
    */
@@ -143,29 +143,38 @@ class SoakpServer {
    */
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
     const token = req.get('Authorization');
-    const query = req.body.query;
-    const parameters = req.body.parameters;
+    const openAIReq: Record<string, string> = {
+      query: req.body.query,
+      parameters: req.body.parameters
+    };
+    const existingToken = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
 
-    const tokenExists = await this.keyStorage.tokenExists(token.replace('Bearer ', '').trim());
-    if (tokenExists) {
-      this.jwt = await this.keyStorage.getOpenAIKey(this.config.storage, 'openai');
+    if (existingToken) {
+      jwt.verify(existingToken as string, this.secret, async (err: any, decoded: any) => {
+        if (err) {
+          res.status(StatusCode.NOT_AUTHORIZED).json(JsonResponse.getText(StatusCode.NOT_AUTHORIZED));
+          return;
+        }
+
+        this.openAIKey = await this.keyStorage.fetchKey(existingToken as string);
+
+        // Query OpenAI API with provided query and parameters
+        const response = this.makeAPIRequest(openAIReq);
+
+        // Forward response back to user via websockets
+        // ...
+      });
     } else {
+      res.json({
+        status: StatusCode.BAD_REQUEST,
+        message: Message.NOT_FOUND
+      });
     }
+  }
 
-    jwt.verify(token, this.secret, (err: any, decoded: any) => {
-      if (err) {
-        res.status(StatusCode.NOT_AUTHORIZED).json(JsonResponse.getText(StatusCode.NOT_AUTHORIZED));
-        return;
-      }
-
-      const openaiKey = decoded.openaiKey;
-
-      // Query OpenAI API with provided query and parameters
-      // ...
-
-      // Forward response back to user via websockets
-      // ...
-    });
+  private async makeAPIRequest(params: Record<string, string>) {
+    console.log(params);
+    debugger;
   }
 
   /**
@@ -174,7 +183,9 @@ class SoakpServer {
    */
   public start(port: number) {
     this.app.listen(port, () => {
-      console.log(`Started Secure OpenAI Key Proxy on port ${port}.\nPlease help to support project `);
+      console.log(
+        `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://lehcode.opencollective.org`
+      );
     });
   }
 

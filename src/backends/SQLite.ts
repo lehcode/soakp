@@ -153,19 +153,20 @@ id, key, token, created_at, updated_at, token_last_access, archived
    *
    * @param what
    * @param where
+   * @param limit
    */
-  async find(what: string, where: string[]): Promise<Record<string, any>> {
+  async find(what: string, where: string[], limit: 1): Promise<Record<string, any>> {
     const qWhere = [...where].join(' AND ');
 
     return new Promise((resolve, reject) => {
-      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT 1`, (err, row) => {
+      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT ${limit}`, (err, row) => {
         if (err) {
           reject(err);
         } else {
           resolve({
             status: row === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
             message: row === undefined ? Message.NOT_FOUND : Message.FOUND,
-            data: row === undefined ? [] : [row]
+            data: row === undefined ? [] : row
           });
         }
       });

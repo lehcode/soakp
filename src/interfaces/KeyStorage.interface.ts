@@ -8,7 +8,7 @@ export interface KeyStorageInterface {
 
   saveKey(openAIKey: string): Promise<boolean>;
 
-  fetchKey(openAIKey: string): Promise<string>;
+  fetchKey(jwtToken: string): Promise<string>;
 
   keyExists(openAIKey: string, jwtSigned: string): Promise<string | boolean>;
 
@@ -16,7 +16,7 @@ export interface KeyStorageInterface {
 
   fetchJWT(where: string): Promise<string>;
 
-  jwtExists(value: string): Promise<boolean>;
+  jwtExists(value: string): Promise<string | boolean>;
 
   archive(what: string): Promise<void>;
 }
