@@ -5,6 +5,7 @@
 import dotenv from 'dotenv';
 import { KeyStorage, StorageType } from './src/KeyStorage';
 import { SoakpServer } from './src/SoakpServer';
+import path from 'path';
 
 dotenv.config();
 
@@ -12,14 +13,14 @@ export * from './src/JsonRespose';
 export * from './src/SoakpServer';
 
 const fallback = {
-  dataFileLocation: './fallback',
+  dataFileLocation: path.resolve('./fallback'),
   dbName: 'fallback',
   tableName: 'fallback',
-  serverPort: 3000
+  serverPort: 3033
 };
 
 const storageConfig = {
-  dataFileLocation: process.env.DATA_FILE_DIR || fallback.dataFileLocation,
+  dataFileLocation: path.resolve(process.env.DATA_FILE_DIR) || fallback.dataFileLocation,
   sql: {
     dbName: process.env.SQL_DB_NAME || fallback.dbName,
     tableName: process.env.SQL_TABLE_NAME || fallback.tableName

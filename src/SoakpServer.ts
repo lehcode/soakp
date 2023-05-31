@@ -9,6 +9,8 @@ import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import { KeyStorage, StorageType } from './KeyStorage';
 import { JsonResponse } from './JsonRespose';
+import { StatusCodes } from './enums/Codes';
+import { Messages } from './enums/Messages';
 
 interface ServerConfigInterface {
   port: number;
@@ -89,16 +91,27 @@ class SoakpServer {
    * @param res
    * @private
    */
-  private handleGetJwt(req: express.Request, res: express.Response) {
+  private async handleGetJwt(req: express.Request, res: express.Response) {
     this.openAIKey = req.body.key;
     const jwtString = jwt.sign({ key: this.openAIKey }, this.secret, { expiresIn: this.jwtExpiration });
+
     try {
-      this.keyStorage.saveJWT(jwtString).then((result) => {
-        debugger;
-      });
+      const keySaved = await this.keyStorage.saveKey(this.openAIKey);
+
+      if (keySaved === StatusCodes.CREATED) {
+        const jwtSaved = await this.keyStorage.saveJWT(jwtString, this.openAIKey);
+
+        if (jwtSaved === StatusCodes.ACCEPTED) {
+          res.json({
+            status: StatusCodes.CREATED,
+            message: Messages.OPENAI_KEY_SAVED,
+            data: { jwt: jwtString }
+          });
+        }
+      }
     } catch (e) {
       console.error(e);
-      debugger;
+      return;
     }
   }
 

@@ -5,13 +5,13 @@ import Nedb from 'nedb';
 export interface KeyStorageInterface {
   readonly backend: Database | fileDb | Nedb;
 
-  saveKey(openAIKey: string): Promise<Record<string, any>>;
+  saveKey(openAIKey: string): Promise<boolean>;
 
   fetchKey(openAIKey: string): Promise<string>;
 
   keyExists(key: string): Promise<boolean>;
 
-  saveJWT(jwtToken: string): Promise<void>;
+  saveJWT(jwtToken: string, openAIKey: string): Promise<void>;
 
   fetchJWT(where: string): Promise<string>;
 
