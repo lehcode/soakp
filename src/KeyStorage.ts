@@ -56,7 +56,7 @@ class KeyStorage implements KeyStorageInterface {
         try {
           const backend = await SqliteStorage.getInstance(config.sql?.dbName, config.sql?.tableName, sqliteFile);
           keyStorageInstance.backend = backend;
-          console.log('SQLite backend initialized');
+          console.log('Key Storage backend initialized');
         } catch (error) {
           console.error('Error initializing SQLite backend:', error);
           throw error;

@@ -10,11 +10,14 @@ class SqliteStorage implements StorageStrategy {
   private dbFile: string;
 
   /**
-   * @param {string} dbName
-   * @param {string} tableName
-   * @param {string} dbFile
+   * @constructor
+   * @param db
+   * @param dbName
+   * @param tableName
+   * @param dbFile
    */
-  constructor(dbName: string, tableName: string, dbFile: string) {
+  constructor(db: Database, dbName: string, tableName: string, dbFile: string) {
+    this.db = db;
     this.dbName = dbName;
     this.tableName = tableName;
     this.dbFile = dbFile;
@@ -23,7 +26,7 @@ class SqliteStorage implements StorageStrategy {
   /**
    * Initialize database
    */
-  static async getInstance(dbName: string, tableName: string, dbFile: string) {
+  static async createDatabase(dbName: string, tableName: string, dbFile: string) {
     // Delete the existing database file if it exists
     try {
       await fs.access(dbFile);
@@ -54,7 +57,12 @@ class SqliteStorage implements StorageStrategy {
       }
     );
 
-    return new SqliteStorage(dbFile, dbName, tableName);
+    return db;
+  }
+
+  static async getInstance(dbName: string, tableName: string, dbFile: string): Promise<SqliteStorage> {
+    const db = await SqliteStorage.createDatabase(dbName, tableName, dbFile);
+    return new SqliteStorage(db, dbName, tableName, dbFile);
   }
 
   /**

@@ -11,18 +11,12 @@ import { KeyStorage, StorageType } from './KeyStorage';
 import { JsonResponse } from './JsonRespose';
 
 interface ServerConfigInterface {
-  // storage: StorageType;
   port: number;
-  // dataFileLocation?: string;
-  // sql?: {
-  //   dbName: string;
-  //   tableName: string;
-  // };
 }
 
-const defaults: ServerConfigInterface = {
+const defaults = {
   storage: StorageType.SQLITE,
-  port: 3033,
+  port: '3033',
   dataFileLocation: 'uploads/',
   sql: {
     dbName: 'databaseName.db',
@@ -32,8 +26,13 @@ const defaults: ServerConfigInterface = {
 
 class SoakpServer {
   private readonly app: express.Application;
-  private readonly config: ServerConfigInterface;
-  private jwtExpiration = 86400; // 24 hours
+  private readonly config: {
+    dataFileLocation: string;
+    port: number;
+    storage: StorageType;
+    sql: { dbName: string; tableName: string };
+  };
+  private jwtExpiration = 86400;
   private openAIKey = '';
   private keyStorage: KeyStorage;
   private jwt: string;
@@ -47,6 +46,10 @@ class SoakpServer {
     this.app.use(bodyParser.urlencoded({ extended: true }));
   }
 
+  /**
+   *
+   * @param storage
+   */
   async init(storage) {
     this.keyStorage = storage;
     this.initializeEndpoints();

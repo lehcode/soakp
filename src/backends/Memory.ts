@@ -8,23 +8,23 @@ class MemoryStorage implements StorageStrategy {
     this.db = new Datastore();
   }
 
-  insert(tokenType: string, value: string): Promise<void> {
+  insert(tokenType: string, value: string) {
     return Promise.resolve(undefined);
   }
 
-  update(what: string, where: string, value: string): Promise<void> {
+  update(what: string, where: string, value: string) {
     return Promise.resolve(undefined);
   }
 
-  find(tokenType: 'openai' | 'jwt', token: string): Promise<string> {
+  find(tokenType: 'openai' | 'jwt', token: string) {
     return Promise.resolve(undefined);
   }
 
-  query(query: string, vars: string[]): Promise<Record<string, any>> {
+  query(query: string, vars: string[]) {
     return Promise.resolve(undefined);
   }
 
-  archive(what: string): Promise<void> {
+  archive(what: string): {
     return Promise.resolve(undefined);
   }
 }
