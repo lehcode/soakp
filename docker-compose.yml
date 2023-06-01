@@ -29,6 +29,8 @@ services:
       DATA_FILE_DIR: ${DATA_FILE_DIR:?}
       DATA_FILE_NAME: ${DATA_FILE_NAME:-.secrets.db}
       JWT_SECRET: ${JWT_SECRET:?}
+      OPENAI_API_ROOT: ${OPENAI_API_ROOT:-/v1}
+      OPENAI_API_ORG: ${OPENAI_API_ORG}
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ssl_keystore:/etc/ssl/certs/
