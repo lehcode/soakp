@@ -9,7 +9,6 @@ import path from 'path';
 
 dotenv.config();
 
-export * from './src/JsonRespose';
 export * from './src/SoakpServer';
 
 const fallback = {
@@ -17,6 +16,7 @@ const fallback = {
   dbName: 'fallback',
   tableName: 'fallback',
   serverPort: 3033
+  // openAIAPIRoot: '/v1'
 };
 
 const storageConfig = {

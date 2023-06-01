@@ -10,20 +10,23 @@ import { createHash } from 'crypto';
 import { KeyStorage } from './KeyStorage';
 import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
-
-interface ServerConfigInterface {
-  port: number;
-}
+import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
+import { SoakpProxy } from './SoakpProxy';
+import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
+import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 
 class SoakpServer {
   private readonly app: express.Application;
   private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
-  private config: ServerConfigInterface = { port: 3033 };
+  private config: ServerConfigInterface = {
+    port: 3033
+  };
+  private proxy: SoakpProxy;
 
   constructor(private readonly configuration: ServerConfigInterface) {
     this.app = express();
-    this.config.port = configuration.port;
+    this.config = { ...configuration };
 
     // Configure middleware
     this.app.use(bodyParser.json());
@@ -103,23 +106,30 @@ class SoakpServer {
         })
       ).then(async (verified) => {
         if (Array.isArray(verified) && verified.length > 0) {
+          // Return the most recently accessed JWT if many are found
           res.json({
             status: StatusCode.SUCCESS,
-            message: Message.LOADED_OPENAI_API_KEY,
+            message: Message.LOADED_JWT_TOKEN,
             data: verified[0].token
           });
         } else {
-          const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
-          const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
+          // No saved JWT's found
+          // Generate and save a new one
+          try {
+            const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+            const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
 
-          if (jwtSaved === StatusCode.CREATED) {
-            res.json({
-              status: StatusCode.CREATED,
-              message: Message.JWT_ADDED,
-              data: { jwt: jwtSigned }
-            });
-          } else {
-            throw new Error('JWT not saved');
+            if (jwtSaved === StatusCode.CREATED) {
+              res.json({
+                status: StatusCode.CREATED,
+                message: Message.JWT_ADDED,
+                data: { jwt: jwtSigned }
+              });
+            } else {
+              throw new Error('JWT not saved');
+            }
+          } catch (err) {
+            throw err;
           }
         }
       });
@@ -134,9 +144,12 @@ class SoakpServer {
    */
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
     const token = req.get('Authorization');
-    const openAIReq: Record<string, string> = {
-      query: req.body.query,
-      parameters: req.body.parameters
+    const openAIReq: OpenAIRequestInterface = {
+      apiKey: '',
+      apiOrgKey: '',
+      prompt: req.body.prompt,
+      engineId: req.body.engineId,
+      model: req.body.model
     };
     const tokenFound = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
 
@@ -149,11 +162,22 @@ class SoakpServer {
           });
         }
 
-        const openAIKey = decoded;
+        // openAIReq.apiKey = decoded.key;
+        this.proxy = new SoakpProxy({
+          apiHost: 'https://api.openai.com',
+          apiBaseUrl: '/v1',
+          query: {
+            apiKey: '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',
+            apiOrgKey: '',
+            prompt: 'Hello World, Buddy! :-)',
+            engineId: '',
+            model: 'gpt-3.5-turbo'
+          } as OpenAIRequestInterface
+        } as ProxyConfigInterface);
 
         // Query OpenAI API with provided query and parameters
-        const response = await this.makeAPIRequest(openAIReq);
-
+        const response = await this.proxy.request('Hello!');
+        console.log(response);
         // Forward response back to user via websockets
         // ...
       });
@@ -165,10 +189,10 @@ class SoakpServer {
     }
   }
 
-  private async makeAPIRequest(params: Record<string, string>) {
-    console.log(params);
-    debugger;
-  }
+  // private async makeAPIRequest(params: Record<string, string>) {
+  //   console.log(params);
+  //   debugger;
+  // }
 
   /**
    * Start the server

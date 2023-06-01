@@ -30,14 +30,6 @@ class SqliteStorage implements StorageStrategy {
    * Initialize database
    */
   static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    // // Delete the existing database file if it exists
-    // try {
-    //   await fs.access(dbFile);
-    //   await fs.unlink(dbFile);
-    // } catch (err) {
-    //   // File doesn't exist, do nothing
-    // }
-
     const db = new Database(dbFile);
 
     console.log(`Database '${dbName}' created`);
@@ -150,7 +142,7 @@ id, token, created_at, updated_at, last_access, archived
    * @param where
    * @param limit
    */
-  async find(what: string, where: string[], limit: 1): Promise<Record<string, any>> {
+  async find(what: string, where: string[], limit = 1): Promise<Record<string, any>> {
     const qWhere = [...where].join(' AND ');
 
     return new Promise((resolve, reject) => {
