@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { Message } from './enums/Message';
+import { Message } from './enums/Message.enum';
 
 /**
  * JSON responses for convenience and consistency

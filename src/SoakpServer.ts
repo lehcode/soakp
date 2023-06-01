@@ -7,41 +7,23 @@ import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
-import { KeyStorage, StorageType } from './KeyStorage';
-import { JsonResponse } from './JsonRespose';
-import { StatusCode } from './enums/StatusCode';
-import { Message } from './enums/Message';
+import { KeyStorage } from './KeyStorage';
+import { StatusCode } from './enums/StatusCode.enum';
+import { Message } from './enums/Message.enum';
 
 interface ServerConfigInterface {
   port: number;
 }
 
-const defaults = {
-  storage: StorageType.SQLITE,
-  port: '3033',
-  dataFileLocation: 'uploads/',
-  sql: {
-    dbName: 'databaseName.db',
-    tableName: 'tokens'
-  }
-};
-
 class SoakpServer {
   private readonly app: express.Application;
-  private readonly config: {
-    dataFileLocation: string;
-    port: number;
-    storage: StorageType;
-    sql: { dbName: string; tableName: string };
-  };
   private jwtExpiration = 86400;
-  private openAIKey = '';
   private keyStorage: KeyStorage;
-  private jwt: string;
+  private config: ServerConfigInterface = { port: 3033 };
 
   constructor(private readonly configuration: ServerConfigInterface) {
     this.app = express();
-    this.config = { ...defaults, ...configuration };
+    this.config.port = configuration.port;
 
     // Configure middleware
     this.app.use(bodyParser.json());
@@ -100,38 +82,47 @@ class SoakpServer {
    * @private
    */
   private async handleGetJwt(req: express.Request, res: express.Response) {
-    this.openAIKey = req.body.key;
-    const jwtSigned = jwt.sign({ key: this.openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
-    const existingKey = await this.keyStorage.keyExists(this.openAIKey, jwtSigned);
+    const openAIKey = req.body.key;
+    const openAIOrg = req.body.org;
+    const existingTokens = await this.keyStorage.custom(
+      `SELECT token FROM ${this.keyStorage.tableName} WHERE archived !='1' ORDER BY last_access DESC`
+    );
 
-    if (existingKey) {
-      res.json({
-        status: StatusCode.SUCCESS,
-        message: Message.FOUND,
-        data: { jwt: existingKey }
-      });
-    } else {
-      try {
-        const keySaved = await this.keyStorage.saveKey(this.openAIKey);
+    if (existingTokens.length > 0) {
+      return Promise.resolve(
+        existingTokens.filter((row) => {
+          let verified = false;
 
-        if (keySaved === StatusCode.CREATED) {
-          const jwtSaved = await this.keyStorage.saveJWT(jwtSigned, this.openAIKey);
+          jwt.verify(row.token as string, this.jwtHash, async (err: any, decoded: any) => {
+            if (decoded.key === openAIKey) {
+              verified = true;
+            }
+          });
 
-          if (jwtSaved === StatusCode.ACCEPTED) {
+          return verified;
+        })
+      ).then(async (verified) => {
+        if (Array.isArray(verified) && verified.length > 0) {
+          res.json({
+            status: StatusCode.SUCCESS,
+            message: Message.LOADED_OPENAI_API_KEY,
+            data: verified[0].token
+          });
+        } else {
+          const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+          const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
+
+          if (jwtSaved === StatusCode.CREATED) {
             res.json({
               status: StatusCode.CREATED,
-              message: Message.OPENAI_KEY_SAVED,
+              message: Message.JWT_ADDED,
               data: { jwt: jwtSigned }
             });
+          } else {
+            throw new Error('JWT not saved');
           }
         }
-      } catch (e) {
-        console.error(e);
-        res.json({
-          status: StatusCode.INTERNAL_ERROR,
-          message: Message.INTERNAL_SERVER_ERROR
-        });
-      }
+      });
     }
   }
 
@@ -147,19 +138,21 @@ class SoakpServer {
       query: req.body.query,
       parameters: req.body.parameters
     };
-    const existingToken = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
+    const tokenFound = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
 
-    if (existingToken) {
-      jwt.verify(existingToken as string, this.secret, async (err: any, decoded: any) => {
+    if (tokenFound) {
+      jwt.verify(tokenFound as string, this.jwtHash, async (err: any, decoded: any) => {
         if (err) {
-          res.status(StatusCode.NOT_AUTHORIZED).json(JsonResponse.getText(StatusCode.NOT_AUTHORIZED));
-          return;
+          res.status(StatusCode.NOT_AUTHORIZED).json({
+            status: StatusCode.NOT_AUTHORIZED,
+            message: Message.NOT_AUTHORIZED_ERROR
+          });
         }
 
-        this.openAIKey = await this.keyStorage.fetchKey(existingToken as string);
+        const openAIKey = decoded;
 
         // Query OpenAI API with provided query and parameters
-        const response = this.makeAPIRequest(openAIReq);
+        const response = await this.makeAPIRequest(openAIReq);
 
         // Forward response back to user via websockets
         // ...

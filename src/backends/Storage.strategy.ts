@@ -11,7 +11,7 @@ abstract class StorageStrategy {
 
   abstract find(what: string, where: string[], limit: number): Promise<Record<string, any>>;
 
-  abstract query(query: string, vars?: string[]): Promise<Record<string, any>>;
+  abstract select(query: string): Promise<Record<string, any>[]>;
 
   abstract archive(what: string): Promise<Record<string, any>>;
 }

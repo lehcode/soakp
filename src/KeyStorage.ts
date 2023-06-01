@@ -6,7 +6,7 @@ import path from 'path';
 import { SqliteStorage } from './backends/SQLite';
 // import { FileStorage } from './backends/File';
 import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
-import { StatusCode } from './enums/StatusCode';
+import { StatusCode } from './enums/StatusCode.enum';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
@@ -79,87 +79,18 @@ class KeyStorage implements KeyStorageInterface {
   }
 
   /**
-   * @param openAIKey
-   */
-  async saveKey(openAIKey: string): Promise<boolean | StatusCode> {
-    try {
-      const statusCode = await this.backend.insert('key', openAIKey);
-      console.log('OpenAI key successfully saved');
-
-      return statusCode === StatusCode.SUCCESS;
-    } catch (error) {
-      console.warn('Error saving OpenAI key:', error);
-      return StatusCode.INTERNAL_ERROR;
-    }
-  }
-
-  /**
-   * Get OpenAI key
    *
    * @param jwtToken
    */
-  async fetchKey(jwtToken: string) {
+  async saveJWT(jwtToken: string): Promise<StatusCode> {
     try {
-      const rows = await this.backend.find('key', [`token ='${jwtToken}'`], 1);
+      const statusCode = await this.backend.insert(jwtToken);
 
-      if (rows.data[0]?.length) {
-        return result.data[0].key;
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  /**
-   * Check for OpenAI key existence
-   *
-   * @param openAIKey
-   * @param jwtSigned
-   */
-  async keyExists(openAIKey: string, jwtSigned: string): Promise<string | boolean> {
-    try {
-      const found = await this.backend.find('*', [`key ='${openAIKey}'`], 1);
-
-      if (found.status === StatusCode.SUCCESS) {
-        console.log(`OK. OpenAI key '${openAIKey}' was found in DB`);
-
-        if (!found.data.token) {
-          console.warn(`JWT for key '${openAIKey}' was not found in DB. Adding it`);
-
-          try {
-            const resultStatus = await this.saveJWT(jwtSigned, openAIKey);
-            if (resultStatus !== StatusCode.ACCEPTED) {
-              return false;
-            }
-          } catch (e) {
-            throw e;
-          }
-        } else {
-          console.log(`Matching JWT token ${found.data.token} found`);
-          return found.data.token;
-        }
-      } else {
-        throw new Error('Application error');
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  /**
-   *
-   * @param jwtToken
-   * @param openAIKey
-   */
-  async saveJWT(jwtToken: string, openAIKey: string): Promise<StatusCode> {
-    try {
-      const statusCode = await this.backend.update([`key ='${openAIKey}'`], [`token ='${jwtToken}'`]);
-
-      if (statusCode === StatusCode.ACCEPTED) {
+      if (statusCode === StatusCode.CREATED) {
         console.log('JWT token successfully saved');
       }
 
-      return StatusCode.ACCEPTED;
+      return StatusCode.CREATED;
     } catch (e) {
       console.error(e);
     }
@@ -169,8 +100,18 @@ class KeyStorage implements KeyStorageInterface {
    *
    * @param jwtToken
    */
-  async fetchJWT(jwtToken: string) {
-    const result = this.backend.find('*', [`token = ${jwtToken}`], 1);
+  async fetchJWT(jwtToken: string): Promise<string | null> {
+    try {
+      const row = await this.backend.find('*', [`token ='${jwtToken}'`], 1);
+
+      if (row.status === StatusCode.SUCCESS) {
+        return row.data.token;
+      }
+
+      return;
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -183,8 +124,8 @@ class KeyStorage implements KeyStorageInterface {
       const result = await this.backend.find('*', [`token ='${jwtToken}'`], 1);
 
       if (result.status === StatusCode.SUCCESS) {
-        console.log(`JWT found: '${jwtToken}'`);
-        return result.data[0].token;
+        console.log(`JWT supplied to API was found in DB: '${jwtToken}'`);
+        return result.data.token;
       } else {
         return false;
       }
@@ -201,6 +142,32 @@ class KeyStorage implements KeyStorageInterface {
     debugger;
 
     const result = await this.backend.archive(what);
+  }
+
+  /**
+   *
+   * @param query
+   */
+  async custom(query: string): Promise<Record<string, string | number>[] | null> {
+    try {
+      const result = await this.backend.select(query);
+
+      if (result.status === StatusCode.SUCCESS) {
+        console.log(`Custom query executed: ${query}`);
+        return result.data;
+      } else {
+        return;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   *
+   */
+  get tableName(): string {
+    return this.config.sql?.tableName;
   }
 }
 

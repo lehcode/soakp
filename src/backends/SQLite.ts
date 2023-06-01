@@ -1,9 +1,10 @@
 import { StorageStrategy } from './Storage.strategy';
-import { StatusCode } from '../enums/StatusCode';
+import { StatusCode } from '../enums/StatusCode.enum';
 import fs from 'fs/promises';
 import { Database } from 'sqlite3';
-import { Message } from '../enums/Message';
+import { Message } from '../enums/Message.enum';
 import { SchemeInterface } from '../interfaces/Scheme.interface';
+import { ResponseInterface } from '../interfaces/Response.interface';
 
 class SqliteStorage implements StorageStrategy {
   private db: Database;
@@ -45,13 +46,11 @@ class SqliteStorage implements StorageStrategy {
       `CREATE TABLE IF NOT EXISTS '${tableName}'
         (
           id INTEGER PRIMARY KEY,
-          key TEXT NOT NULL UNIQUE
-            CHECK(LENGTH(key) <= 255),
           token TEXT UNIQUE
             CHECK(LENGTH(token) <= 255),
           created_at INTEGER NOT NULL,
           updated_at INTEGER NOT NULL,
-          token_last_access INTEGER NOT NULL,
+          last_access INTEGER NOT NULL,
           archived BOOLEAN NOT NULL
             CHECK (archived IN (0, 1)));`,
       (err) => {
@@ -74,29 +73,25 @@ class SqliteStorage implements StorageStrategy {
   /**
    * Inset SQLite row
    *
-   * @param column
-   * @param value
+   * @param jwtToken
    * @private
    */
-  async insert(column: string, value: string) {
+  async insert(jwtToken: string) {
     const defaults: SchemeInterface = {
       id: null,
-      key: null,
-      token: null,
+      token: jwtToken,
       createdAt: new Date().getTime(),
       updatedAt: new Date().getTime(),
-      tokenLastAccess: new Date().getTime(),
+      lastAccess: new Date().getTime(),
       archived: false
     };
-
-    const row = <Record<string, string>>Object.assign(defaults, { [column]: value });
-    const queryParams = Object.values(this.prepareRow(row));
+    const params = Object.values(this.prepareRow(defaults));
     const query = `INSERT INTO ${this.tableName} (
-id, key, token, created_at, updated_at, token_last_access, archived
-) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+id, token, created_at, updated_at, last_access, archived
+) VALUES (?, ?, ?, ?, ?, ?)`;
 
     return new Promise((resolve, reject) => {
-      this.db.run(query, [...queryParams], (err) => {
+      this.db.run(query, [...params], (err) => {
         if (err) {
           reject(err);
         } else {
@@ -111,10 +106,10 @@ id, key, token, created_at, updated_at, token_last_access, archived
    * @param row
    * @private
    */
-  private prepareRow(row: Record<string, string>): Record<string, string> {
+  private prepareRow(row: Record<string, any>): Record<string, string> {
     row.createdAt = row.createdAt.toString();
     row.updatedAt = row.updatedAt.toString();
-    row.tokenLastAccess = row.tokenLastAccess.toString();
+    row.lastAccess = row.lastAccess.toString();
     row.archived = row.archived === true ? '1' : '0';
     return row;
   }
@@ -159,27 +154,37 @@ id, key, token, created_at, updated_at, token_last_access, archived
     const qWhere = [...where].join(' AND ');
 
     return new Promise((resolve, reject) => {
-      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT ${limit}`, (err, row) => {
+      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT ${limit}`, (err, data) => {
         if (err) {
           reject(err);
         } else {
           resolve({
-            status: row === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
-            message: row === undefined ? Message.NOT_FOUND : Message.FOUND,
-            data: row === undefined ? [] : row
-          });
+            status: data === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
+            message: data === undefined ? Message.NOT_FOUND : Message.FOUND,
+            data: data === undefined ? [] : data
+          } as ResponseInterface);
         }
       });
     });
   }
 
-  query(query: string, vars: string[]): Promise<Record<string, any>> {
-    return Promise.resolve(this.db.run(query, ...vars)).then((rows) => {
-      debugger;
-      return {
-        status: StatusCode.SUCCESS,
-        message: Message.SUCCESS
-      };
+  /**
+   *
+   * @param selectQuery
+   */
+  async select(selectQuery: string): Promise<Record<string, any>> {
+    return new Promise((resolve, reject) => {
+      this.db.all(selectQuery, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            status: rows === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
+            message: rows === undefined ? Message.NOT_FOUND : Message.FOUND,
+            data: rows === undefined ? [] : rows
+          } as ResponseInterface);
+        }
+      });
     });
   }
 
