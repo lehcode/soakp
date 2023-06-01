@@ -191,7 +191,10 @@ class SoakpServer {
             res.json({
               status: StatusCode.SUCCESS,
               message: Message.SUCCESS,
-              data: response.data
+              data: {
+                response: response.data,
+                config: response.config.data
+              }
             });
           }
         } catch (error) {
