@@ -49,10 +49,11 @@ export class SoakpProxy {
     };
 
     try {
-      const response = await this.openAI.createCompletion(request, { maxRate: 1 });
-      console.log(response);
+      return await this.openAI.createCompletion(request, { maxRate: 0.01 });
+      // console.log(response);
+      // return response;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw error;
     }
   }

@@ -14,6 +14,7 @@ import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
 import { SoakpProxy } from './SoakpProxy';
 import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import stringify from 'stringify';
 
 class SoakpServer {
   private readonly app: express.Application;
@@ -186,8 +187,13 @@ class SoakpServer {
           const response = await this.proxy.request(params);
           console.log(response);
 
-          // Forward response back to user via websockets
-          // TODO: Implement websocket response
+          if (response.status === StatusCode.SUCCESS) {
+            res.json({
+              status: StatusCode.SUCCESS,
+              message: Message.SUCCESS,
+              data: response.data
+            });
+          }
         } catch (error) {
           console.error(error);
           // Handle error appropriately
