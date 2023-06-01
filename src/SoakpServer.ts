@@ -31,6 +31,19 @@ class SoakpServer {
     // Configure middleware
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
+
+    this.proxy = new SoakpProxy({
+      apiHost: 'https://api.openai.com',
+      apiBaseUrl: '/v1',
+      query: {
+        // apiKey: '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',
+        apiKey: '',
+        apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
+        prompt: 'Hello World, Buddy! :-)',
+        engineId: '',
+        model: 'text-davinci-003'
+      } as OpenAIRequestInterface
+    } as ProxyConfigInterface);
   }
 
   /**
@@ -144,13 +157,6 @@ class SoakpServer {
    */
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
     const token = req.get('Authorization');
-    const openAIReq: OpenAIRequestInterface = {
-      apiKey: '',
-      apiOrgKey: '',
-      prompt: req.body.prompt,
-      engineId: req.body.engineId,
-      model: req.body.model
-    };
     const tokenFound = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
 
     if (tokenFound) {
@@ -160,26 +166,32 @@ class SoakpServer {
             status: StatusCode.NOT_AUTHORIZED,
             message: Message.NOT_AUTHORIZED_ERROR
           });
+          // return early if token is invalid
+          return;
         }
 
-        // openAIReq.apiKey = decoded.key;
-        this.proxy = new SoakpProxy({
-          apiHost: 'https://api.openai.com',
-          apiBaseUrl: '/v1',
-          query: {
-            apiKey: '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',
-            apiOrgKey: '',
-            prompt: 'Hello World, Buddy! :-)',
-            engineId: '',
-            model: 'gpt-3.5-turbo'
-          } as OpenAIRequestInterface
-        } as ProxyConfigInterface);
+        // Update parameters without reinitializing the OpenAI client
+        const params: OpenAIRequestInterface = {
+          apiKey: decoded.key,
+          apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
+          prompt: req.body.prompt || 'Hello world!',
+          engineId: req.body.engineId || 'text-davinci-003',
+          model: req.body.model || 'text-davinci-003'
+        };
+        this.proxy.queryParams = params;
+        this.proxy.initAI(params);
 
-        // Query OpenAI API with provided query and parameters
-        const response = await this.proxy.request('Hello!');
-        console.log(response);
-        // Forward response back to user via websockets
-        // ...
+        try {
+          // Query OpenAI API with provided query and parameters
+          const response = await this.proxy.request(params);
+          console.log(response);
+
+          // Forward response back to user via websockets
+          // TODO: Implement websocket response
+        } catch (error) {
+          console.error(error);
+          // Handle error appropriately
+        }
       });
     } else {
       res.json({
@@ -188,11 +200,6 @@ class SoakpServer {
       });
     }
   }
-
-  // private async makeAPIRequest(params: Record<string, string>) {
-  //   console.log(params);
-  //   debugger;
-  // }
 
   /**
    * Start the server
@@ -206,8 +213,14 @@ class SoakpServer {
     });
   }
 
+  /**
+   * Validate OpenAI API key
+   *
+   * @param key
+   * @private
+   */
   private isValidOpenAIKey(key: string): boolean {
-    const regex = /^(sk|pk)-\w+$/;
+    const regex = /^(sk|pk|org)-\w+$/;
     return regex.test(key);
   }
 
