@@ -26,7 +26,7 @@ services:
       STORAGE: ${STORAGE:-STORAGE_SQLITE}
       SQLITE_DB: ${SQLITE_DB:-data.db}
       SQLITE_TABLE: ${SQLITE_TABLE:-tokens}
-      DATA_FILE_DIR: ${DATA_FILE_DIR:?}
+      DATA_FILE_DIR: ${DATA_FILE_DIR:-/tmp/soakp}
       DATA_FILE_NAME: ${DATA_FILE_NAME:-.secrets.db}
       JWT_SECRET: ${JWT_SECRET:?}
       OPENAI_API_ROOT: ${OPENAI_API_ROOT:-/v1}
@@ -34,7 +34,7 @@ services:
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ssl_keystore:/etc/ssl/certs/
-      - ./docker/.db/:${DATA_FILE_DIR:?}/
+      - soakp_db:${DATA_FILE_DIR:-/tmp/soakp}
       - ./src:${WORKDIR:-/srv}/src
     ports:
       - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
