@@ -7,6 +7,7 @@ import { SqliteStorage } from './backends/SQLite';
 // import { FileStorage } from './backends/File';
 import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
 import { StatusCode } from './enums/StatusCode.enum';
+import { ResponseInterface } from './interfaces/Response.interface';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
@@ -64,15 +65,6 @@ class KeyStorage implements KeyStorageInterface {
           throw error;
         }
         break;
-
-      // case StorageType.FILE:
-      //   const dataFileLocation = path.resolve(this.config.dataFileLocation);
-      //   this.backend = new FileStorage(dataFileLocation);
-      //   break;
-      //
-      // case StorageType.MEMORY:
-      //   this.backend = new Datastore();
-      //   break;
     }
 
     return keyStorageInstance;
@@ -102,7 +94,7 @@ class KeyStorage implements KeyStorageInterface {
    */
   async fetchJWT(jwtToken: string): Promise<string | null> {
     try {
-      const row = await this.backend.find('*', [`token ='${jwtToken}'`], 1);
+      const row = await this.backend.findToken(jwtToken);
 
       if (row.status === StatusCode.SUCCESS) {
         return row.data.token;
@@ -121,12 +113,13 @@ class KeyStorage implements KeyStorageInterface {
    */
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
-      const result = await this.backend.find('*', [`token ='${jwtToken}'`], 1);
+      const result = await this.backend.find('*', [`token ='${jwtToken}'`]);
 
       if (result.status === StatusCode.SUCCESS) {
-        console.log(`JWT supplied to API was found in DB: '${jwtToken}'`);
+        console.log('JWT supplied to API was found in DB');
         return result.data.token;
       } else {
+        console.log('Supplied JWT was not found in DB');
         return false;
       }
     } catch (e) {
@@ -146,21 +139,32 @@ class KeyStorage implements KeyStorageInterface {
 
   /**
    *
-   * @param query
    */
-  async custom(query: string): Promise<Record<string, string | number>[]> {
+  async getActiveTokens() {
     try {
-      const result = await this.backend.select(query);
+      const tokens = await this.backend.find('*', ['archived != 1']);
+      if (tokens) {
+        if (tokens.length === 0) {
+          console.info('No active tokens found');
+        }
 
-      if (result.status === StatusCode.SUCCESS) {
-        console.log(`Custom query executed: ${query}`);
-        return result.data;
+        return tokens;
       } else {
-        return [];
       }
     } catch (e) {
       throw e;
     }
+
+    // const rows = result.data;
+    // return Promise.resolve()
+    // // .then(rows => rows.map(row => row.data.token));
+    //   .then((rows) => {
+    //     if (rows.data.length) {
+    //       return rows.data;
+    //     } else {
+    //       console.warn('No active tokens found');
+    //     }
+    //   });
   }
 
   /**
@@ -168,6 +172,21 @@ class KeyStorage implements KeyStorageInterface {
    */
   get tableName(): string {
     return this.config.sql?.tableName;
+  }
+
+  /**
+   *
+   * @param query
+   */
+  async custom(query: string): Promise<Record<string, string | number>[]> {
+    return await this.backend.custom(query);
+  }
+
+  /**
+   *
+   */
+  get dbInstance(): SqliteStorage {
+    return this.backend;
   }
 }
 

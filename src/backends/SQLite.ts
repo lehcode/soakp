@@ -1,9 +1,9 @@
 import { StorageStrategy } from './Storage.strategy';
 import { StatusCode } from '../enums/StatusCode.enum';
-import fs from 'fs/promises';
+import path from 'path';
 import { Database } from 'sqlite3';
 import { Message } from '../enums/Message.enum';
-import { SchemeInterface } from '../interfaces/Scheme.interface';
+import { DbSchemaInterface } from '../interfaces/DbSchema.interface';
 import { ResponseInterface } from '../interfaces/Response.interface';
 
 class SqliteStorage implements StorageStrategy {
@@ -30,22 +30,30 @@ class SqliteStorage implements StorageStrategy {
    * Initialize database
    */
   static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    // const db = new Database(dbFile);
-    const db = new Database(':memory:');
+    const db = (process.env.SQLITE_MEMORY as string) === 'yes' ? new Database(':memory:') : new Database(dbFile);
 
-    console.log(`Database '${dbName}' created`);
+    if ((process.env.SQLITE_MEMORY as string) === 'yes') {
+      console.log('In-memory database initialized');
+    } else {
+      console.log(`Database '${path.resolve(dbFile)}' initialized`);
+    }
+
+    if ((process.env.RESET_DB as string) === 'yes') {
+      await db.run(`DROP TABLE IF EXISTS '${tableName}';`);
+      console.log(`Table '${tableName}' dropped`);
+    }
 
     await db.run(
       `CREATE TABLE IF NOT EXISTS '${tableName}'
         (
-          id INTEGER PRIMARY KEY,
-          token TEXT UNIQUE
-            CHECK(LENGTH(token) <= 255),
-          created_at INTEGER NOT NULL,
-          updated_at INTEGER NOT NULL,
-          last_access INTEGER NOT NULL,
-          archived BOOLEAN NOT NULL
-            CHECK (archived IN (0, 1)));`,
+          'id' INTEGER PRIMARY KEY,
+          'token' TEXT UNIQUE
+            CHECK(LENGTH('token') <= 255),
+          'created_at' INTEGER NOT NULL,
+          'updated_at' INTEGER NOT NULL,
+          'last_access' INTEGER NOT NULL,
+          'archived' BOOLEAN NOT NULL
+            CHECK ('archived' IN (0, 1)));`,
       (err) => {
         if (err) {
           throw err;
@@ -53,7 +61,7 @@ class SqliteStorage implements StorageStrategy {
       }
     );
 
-    console.log(`Table '${tableName}' created successfully`);
+    console.log(process.env.RESET_DB === 'yes' ? `Table '${tableName}' created` : `Table '${tableName}' initialized`);
 
     return db;
   }
@@ -70,7 +78,7 @@ class SqliteStorage implements StorageStrategy {
    * @private
    */
   async insert(jwtToken: string) {
-    const defaults: SchemeInterface = {
+    const defaults: DbSchemaInterface = {
       id: null,
       token: jwtToken,
       createdAt: new Date().getTime(),
@@ -131,34 +139,44 @@ id, token, created_at, updated_at, last_access, archived
   /**
    * Archive SQLite row
    *
-   * @param what
+   * @param token
    */
-  archive(what: string): Promise<Record<string, any>> {
-    return Promise.resolve(undefined);
+  archive(token: string): Promise<Record<string, any>> {
+    return new Promise((resolve, reject) => {
+      this.db.run(`UPDATE '${this.tableName}' SET archived ='1' WHERE token =?`, [token]);
+    });
   }
 
   /**
    *
-   * @param what
    * @param where
-   * @param limit
+   * @param archived
    */
-  async find(what: string, where: string[], limit = 1): Promise<Record<string, any>> {
+  async find(
+    what = 'token',
+    where: string[] | null = null,
+    order: 'last_access' | 'created_at' = 'last_access',
+    sort: 'ASC' | 'DESC' = 'ASC',
+    limit?: number
+  ): Promise<ResponseInterface> {
     const qWhere = [...where].join(' AND ');
 
-    return new Promise((resolve, reject) => {
-      this.db.get(`SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT ${limit}`, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({
-            status: data === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
-            message: data === undefined ? Message.NOT_FOUND : Message.FOUND,
-            data: data === undefined ? [] : data
-          } as ResponseInterface);
-        }
+    let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
+    if (limit) sql = `${sql} LIMIT ${limit}`;
+
+    try {
+      return new Promise((resolve, reject) => {
+        this.db.all(sql, (err, rows: DbSchemaInterface[]) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
       });
-    });
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**
@@ -172,7 +190,7 @@ id, token, created_at, updated_at, last_access, archived
           reject(err);
         } else {
           try {
-            resolve(this.validateData(rows));
+            resolve(this.formatData(rows));
           } catch (error) {
             reject(error);
           }
@@ -186,14 +204,14 @@ id, token, created_at, updated_at, last_access, archived
    * @param rows
    * @private
    */
-  private validateData(rows: Array<Record<string, any>>): ResponseInterface {
+  private formatData(rows: DbSchemaInterface[]): ResponseInterface {
     const result: ResponseInterface = {
       status: StatusCode.NOT_FOUND,
       message: Message.NOT_FOUND,
       data: []
     };
 
-    if (rows?.length) {
+    if (rows.length) {
       result.status = StatusCode.SUCCESS;
       result.message = Message.FOUND;
       result.data = rows;
@@ -203,18 +221,28 @@ id, token, created_at, updated_at, last_access, archived
   }
 
   /**
-   * @private
+   *
+   * @param query
    */
-  private async dropDb(): Promise<void> {
-    return fs
-      .access(this.dbFile, fs.constants.F_OK)
-      .then((err) => {
-        if (!err) {
-          fs.unlink(this.dbFile);
+  async custom(query: string): Promise<Record<string, string | number>[]> {
+    try {
+      const result = await this.db.all(query, (err, rows) => {
+        if (result.status === StatusCode.SUCCESS) {
+          console.log(`Custom query executed: ${query}`);
+          return result.data;
+        } else {
+          return [];
         }
-      })
-      .catch(console.info);
+      });
+    } catch (e) {
+      throw e;
+    }
   }
+
+  limit: number;
+  sort: 'ASC' | 'DESC';
+
+  Promise<ResponseInterface>() {}
 }
 
 export { SqliteStorage };

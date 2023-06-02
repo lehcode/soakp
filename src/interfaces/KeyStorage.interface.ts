@@ -13,6 +13,4 @@ export interface KeyStorageInterface {
   jwtExists(value: string): Promise<string | boolean>;
 
   archive(what: string): Promise<void>;
-
-  custom(query: string): Promise<Record<string, string | number>[]>;
 }
