@@ -14,7 +14,6 @@ import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
 import { SoakpProxy } from './SoakpProxy';
 import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
-import stringify from 'stringify';
 
 class SoakpServer {
   private readonly app: express.Application;
@@ -99,55 +98,93 @@ class SoakpServer {
    * @private
    */
   private async handleGetJwt(req: express.Request, res: express.Response) {
-    const openAIKey = req.body.key;
-    const openAIOrg = req.body.org;
-    const existingTokens = await this.keyStorage.custom(
-      `SELECT token FROM ${this.keyStorage.tableName} WHERE archived !='1' ORDER BY last_access DESC`
-    );
+    try {
+      let openAIKey: string;
 
-    if (existingTokens.length > 0) {
-      return Promise.resolve(
-        existingTokens.filter((row) => {
-          let verified = false;
+      if (this.isValidOpenAIKey(req.body.key)) {
+        openAIKey = req.body.key;
+      } else {
+        console.error('Invalid OpenAI API key');
+        return;
+      }
+      const openAIOrg = req.body.org;
+      const existingTokens = await this.keyStorage.custom(
+        `SELECT token FROM ${this.keyStorage.tableName} WHERE archived !='1' ORDER BY last_access DESC`
+      );
 
-          jwt.verify(row.token as string, this.jwtHash, async (err: any, decoded: any) => {
-            if (decoded.key === openAIKey) {
-              verified = true;
-            }
-          });
+      if (existingTokens.length > 0) {
+        const verified = existingTokens.filter((row) => this.jwtVerify(row.token as string, openAIKey));
 
-          return verified;
-        })
-      ).then(async (verified) => {
-        if (Array.isArray(verified) && verified.length > 0) {
-          // Return the most recently accessed JWT if many are found
+        // Return the most recently accessed JWT if many are found
+        res.json({
+          status: StatusCode.SUCCESS,
+          message: Message.LOADED_JWT_TOKEN,
+          data: verified[0].token
+        });
+      } else {
+        // No saved JWT's found
+        // Generate and save a new one
+        const token = await this.generateAndSaveToken(openAIKey);
+
+        if (token !== false) {
           res.json({
-            status: StatusCode.SUCCESS,
-            message: Message.LOADED_JWT_TOKEN,
-            data: verified[0].token
+            status: StatusCode.CREATED,
+            message: Message.JWT_ADDED,
+            data: { jwt: token }
           });
         } else {
-          // No saved JWT's found
-          // Generate and save a new one
-          try {
-            const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
-            const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
-
-            if (jwtSaved === StatusCode.CREATED) {
-              res.json({
-                status: StatusCode.CREATED,
-                message: Message.JWT_ADDED,
-                data: { jwt: jwtSigned }
-              });
-            } else {
-              throw new Error('JWT not saved');
-            }
-          } catch (err) {
-            throw err;
-          }
+          throw new Error(Message.JWT_NOT_SAVED);
         }
-      });
+      }
+    } catch (err) {
+      console.error(err);
+
+      if (err.message === Message.JWT_NOT_SAVED) {
+        res.status(StatusCode.INTERNAL_ERROR).json({
+          status: StatusCode.INTERNAL_ERROR,
+          message: Message.JWT_NOT_SAVED
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_ERROR).json({
+          status: StatusCode.INTERNAL_ERROR,
+          message: Message.UNKNOWN_ERROR
+        });
+      }
     }
+  }
+
+  /**
+   *
+   * @param openAIKey
+   * @private
+   */
+  private async generateAndSaveToken(openAIKey: string) {
+    try {
+      const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+      const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
+
+      if (jwtSaved === StatusCode.CREATED) {
+        return jwtSigned;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   *
+   * @param token
+   */
+  private jwtVerify(token: string, openAIKey: string): boolean {
+    let verified = false;
+
+    jwt.verify(token, this.jwtHash, (err: any, decoded: any) => {
+      if (decoded.key === openAIKey) verified = true;
+    });
+
+    return verified;
   }
 
   /**

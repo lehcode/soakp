@@ -148,7 +148,7 @@ class KeyStorage implements KeyStorageInterface {
    *
    * @param query
    */
-  async custom(query: string): Promise<Record<string, string | number>[] | null> {
+  async custom(query: string): Promise<Record<string, string | number>[]> {
     try {
       const result = await this.backend.select(query);
 
@@ -156,7 +156,7 @@ class KeyStorage implements KeyStorageInterface {
         console.log(`Custom query executed: ${query}`);
         return result.data;
       } else {
-        return;
+        return [];
       }
     } catch (e) {
       throw e;
