@@ -6,10 +6,10 @@ if [ "${DEBUG}" = "yes" ]; then
   env
 fi
 
-#sudo cat /etc/sudoers
-ls -al /
-
-# sudo chown -R node:node /.npm /.cache/yarn
+echo ${NODE_USER_PWD} | sudo -S chown -R node:node ./
+echo ${NODE_USER_PWD} | sudo -S cat /etc/sudoers
+echo ${NODE_USER_PWD} | sudo -S ls -al ${DATA_FILE_DIR}
+sudo ls -al ${WORKDIR}
 
 if [ ! -d "node_modules" ]; then yarn install; fi
 

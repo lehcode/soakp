@@ -12,6 +12,7 @@ ARG workdir
 ARG auth_user
 ARG auth_pass
 ARG data_file_dir
+ARG node_user_pwd
 
 ENV DEBUG=${debug}
 ENV NODE_ENV=${node_env}
@@ -19,13 +20,13 @@ ENV NODE_VERSION=${node_version}
 ENV AUTH_USER=${auth_user}
 ENV AUTH_PASS=${auth_pass}
 ENV DATA_FILE_DIR=${data_file_dir}
+ENV NODE_USER_PWD=${node_user_pwd}
 
 WORKDIR ${workdir}
 
 COPY package.json .
 COPY yarn.lock .
 COPY tsconfig.json .
-# COPY to-mjs.sh .
 COPY *.ts .
 COPY entrypoint.sh /init.sh
 
@@ -33,14 +34,15 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && sh -c 'export DEBIAN_FRONTEND="noninteractive"' \
   && userdel node \
   && groupadd -g 1000 node \
-  && useradd -d /home/node -g 1000 -m -u 1000 node \
+  && useradd -d /home/node -g 1000 -m -u 1000 -p ${node_user_pwd} node \
   && apt-get update \
   && apt-get -y upgrade \
-  && apt-get -y --no-install-recommends --no-install-suggests install curl tzdata locales gnupg ca-certificates apache2-utils \
+  && apt-get -y --no-install-recommends --no-install-suggests install sudo curl tzdata locales gnupg ca-certificates apache2-utils \
   && ln -fs /usr/share/zoneinfo/${tz} /etc/localtime \
   && echo ${tz} > /etc/timezone \
   && dpkg-reconfigure -f noninteractive tzdata \
   && apt-get clean \
+  && echo "node ALL=(ALL:ALL) NOPASSWD: /bin/chown,/bin/chmod,/bin/ls,/bin/cat" | tee -a /etc/sudoers \
   && npm install -g npm \
   && npm --force install -g yarn \
   && npm cache clean --force \
