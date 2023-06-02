@@ -14,6 +14,8 @@ import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
 import { SoakpProxy } from './SoakpProxy';
 import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { Response } from './http/Response';
+import { DbSchemaInterface } from './interfaces/DbSchema.interface';
 
 class SoakpServer {
   private readonly app: express.Application;
@@ -107,31 +109,26 @@ class SoakpServer {
         console.error('Invalid OpenAI API key');
         return;
       }
-      const openAIOrg = req.body.org;
-      const existingTokens = await this.keyStorage.custom(
+
+      //const existingTokens: DbSchemaInterface[] = await this.keyStorage.getActiveTokens();
+      const existingTokens = await this.keyStorage.getActiveTokens(
         `SELECT token FROM ${this.keyStorage.tableName} WHERE archived !='1' ORDER BY last_access DESC`
       );
 
-      if (existingTokens.length > 0) {
-        const verified = existingTokens.filter((row) => this.jwtVerify(row.token as string, openAIKey));
+      let verified = [];
+      if (existingTokens.length) {
+        verified = existingTokens.filter((row: DbSchemaInterface) => this.jwtVerify(row.token, openAIKey));
+      }
 
-        // Return the most recently accessed JWT if many are found
-        res.json({
-          status: StatusCode.SUCCESS,
-          message: Message.LOADED_JWT_TOKEN,
-          data: verified[0].token
-        });
+      if (verified.length) {
+        // Return the most recently accessed JWT
+        Response.loadedToken(res, verified[0].token);
       } else {
-        // No saved JWT's found
-        // Generate and save a new one
+        // No saved JWT's found, generate and save a new one
         const token = await this.generateAndSaveToken(openAIKey);
 
-        if (token !== false) {
-          res.json({
-            status: StatusCode.CREATED,
-            message: Message.JWT_ADDED,
-            data: { jwt: token }
-          });
+        if (token) {
+          Response.tokenAdded(res, token);
         } else {
           throw new Error(Message.JWT_NOT_SAVED);
         }
@@ -140,15 +137,9 @@ class SoakpServer {
       console.error(err);
 
       if (err.message === Message.JWT_NOT_SAVED) {
-        res.status(StatusCode.INTERNAL_ERROR).json({
-          status: StatusCode.INTERNAL_ERROR,
-          message: Message.JWT_NOT_SAVED
-        });
+        Response.jwtNotSaved(res);
       } else {
-        res.status(StatusCode.INTERNAL_ERROR).json({
-          status: StatusCode.INTERNAL_ERROR,
-          message: Message.UNKNOWN_ERROR
-        });
+        Response.serverError(res);
       }
     }
   }
@@ -176,6 +167,7 @@ class SoakpServer {
   /**
    *
    * @param token
+   * @param openAIKey
    */
   private jwtVerify(token: string, openAIKey: string): boolean {
     let verified = false;
@@ -195,16 +187,14 @@ class SoakpServer {
    */
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
     const token = req.get('Authorization');
-    const tokenFound = await this.keyStorage.jwtExists(token.replace('Bearer ', '').trim());
+    const tokenFound = await this.keyStorage.dbInstance.custom(
+      `SELECT token FROM '${this.keyStorage.tableName}' WHERE archived !='1' AND token='${token}' ORDER BY last_access DESC LIMIT 1`
+    );
 
-    if (tokenFound) {
+    if (tokenFound?.length === 1) {
       jwt.verify(tokenFound as string, this.jwtHash, async (err: any, decoded: any) => {
         if (err) {
-          res.status(StatusCode.NOT_AUTHORIZED).json({
-            status: StatusCode.NOT_AUTHORIZED,
-            message: Message.NOT_AUTHORIZED_ERROR
-          });
-          // return early if token is invalid
+          Response.notAuthorized(res, 'jwt');
           return;
         }
 
@@ -225,25 +215,22 @@ class SoakpServer {
           console.log(response);
 
           if (response.status === StatusCode.SUCCESS) {
-            res.json({
-              status: StatusCode.SUCCESS,
-              message: Message.SUCCESS,
-              data: {
+            Response.success(
+              res,
+              {
                 response: response.data,
                 config: response.config.data
-              }
-            });
+              },
+              'Received response from OpenAI'
+            );
           }
         } catch (error) {
           console.error(error);
-          // Handle error appropriately
+          Response.unknownError(res);
         }
       });
     } else {
-      res.json({
-        status: StatusCode.BAD_REQUEST,
-        message: Message.NOT_FOUND
-      });
+      Response.notAuthorized(res, 'jwt');
     }
   }
 

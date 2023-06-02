@@ -4,5 +4,5 @@ import { Message } from '../enums/Message.enum';
 export interface ResponseInterface {
   status: undefined | StatusCode;
   message: undefined | Message;
-  data: undefined | [];
+  data: undefined | null | [];
 }
