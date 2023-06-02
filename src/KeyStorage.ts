@@ -95,7 +95,7 @@ class KeyStorage implements KeyStorageInterface {
    */
   async fetchJWT(jwtToken: string): Promise<string | null> {
     try {
-      const row = await this.backend.findToken(jwtToken);
+      const row = await this.backend.find('token', jwtToken);
 
       if (row.status === StatusCode.SUCCESS) {
         return row.data.token;
@@ -143,7 +143,7 @@ class KeyStorage implements KeyStorageInterface {
    */
   async getActiveTokens(): Promise<DbSchemaInterface[]> {
     try {
-      const tokens: DbSchemaInterface[] = await this.backend.find('*', ['archived != 1']);
+      const tokens: DbSchemaInterface[] = await this.backend.findAll('*', ['archived != 1']);
       if (tokens) {
         if (tokens.length === 0) {
           console.info('No active tokens found');
@@ -151,6 +151,22 @@ class KeyStorage implements KeyStorageInterface {
 
         return tokens;
       } else {
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   *
+   */
+  async getRecentToken() {
+    try {
+      const row: DbSchemaInterface = await this.backend.findOne('*', ['archived != 1']);
+      if (row && row instanceof Object) {
+        return row;
+      } else {
+        console.log('No active tokens found');
       }
     } catch (e) {
       throw e;

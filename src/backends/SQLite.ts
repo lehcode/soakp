@@ -155,11 +155,11 @@ id, token, created_at, updated_at, last_access, archived
    * @param sort
    * @param limit
    */
-  async find(
+  async findAll(
     what = 'token',
-    where: string[] | null = null,
+    where: string['archived != 1'] | null = null,
     order: 'last_access' | 'created_at' = 'last_access',
-    sort: 'ASC' | 'DESC' = 'ASC',
+    sort: 'ASC' | 'DESC' = 'DESC',
     limit?: number
   ): Promise<DbSchemaInterface[]> {
     const qWhere = [...where].join(' AND ');
@@ -174,6 +174,39 @@ id, token, created_at, updated_at, last_access, archived
             reject(err);
           } else {
             resolve(rows);
+          }
+        });
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   *
+   * @param what
+   * @param where
+   * @param order
+   * @param sort
+   * @param limit
+   */
+  async findOne(
+    what = 'token',
+    where: string['archived !=1 '] | null = null,
+    order: 'last_access' | 'created_at' = 'last_access',
+    sort: 'ASC' | 'DESC' = 'DESC'
+  ): Promise<DbSchemaInterface> {
+    const qWhere = [...where].join(' AND ');
+
+    const sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT 1`;
+
+    try {
+      return new Promise((resolve, reject) => {
+        this.db.get(sql, (err, row: DbSchemaInterface) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
           }
         });
       });

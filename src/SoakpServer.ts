@@ -111,9 +111,7 @@ class SoakpServer {
         return;
       }
 
-      const existingTokens = await this.keyStorage.getActiveTokens(
-        `SELECT 'token' FROM '${this.keyStorage.tableName}' WHERE 'archived'!='1' ORDER BY 'last_access' DESC`
-      );
+      const existingTokens = await this.keyStorage.getActiveTokens();
 
       let verified = [];
       if (existingTokens.length) {
@@ -186,51 +184,51 @@ class SoakpServer {
    * @param res
    */
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
-    const token = req.get('Authorization');
-    const tokenFound = await this.keyStorage.dbInstance.custom(
-      `SELECT token FROM '${this.keyStorage.tableName}' WHERE archived !='1' AND token='${token}' ORDER BY last_access DESC LIMIT 1`
-    );
-
-    if (tokenFound?.length === 1) {
-      jwt.verify(tokenFound as string, this.jwtHash, async (err: any, decoded: any) => {
-        if (err) {
-          Response.notAuthorized(res, 'jwt');
-          return;
-        }
-
-        // Update parameters without reinitializing the OpenAI client
-        const params: OpenAIRequestInterface = {
-          apiKey: decoded.key,
-          apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
-          prompt: req.body.prompt || 'Hello world!',
-          engineId: req.body.engineId || 'text-davinci-003',
-          model: req.body.model || 'text-davinci-003'
-        };
-        this.proxy.queryParams = params;
-        this.proxy.initAI(params);
-
-        try {
-          // Query OpenAI API with provided query and parameters
-          const response = await this.proxy.request(params);
-          console.log(response);
-
-          if (response.status === StatusCode.SUCCESS) {
-            Response.success(
-              res,
-              {
-                response: response.data,
-                config: response.config.data
-              },
-              'Received response from OpenAI'
-            );
+    try {
+      const row: DbSchemaInterface = await this.keyStorage.getRecentToken();
+      if (row.token) {
+        jwt.verify(row.token, this.jwtHash, async (err: any, decoded: any) => {
+          if (err) {
+            Response.notAuthorized(res, 'jwt');
+            return;
           }
-        } catch (error) {
-          console.error(error);
-          Response.unknownError(res);
-        }
-      });
-    } else {
-      Response.notAuthorized(res, 'jwt');
+
+          // Update parameters without reinitializing the OpenAI client
+          const params: OpenAIRequestInterface = {
+            apiKey: decoded.key,
+            apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
+            prompt: req.body.prompt || 'Hello world!',
+            engineId: req.body.engineId || 'text-davinci-003',
+            model: req.body.model || 'text-davinci-003'
+          };
+          this.proxy.queryParams = params;
+          this.proxy.initAI(params);
+
+          try {
+            // Query OpenAI API with provided query and parameters
+            const response = await this.proxy.request(params);
+            console.log(response);
+
+            if (response.status === StatusCode.SUCCESS) {
+              Response.success(
+                res,
+                {
+                  response: response.data,
+                  config: response.config.data
+                },
+                'Received response from OpenAI'
+              );
+            }
+          } catch (error) {
+            console.error(error);
+            Response.unknownError(res);
+          }
+        });
+      } else {
+        Response.notAuthorized(res, 'jwt');
+      }
+    } catch (e) {
+      throw e;
     }
   }
 
