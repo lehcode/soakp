@@ -32,6 +32,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?}
       OPENAI_API_ROOT: ${OPENAI_API_ROOT:-/v1}
       OPENAI_API_ORG: ${OPENAI_API_ORG}
+      RESET_DB: ${RESET_DB_ON_RESTART:-no}
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
       - ssl_keystore:/etc/ssl/certs/
