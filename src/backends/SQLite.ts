@@ -5,6 +5,7 @@ import { Database } from 'sqlite3';
 import { Message } from '../enums/Message.enum';
 import { DbSchemaInterface } from '../interfaces/DbSchema.interface';
 import { ResponseInterface } from '../interfaces/Response.interface';
+import { promises as fs } from 'fs';
 
 class SqliteStorage implements StorageStrategy {
   private db: Database;
@@ -30,30 +31,33 @@ class SqliteStorage implements StorageStrategy {
    * Initialize database
    */
   static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    const db = (process.env.SQLITE_MEMORY as string) === 'yes' ? new Database(':memory:') : new Database(dbFile);
+    if ((process.env.SQLITE_MEMORY_DB as string) === 'no' && process.env.SQLITE_RESET === 'yes') {
+      try {
+        await fs.unlink(path.resolve(dbFile));
+      } catch (e) {
+        throw new Error(e);
+      }
+    }
 
-    if ((process.env.SQLITE_MEMORY as string) === 'yes') {
+    const db = (process.env.SQLITE_MEMORY_DB as string) === 'yes' ? new Database(':memory:') : new Database(dbFile);
+
+    if ((process.env.SQLITE_MEMORY_DB as string) === 'yes') {
       console.log('In-memory database initialized');
     } else {
       console.log(`Database '${path.resolve(dbFile)}' initialized`);
     }
 
-    if ((process.env.RESET_DB as string) === 'yes') {
-      await db.run(`DROP TABLE IF EXISTS '${tableName}';`);
-      console.log(`Table '${tableName}' dropped`);
-    }
-
     await db.run(
       `CREATE TABLE IF NOT EXISTS '${tableName}'
         (
-          'id' INTEGER PRIMARY KEY,
-          'token' TEXT UNIQUE
-            CHECK(LENGTH('token') <= 255),
-          'created_at' INTEGER NOT NULL,
-          'updated_at' INTEGER NOT NULL,
-          'last_access' INTEGER NOT NULL,
-          'archived' BOOLEAN NOT NULL
-            CHECK ('archived' IN (0, 1)));`,
+          id INTEGER PRIMARY KEY,
+          token TEXT UNIQUE
+            CHECK(LENGTH(token) <= 255),
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          last_access INTEGER NOT NULL,
+          archived INTEGER NOT NULL
+            CHECK (archived IN (0, 1)));`,
       (err) => {
         if (err) {
           throw err;
@@ -84,7 +88,7 @@ class SqliteStorage implements StorageStrategy {
       createdAt: new Date().getTime(),
       updatedAt: new Date().getTime(),
       lastAccess: new Date().getTime(),
-      archived: false
+      archived: 0
     };
     const params = Object.values(this.prepareRow(defaults));
     const query = `INSERT INTO ${this.tableName} (

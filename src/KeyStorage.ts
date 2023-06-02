@@ -85,7 +85,7 @@ class KeyStorage implements KeyStorageInterface {
 
       return StatusCode.CREATED;
     } catch (e) {
-      console.error(e);
+      throw new Error(e);
     }
   }
 

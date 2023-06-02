@@ -4,5 +4,5 @@ export interface DbSchemaInterface extends Object {
   createdAt: number;
   updatedAt: number;
   lastAccess: number;
-  archived: boolean;
+  archived: 0 | 1;
 }
