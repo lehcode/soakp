@@ -14,6 +14,8 @@ abstract class StorageStrategy {
   abstract select(query: string): Promise<Record<string, any>[]>;
 
   abstract archive(what: string): Promise<Record<string, any>>;
+
+  abstract custom(query: string): Promise<Record<string, string | number>[]>;
 }
 
 export { StorageStrategy };

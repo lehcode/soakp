@@ -30,7 +30,8 @@ class SqliteStorage implements StorageStrategy {
    * Initialize database
    */
   static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    const db = new Database(dbFile);
+    // const db = new Database(dbFile);
+    const db = new Database(':memory:');
 
     console.log(`Database '${dbName}' created`);
 
@@ -164,20 +165,41 @@ id, token, created_at, updated_at, last_access, archived
    *
    * @param selectQuery
    */
-  async select(selectQuery: string): Promise<Record<string, any>> {
+  async select(selectQuery: string): Promise<ResponseInterface> {
     return new Promise((resolve, reject) => {
       this.db.all(selectQuery, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          resolve({
-            status: rows === undefined ? StatusCode.NOT_FOUND : StatusCode.SUCCESS,
-            message: rows === undefined ? Message.NOT_FOUND : Message.FOUND,
-            data: rows === undefined ? [] : rows
-          } as ResponseInterface);
+          try {
+            resolve(this.validateData(rows));
+          } catch (error) {
+            reject(error);
+          }
         }
       });
     });
+  }
+
+  /**
+   *
+   * @param rows
+   * @private
+   */
+  private validateData(rows: Array<Record<string, any>>): ResponseInterface {
+    const result: ResponseInterface = {
+      status: StatusCode.NOT_FOUND,
+      message: Message.NOT_FOUND,
+      data: []
+    };
+
+    if (rows?.length) {
+      result.status = StatusCode.SUCCESS;
+      result.message = Message.FOUND;
+      result.data = rows;
+    }
+
+    return result;
   }
 
   /**
