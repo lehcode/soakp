@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3';
 import * as fileDb from 'node-persist';
 import * as Datastore from 'nedb';
-import { ResponseInterface } from "../interfaces/Response.interface";
+import { ResponseInterface } from '../interfaces/Response.interface';
 
 abstract class StorageStrategy {
   abstract db: sqlite3.Database | fileDb | Datastore;
@@ -10,9 +10,14 @@ abstract class StorageStrategy {
 
   abstract update(where: string[], values: string[]): Promise<ResponseInterface>;
 
-  abstract find(string = 'token', where: string[] | null = null], sort: 'ASC' | 'DESC' = 'ASC', limit: number): Promise<ResponseInterface>;
+  abstract find(
+    string = 'token',
+    where: string[] | null,
+    sort: 'ASC' | 'DESC' = 'ASC',
+    limit?: number
+  ): Promise<ResponseInterface>;
 
-  abstract select(query: string): Promise<ResponseInterface>[]>>;
+  abstract select(query: string): Promise<ResponseInterface[]>;
 
   abstract archive(what: string): Promise<ResponseInterface>;
 

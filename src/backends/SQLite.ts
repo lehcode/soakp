@@ -149,8 +149,11 @@ id, token, created_at, updated_at, last_access, archived
 
   /**
    *
+   * @param what
    * @param where
-   * @param archived
+   * @param order
+   * @param sort
+   * @param limit
    */
   async find(
     what = 'token',
@@ -158,7 +161,7 @@ id, token, created_at, updated_at, last_access, archived
     order: 'last_access' | 'created_at' = 'last_access',
     sort: 'ASC' | 'DESC' = 'ASC',
     limit?: number
-  ): Promise<ResponseInterface> {
+  ): Promise<DbSchemaInterface[]> {
     const qWhere = [...where].join(' AND ');
 
     let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;

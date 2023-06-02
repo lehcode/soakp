@@ -16,6 +16,7 @@ import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 import { Response } from './http/Response';
 import { DbSchemaInterface } from './interfaces/DbSchema.interface';
+import { ResponseInterface } from './interfaces/Response.interface';
 
 class SoakpServer {
   private readonly app: express.Application;
@@ -106,13 +107,12 @@ class SoakpServer {
       if (this.isValidOpenAIKey(req.body.key)) {
         openAIKey = req.body.key;
       } else {
-        console.error('Invalid OpenAI API key');
+        console.error(Message.INVALID_KEY);
         return;
       }
 
-      //const existingTokens: DbSchemaInterface[] = await this.keyStorage.getActiveTokens();
       const existingTokens = await this.keyStorage.getActiveTokens(
-        `SELECT token FROM ${this.keyStorage.tableName} WHERE archived !='1' ORDER BY last_access DESC`
+        `SELECT 'token' FROM '${this.keyStorage.tableName}' WHERE 'archived'!='1' ORDER BY 'last_access' DESC`
       );
 
       let verified = [];
@@ -124,7 +124,7 @@ class SoakpServer {
         // Return the most recently accessed JWT
         Response.loadedToken(res, verified[0].token);
       } else {
-        // No saved JWT's found, generate and save a new one
+        // No saved JWTs found, generate and save a new one
         const token = await this.generateAndSaveToken(openAIKey);
 
         if (token) {

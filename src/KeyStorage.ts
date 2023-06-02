@@ -8,6 +8,7 @@ import { SqliteStorage } from './backends/SQLite';
 import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
 import { StatusCode } from './enums/StatusCode.enum';
 import { ResponseInterface } from './interfaces/Response.interface';
+import { DbSchemaInterface } from './interfaces/DbSchema.interface';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
@@ -140,9 +141,9 @@ class KeyStorage implements KeyStorageInterface {
   /**
    *
    */
-  async getActiveTokens() {
+  async getActiveTokens(): Promise<DbSchemaInterface[]> {
     try {
-      const tokens = await this.backend.find('*', ['archived != 1']);
+      const tokens: DbSchemaInterface[] = await this.backend.find('*', ['archived != 1']);
       if (tokens) {
         if (tokens.length === 0) {
           console.info('No active tokens found');
@@ -154,17 +155,6 @@ class KeyStorage implements KeyStorageInterface {
     } catch (e) {
       throw e;
     }
-
-    // const rows = result.data;
-    // return Promise.resolve()
-    // // .then(rows => rows.map(row => row.data.token));
-    //   .then((rows) => {
-    //     if (rows.data.length) {
-    //       return rows.data;
-    //     } else {
-    //       console.warn('No active tokens found');
-    //     }
-    //   });
   }
 
   /**
