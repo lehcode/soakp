@@ -23,8 +23,8 @@
   "scripts": {
     "build": "NODE_OPTIONS=\"--no-warnings\" tsc --outDir ./dist/",
     "lint": "eslint 'src/**/*.{ts}' --fix --quiet",
-    "dev": "NODE_OPTIONS=\"--trace-warnings\" npx ts-node --esm index.ts",
-    "serve": "node -r ts-node/register index.ts"
+    "dev": "NODE_OPTIONS=\"--trace-warnings\" npx ts-node --esm server.ts",
+    "serve": "node -r ts-node/register server.ts"
   },
   "dependencies": {
     "axios": "^1.4.0",
