@@ -186,7 +186,7 @@ class SoakpServer {
   private async handleOpenAIQuery(req: express.Request, res: express.Response) {
     try {
       const row: DbSchemaInterface = await this.keyStorage.getRecentToken();
-      if (row.token) {
+      if (row?.token) {
         jwt.verify(row.token, this.jwtHash, async (err: any, decoded: any) => {
           if (err) {
             Response.notAuthorized(res, 'jwt');

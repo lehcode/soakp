@@ -6,30 +6,43 @@ import { KeyStorage, StorageType } from './src/KeyStorage';
 dotenv.config();
 
 const fallback = {
-  dataFileLocation: path.resolve('./fallback'),
+  dataFileLocation: './fallback',
   dbName: 'fallback',
   tableName: 'fallback',
   serverPort: 3033
 };
 
+const dataFileLocation = process.env.DATA_FILE_DIR
+  ? path.resolve(process.env.DATA_FILE_DIR)
+  : fallback.dataFileLocation;
+const dbName = process.env.SQLITE_DB || fallback.dbName;
+const tableName = process.env.SQLITE_TABLE || fallback.tableName;
+const serverPort = parseInt(process.env.SERVER_PORT, 10) || fallback.serverPort;
+const storageType = process.env.STORAGE_TYPE as StorageType;
+
 const storageConfig = {
-  dataFileLocation: path.resolve(process.env.DATA_FILE_DIR) || fallback.dataFileLocation,
+  dataFileLocation,
   sql: {
-    dbName: process.env.SQLITE_DB || fallback.dbName,
-    tableName: process.env.SQLITE_TABLE || fallback.tableName
+    dbName,
+    tableName
   }
 };
 
 const server = new SoakpServer({
-  port: parseInt(process.env.SERVER_PORT, 10) || fallback.serverPort
+  port: serverPort
 });
 
 async function start() {
   try {
-    const storage = await KeyStorage.getInstance(process.env.STORAGE_TYPE as StorageType, storageConfig);
-    await server.init(storage);
-  } catch (err) {
-    console.error('Error starting server:', err);
+    const storage = await KeyStorage.getInstance(storageType, storageConfig);
+    try {
+      await server.init(storage);
+    } catch (initErr) {
+      console.error('Error initializing server:', initErr);
+      process.exit(1);
+    }
+  } catch (storageErr) {
+    console.error('Error getting storage instance:', storageErr);
     process.exit(1);
   }
 }
