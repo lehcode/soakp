@@ -23,7 +23,8 @@ services:
       SERVER_PORT: ${SERVER_PORT:-3033}
       SERVERLESS: ${SERVERLESS:-no}
       SERVER_HOST: ${SERVER_HOST:?}
-      STORAGE: ${STORAGE:-STORAGE_SQLITE}
+      STORAGE: sqlite
+      SQLITE_MEMORY: ${SQLITE_MEMORY:-yes};
       SQLITE_DB: ${SQLITE_DB:-data.db}
       SQLITE_TABLE: ${SQLITE_TABLE:-tokens}
       DATA_FILE_DIR: ${DATA_FILE_DIR:-/tmp/soakp}
