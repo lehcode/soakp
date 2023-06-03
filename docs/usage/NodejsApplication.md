@@ -1,23 +1,12 @@
 # Node.js application
 
-This works for any platform from the command line. You need Node.js 16+ to have `npm` (Node Package Manager) software available.
+You can run SOAKP on any platform with the command line. You need Node.js 16+ and `npm` (Node Package Manager) software available.
 
 ## Get the code
 
 Clone the repository from `https://github.com/lehcode/soakp.git`
 
-## Configure SSL Cerificates Storage
-
-`docker compose up myca` will generate self-signed certificates in the folder specified in `myca` service volume specification. Yo need to relace part before colon(`:`) with desired path on your machine where you want to keep your locally generated SSL cerificates. Don't forget to create directory first.
-
-```yaml
-...
-volumes:
-      - [/usr/local/lib/soakp]:${SSL_CERTS_DIR:?}
-...
-```
-
-Run `docker compose up myca` to generate self-signed SSL certificates.
+Optionally configure SSL certificate as described in [SSL Configuration](../ConfigureSSL.md) section.
 
 ## Configure `Server` Docker Service
 
