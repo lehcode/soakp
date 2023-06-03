@@ -18,7 +18,7 @@ This package features a companion library for client-side browser applications w
 
 ## Documentation
 
-Full [documentation is here](./docs/index.md).
+Full [documentation is here](https://lehcode.github.io/soakp/).
 
 ## In brief
 
