@@ -9,12 +9,12 @@
       // different options with a single tsconfig.json.
     }
   },
+  "module": "commonjs",
   "compilerOptions": {
     "target": "es6",
-    "module": "es6",
     "strict": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "noImplicitAny": true,
     "typeRoots": [
       "node_modules/@types"
@@ -23,15 +23,14 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "inlineSourceMap": true,
-    //    "skipLibCheck": true,
-    //    "skipDefaultLibCheck": true,
     "noEmitOnError": false,
     "lib": [
       "esnext",
       "dom"
     ],
+    "strictNullChecks": false
   },
-  "include": ["src/**/*.ts"],
+  "include": ["*.ts"],
   "exclude": ["dist" ,"**/node_modules"],
   "watchOptions": {
     "watchFile": "useFsEvents",
