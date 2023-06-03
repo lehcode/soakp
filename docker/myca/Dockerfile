@@ -14,7 +14,6 @@ ARG ssl_certs_dir
 
 ENV SSL_CERTS_DIR=${ssl_certs_dir}
 
-VOLUME ["${ssl_certs_dir}"]
 WORKDIR ${ssl_certs_dir}
 COPY openssl.conf ./
 

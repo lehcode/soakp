@@ -4,4 +4,6 @@ export interface OpenAIRequestInterface {
   prompt: string;
   engineId: string;
   model: string;
+  temperature: number;
+  maxTokens: number;
 }
