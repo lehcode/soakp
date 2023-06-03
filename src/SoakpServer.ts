@@ -43,17 +43,8 @@ class SoakpServer {
     this.initializeEndpoints();
 
     this.proxy = new SoakpProxy({
-      apiHost: 'https://api.openai.com',
-      apiBaseUrl: '/v1',
-      query: {
-        // apiKey: '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',
-        apiKey: '',
-        apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
-        prompt: 'Hello World, Buddy! :-)',
-        engineId: '',
-        model: 'text-davinci-003'
-      } as OpenAIRequestInterface
-    } as ProxyConfigInterface);
+      port: this.config.port
+    });
   }
 
   /**
@@ -69,7 +60,8 @@ class SoakpServer {
         this.handleGetJwt.bind(this)
       );
     }
-    this.app.post('/openai/query', this.handleOpenAIQuery.bind(this));
+    this.app.post('/openai/completion', this.handleOpenAIQuery.bind(this));
+    this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
   }
 
   /**
@@ -193,10 +185,12 @@ class SoakpServer {
           // Update parameters without reinitializing the OpenAI client
           const params: OpenAIRequestInterface = {
             apiKey: decoded.key,
-            apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
-            prompt: req.body.prompt || 'Hello world!',
-            engineId: req.body.engineId || 'text-davinci-003',
-            model: req.body.model || 'text-davinci-003'
+            apiOrgKey: process.env.OPENAI_API_ORG_ID as string,
+            prompt: req.body.messages || '',
+            engineId: req.body.engineId || '',
+            model: req.body.model || 'text-davinci-003',
+            temperature: req.body.temperature || 0.7,
+            maxTokens: req.body.maxTokens || 100
           };
           this.proxy.queryParams = params;
           this.proxy.initAI(params);
@@ -213,7 +207,7 @@ class SoakpServer {
                   response: response.data,
                   config: response.config.data
                 },
-                'Received response from OpenAI'
+                'Received OpenAI API response'
               );
             }
           } catch (error) {
@@ -237,7 +231,7 @@ class SoakpServer {
     this.keyStorage = storage;
     this.app.listen(3035, () => {
       console.log(
-        `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://lehcode.opencollective.org`
+        `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`
       );
     });
     this.iniSSL(this.app, port);
@@ -291,12 +285,12 @@ class SoakpServer {
       path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
       'utf8'
     );
-    console.log(`Using SSL private key ${privateKey}`);
+
     const certificate = fs.readFileSync(
       path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-crt.pem`),
       'utf8'
     );
-    console.log(`Using SSL certificate ${certificate}`);
+
     const credentials = { key: privateKey, cert: certificate };
     this.app = https.createServer(credentials, app).listen(port);
   }
