@@ -7,3 +7,4 @@ docker/.secret/
 /soakp.db
 .env
 soakp_secrets.sqlite
+docker/certbot/credentials

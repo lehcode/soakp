@@ -48,8 +48,7 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
-  && chown -R node:node ${workdir} \
-  && chown -R 777 /tmp ${data_file_dir}
+  && chown -R node:node ${workdir} ${data_file_dir}
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build

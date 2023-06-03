@@ -40,20 +40,18 @@ export class SoakpProxy {
    * @param maxTokens
    * @param temperature
    */
-  async request(params: OpenAIRequestInterface, maxTokens = 100, temperature = 0.5) {
+  async request(params: OpenAIRequestInterface) {
     const request = {
       model: params.model,
       prompt: params.prompt,
-      max_tokens: maxTokens,
-      temperature: temperature
+      max_tokens: params.maxTokens,
+      temperature: params.temperature,
+      maxTokens: params.maxTokens
     };
 
     try {
       return await this.openAI.createCompletion(request);
-      // console.log(response);
-      // return response;
     } catch (error) {
-      // console.log(error);
       throw error;
     }
   }
