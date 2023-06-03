@@ -35,7 +35,7 @@ class SqliteStorage implements StorageStrategy {
       try {
         await fs.unlink(path.resolve(dbFile));
       } catch (e) {
-        throw new Error(e);
+        console.log(e);
       }
     }
 

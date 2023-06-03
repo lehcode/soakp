@@ -28,15 +28,13 @@ const storageConfig = {
   }
 };
 
-const server = new SoakpServer({
-  port: serverPort
-});
+const server = new SoakpServer();
 
 async function start() {
   try {
     const storage = await KeyStorage.getInstance(storageType, storageConfig);
     try {
-      await server.init(storage);
+      await server.start(serverPort, storage);
     } catch (initErr) {
       console.error('Error initializing server:', initErr);
       process.exit(1);

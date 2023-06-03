@@ -3,6 +3,7 @@
  * Copyright: (C)2023
  */
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
@@ -17,9 +18,13 @@ import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interf
 import { Response } from './http/Response';
 import { DbSchemaInterface } from './interfaces/DbSchema.interface';
 import { ResponseInterface } from './interfaces/Response.interface';
+import https from 'https';
+import path from 'path';
+import fs from 'fs';
+import tls from 'tls';
 
 class SoakpServer {
-  private readonly app: express.Application;
+  private app: Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
   private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
   private config: ServerConfigInterface = {
@@ -27,13 +32,15 @@ class SoakpServer {
   };
   private proxy: SoakpProxy;
 
-  constructor(private readonly configuration: ServerConfigInterface) {
+  constructor() {
     this.app = express();
-    this.config = { ...configuration };
+    this.app.use(cors());
 
     // Configure middleware
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
+
+    this.initializeEndpoints();
 
     this.proxy = new SoakpProxy({
       apiHost: 'https://api.openai.com',
@@ -47,16 +54,6 @@ class SoakpServer {
         model: 'text-davinci-003'
       } as OpenAIRequestInterface
     } as ProxyConfigInterface);
-  }
-
-  /**
-   *
-   * @param storage
-   */
-  async init(storage) {
-    this.keyStorage = storage;
-    this.initializeEndpoints();
-    this.start(this.config.port);
   }
 
   /**
@@ -236,12 +233,14 @@ class SoakpServer {
    * Start the server
    * @public
    */
-  public start(port: number) {
-    this.app.listen(port, () => {
+  public start(port: number, storage) {
+    this.keyStorage = storage;
+    this.app.listen(3035, () => {
       console.log(
         `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://lehcode.opencollective.org`
       );
     });
+    this.iniSSL(this.app, port);
   }
 
   /**
@@ -281,6 +280,25 @@ class SoakpServer {
     }
 
     return true;
+  }
+
+  /**
+   *
+   * @param app
+   */
+  private iniSSL(app: express.Application, port) {
+    const privateKey = fs.readFileSync(
+      path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
+      'utf8'
+    );
+    console.log(`Using SSL private key ${privateKey}`);
+    const certificate = fs.readFileSync(
+      path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-crt.pem`),
+      'utf8'
+    );
+    console.log(`Using SSL certificate ${certificate}`);
+    const credentials = { key: privateKey, cert: certificate };
+    this.app = https.createServer(credentials, app).listen(port);
   }
 }
 
