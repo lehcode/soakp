@@ -34,9 +34,10 @@ services:
       OPENAI_API_ROOT: ${OPENAI_API_ROOT:-/v1}
       OPENAI_API_ORG: ${OPENAI_API_ORG_ID:?}
       SQLITE_RESET: ${SQLITE_RESET:-no}
+      SSL_CERTS_DIR: ${SSL_CERTS_DIR:?}
     volumes:
       - ./node_modules:${WORKDIR:-/srv}/node_modules
-      - ssl_keystore:/etc/ssl/certs/
+      - ssl_keystore:${SSL_CERTS_DIR:?}
       - /tmp:${DATA_FILE_DIR:?}
       - ./src:${WORKDIR:-/srv}/src
     ports:
@@ -67,7 +68,7 @@ services:
   #
   # Chatbot: rewrite existing service description if needed
   myca:
-    # image: lehcode/ssl-ca-certs:latest
+    image: lehcode/ssl-myca:latest
     build:
       context: docker/myca/
       args:
@@ -78,8 +79,10 @@ services:
         server_cn: ${SERVER_HOST:?}
         host_user_uid: ${HOST_USER_UID:-1001}
         key_pass: ${MYCA_KEY_PASS}
+        ssl_certs_dir: ${SSL_CERTS_DIR:?}
     volumes:
-      - ssl_keystore:/etc/ssl/certs/
+      - ssl_keystore:${SSL_CERTS_DIR:?}
+
 
 volumes:
   soakp_db:
