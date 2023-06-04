@@ -14,7 +14,7 @@ services:
       dockerfile: Dockerfile
       args:
         # The working directory inside the container
-        workdir: ${WORKDIR:?}
+        server_workdir: ${SERVER_ROOT:-/home/node/soakp}
         # The version of Node.js
         node_version: ${USE_NODE_VERSION:-16.20.0}
         # The Node.js environment
@@ -73,18 +73,18 @@ services:
       SQLITE_RESET: ${SQLITE_RESET:-no}
       # The directory where SSL certificates are stored.
       # Default is "/etc/soakp"
-      SSL_CERTS_DIR: ${SSL_CERTS_DIR:-/etc/soakp}
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}/cert
     volumes:
       # Mounts the node_modules directory from the host
-      - ./node_modules:${WORKDIR:?}/node_modules
+      - ./node_modules:${SERVER_ROOT:?}/node_modules
       # Mounts the src directory from the host
-      - ./src:${WORKDIR:?}/src
+      - ./src:${SERVER_ROOT:?}/src
       # Mounts the configuration directory
-      - /usr/local/etc/soakp:/etc/soakp
+      - ./docker/server/etc/soakp:${SSL_CERT_DIR:?}
       # Mounts the data directory
-      - /usr/local/lib/soakp:${DATA_DIR:?}
+      - ./docker/server/lib/soakp:${DATA_DIR:?}
       # Mounts the log directory
-      - /usr/local/log:/var/log/soakp
+      - ./docker/server/log:/var/log/soakp
     ports:
       # Forwards the specified server port to the host
       - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
@@ -120,13 +120,14 @@ services:
   # that can be used by the server service.
   myca:
     image: lehcode/ssl-myca:latest
+    # container_name: mycaca
     entrypoint: /init.sh
     build:
       context: docker/myca/
       args:
         #  Specifies whether to enable debugging.
         # Default is "yes"
-        debug: ${DEBUG:-yes}
+        debug: ${DEBUG:-no}
         # The key length for the SSL certificate.
         # Default is 4096
         key_len: ${KEY_LEN:-4096}
@@ -145,13 +146,20 @@ services:
         # The password for the private key of the SSL certificate.
         # This variable needs to be provided
         key_pass: ${MYCA_KEY_PASS:?}
-        # The directory where the SSL certificates will be stored.
-        # Default is "/etc/soakp"
-        ssl_certs_dir: ${SSL_CERTS_DIR:-/etc/soakp}
+        # The GID of "docker" group of host machine
+        host_docker_gid: ${HOST_DOCKER_GID}
+    environment:
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}
     volumes:
       # The location of generated SSL certificates
-      - /usr/local/etc/soakp:${SSL_CERTS_DIR:?}
+      - ./docker/myca/generate:${SSL_CERT_DIR:?}
       # The logs directory
       - /usr/local/log/soakp:/var/log/soakp
     tty: true
 
+networks:
+  soakp_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.222.0/24
