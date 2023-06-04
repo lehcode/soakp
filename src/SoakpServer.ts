@@ -186,8 +186,8 @@ class SoakpServer {
           const params: OpenAIRequestInterface = {
             apiKey: decoded.key,
             apiOrgKey: process.env.OPENAI_API_ORG_ID as string,
-            prompt: req.body.messages || '',
-            engineId: req.body.engineId || '',
+            messages: req.body.messages || '',
+            engineId: req.body.engineId || 'text-davinci-003',
             model: req.body.model || 'text-davinci-003',
             temperature: req.body.temperature || 0.7,
             maxTokens: req.body.maxTokens || 100
@@ -234,7 +234,7 @@ class SoakpServer {
         `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`
       );
     });
-    this.iniSSL(this.app, port);
+    this.initSSL(this.app, port);
   }
 
   /**
@@ -280,14 +280,14 @@ class SoakpServer {
    *
    * @param app
    */
-  private iniSSL(app: express.Application, port) {
+  private initSSL(app: express.Application, port) {
     const privateKey = fs.readFileSync(
-      path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
+      path.join(process.env.SSL_CERT_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
       'utf8'
     );
 
     const certificate = fs.readFileSync(
-      path.join(process.env.SSL_CERTS_DIR as string, `${process.env.SERVER_HOST as string}-crt.pem`),
+      path.join(process.env.SSL_CERT_DIR as string, `${process.env.SERVER_HOST as string}-crt.pem`),
       'utf8'
     );
 
