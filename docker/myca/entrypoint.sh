@@ -11,8 +11,5 @@ mkdir -p "${SSL_CERT_DIR}"
 cp -rf "$(pwd)/ca" "${SSL_CERT_DIR}"
 cp -rf "$(pwd)/cert" "${SSL_CERT_DIR}"
 
-if [ "${DEBUG}" = "yes" ]; then
-  ls -al "${SSL_CERT_DIR}"
-fi
-
-if [ "${DEBUG}" = "yes" ]; sleep infinity; fi
+if [ "${DEBUG}" = "yes" ]; then ls -al "${SSL_CERT_DIR}"; fi
+if [ "${DEBUG}" = "yes" ]; then sleep infinity; fi
