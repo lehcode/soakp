@@ -1,2 +1,3 @@
 test-web/
 docker/certbot/var/log/
+docker/myca/generate
