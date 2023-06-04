@@ -6,12 +6,12 @@ if [ "${DEBUG}" = "yes" ]; then
   env
 fi
 
-echo ${NODE_USER_PWD} | sudo -S chown -R node:node ./
-echo ${NODE_USER_PWD} | sudo -S chown -R node:node ${DATA_FILE_DIR}
-# echo ${NODE_USER_PWD} | sudo -S chown -R node:node /etc/ssl/soakp
-#  echo ${NODE_USER_PWD} | sudo -S ls -al ${DATA_FILE_DIR}
+echo ${USER_PWD} | sudo -S chown -R node:node ./
+echo ${USER_PWD} | sudo -S chown -R node:node ${DATA_DIR}
+# echo ${USER_PWD} | sudo -S chown -R node:node /etc/ssl/soakp
+#  echo ${USER_PWD} | sudo -S ls -al ${DATA_DIR}
 #  sudo ls -al ${WORKDIR}
-# sudo ls -al ${DATA_FILE_DIR}
+# sudo ls -al ${DATA_DIR}
 #  ls -al /tmp
 
 if [ ! -d "node_modules" ]; then yarn install; fi
