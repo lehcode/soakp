@@ -11,40 +11,55 @@ ARG server_cn
 ARG debug
 ARG host_user_uid
 ARG ssl_certs_dir
+ARG host_docker_gid
 
-ENV SSL_CERTS_DIR=${ssl_certs_dir}
+ENV DEBUG="${debug}"
+ENV WORKDIR="/etc/myca"
 
-WORKDIR ${ssl_certs_dir}
-COPY openssl.conf ./
+COPY entrypoint.sh /init.sh
+
+WORKDIR "${WORKDIR}"
+COPY openssl.conf .
 
 # Generate certificates
 RUN if [ "${debug}" == "yes" ]; then set -ex && env; else set -e; fi \
+    && addgroup --system --gid ${host_docker_gid} docker \
     && sed -i 's/__CN__/"${ca_cn}"/g' ./openssl.conf \
     && sed -i 's/^(default_bits = )/\1"${key_len}"/' ./openssl.conf \
+    && mkdir ca cert \
+    && ls -al \
     # Generate a new private key
-    && openssl genrsa \
-    -out cakey.pem -passout pass:${key_pass} ${key_len} \
+    && openssl genrsa -out $(pwd)/ca/cakey.pem \
+    -passout pass:${key_pass} ${key_len} \
+    && ls -al $(pwd)/ca/ \
     # Create the CA certificate using the generated key file
-    && openssl req -new -x509 -days ${days} -nodes \
-    -key cakey.pem -passin pass:${key_pass} \
-    -out cacrt.pem \
+    && openssl req -new -key $(pwd)/ca/cakey.pem -passin pass:${key_pass} \
+    -x509 -days ${days} -nodes \
+    -out $(pwd)/ca/cacrt.pem \
     -subj "/CN=${ca_cn}" \
-    -config ./openssl.conf \
+    -config $(pwd)/openssl.conf \
+    && ls -al $(pwd)/ca/ \
     # Create the private key for the server certificate
-    && openssl genrsa -out ${server_cn}-key.pem -passout pass:${key_pass} ${key_len} \
+    && openssl genrsa -out $(pwd)/cert/${server_cn}-key.pem -passout pass:${key_pass} ${key_len} \
     # Create the certificate signing request for the server certificate
-    && openssl req -new \
-    -key ${server_cn}-key.pem -passin pass:${key_pass} \
-    -out ${server_cn}.csr \
+    && openssl req -new -key $(pwd)/cert/${server_cn}-key.pem -passin pass:${key_pass} \
+    -out $(pwd)/cert/${server_cn}.csr \
     -subj "/CN=${server_cn}" \
-    -config ./openssl.conf \
-    && openssl req -text -noout -in ${server_cn}.csr \
+    -config $(pwd)/openssl.conf \
+    && ls -al $(pwd)/cert/ \
+    && openssl req -text -noout -in $(pwd)/cert/${server_cn}.csr \
+    && ls -al $(pwd)/cert/ \
     # Create the server certificate
     && openssl x509 -req -sha256 -days ${days} \
-    -in ${server_cn}.csr -passin pass:${key_pass} \
-    -CA cacrt.pem -CAkey cakey.pem -CAcreateserial \
-    -out ${server_cn}-crt.pem \
-    -extfile ./openssl.conf -extensions v3_req \
-    # Create the CA PEM file from the CA certificate and intermediate certificate
-    && cat ${server_cn}-key.pem  ${server_cn}-crt.pem > ${server_cn}.pem \
-    && chown -R ${host_user_uid} ./${server_cn}* ./*.pem
+    -in $(pwd)/cert/${server_cn}.csr -passin pass:${key_pass} \
+    -CA $(pwd)/ca/cacrt.pem -CAkey $(pwd)/ca/cakey.pem -CAcreateserial \
+    -out $(pwd)/cert/${server_cn}-crt.pem \
+    -extfile $(pwd)/openssl.conf -extensions v3_req \
+    && ls -al $(pwd)/cert/ \
+    # Create the CA PEM file
+    && cat $(pwd)/cert/${server_cn}-key.pem  $(pwd)/cert/${server_cn}-crt.pem > $(pwd)/cert/${server_cn}.pem \
+    && chown -R ${host_user_uid}:${host_docker_gid} $(pwd)/ca/ $(pwd)/cert/ \
+    && ls -al $(pwd)/ \
+    && ls -al $(pwd)/ca/ \
+    && ls -al $(pwd)/cert/ \
+    && chmod u+x /init.sh

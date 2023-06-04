@@ -12,9 +12,7 @@ const fallback = {
   serverPort: 3033
 };
 
-const dataFileLocation = process.env.DATA_FILE_DIR
-  ? path.resolve(process.env.DATA_FILE_DIR)
-  : fallback.dataFileLocation;
+const dataFileLocation = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : fallback.dataFileLocation;
 const dbName = process.env.SQLITE_DB || fallback.dbName;
 const tableName = process.env.SQLITE_TABLE || fallback.tableName;
 const serverPort = parseInt(process.env.SERVER_PORT, 10) || fallback.serverPort;

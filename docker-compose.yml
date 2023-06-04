@@ -1,8 +1,9 @@
 version: "3.8"
 
-# Chatbot: add file description
+# Description: This service runs the soakp server using the specified
+# image and container configuration. It serves as the main component
+# for running the soakp server.
 services:
-  # Chatbot: add service description
   server:
     image: lehcode/soakp:1.0.1
     container_name: ${CONTAINER_NAME:-soakp-server}
@@ -12,79 +13,153 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        workdir: ${WORKDIR:?}
+        # The working directory inside the container
+        server_workdir: ${SERVER_ROOT:-/home/node/soakp}
+        # The version of Node.js
         node_version: ${USE_NODE_VERSION:-16.20.0}
+        # The Node.js environment
         node_env: ${NODE_ENV:-development}
+        # Specifies whether to enable debugging
         debug: ${DEBUG:-yes}
+        # The timezone used by the container
         tz: ${TZ:-Etc/UTC}
+        # The username for basic HTTP Authentication
         auth_user: ${AUTH_USER:?}
+        # The password for basic HTTP Authentication
         auth_pass: ${AUTH_PASS:?}
-        node_user_pwd: ${NODE_USER_PASSWORD:?}
+        # The user name of the container user
+        host_user_name: ${HOST_USER_NAME:?}
+        # The password for the node user
+        host_user_pass: ${HOST_USER_PASS:?}
     environment:
+      # The port on which the server listens.
+      # Default is 3033
       SERVER_PORT: ${SERVER_PORT:-3033}
+      # Specifies whether the server should be deployed in serverless mode.
+      # Default is "no"
       SERVERLESS: ${SERVERLESS:-no}
+      # The hostname for the server.
+      # This variable needs to be provided
       SERVER_HOST: ${SERVER_HOST:?}
+      # The storage type used by the server.
+      # Default is "sqlite"
       STORAGE: sqlite
+      # Specifies whether to use an in-memory SQLite database.
+      # Default is "yes"
       SQLITE_MEMORY_DB: ${SQLITE_MEMORY_DB:-yes};
+      # The name of the SQLite database file.
+      # Default is "data.db"
       SQLITE_DB: ${SQLITE_DB:-data.db}
+      # The name of the table in the SQLite database.
+      # Default is "tokens"
       SQLITE_TABLE: ${SQLITE_TABLE:-tokens}
-      DATA_FILE_DIR: ${DATA_FILE_DIR:?}
-      DATA_FILE_NAME: ${DATA_FILE_NAME:-soakp.db}
+      # The directory where the data files are located.
+      # This variable needs to be provided
+      DATA_DIR: ${DATA_DIR:?}
+      # The name of the SQLite database file.
+      # Default is "data.db"
+      SQLITE_FILE: ${SQLITE_FILE:-data.db}
+      # The secret key used for JWT token generation.
+      # This variable needs to be provided
       JWT_SECRET: ${JWT_SECRET:?}
+      # The root URL for the OpenAI API.
+      # Default is "/v1"
       OPENAI_API_ROOT: ${OPENAI_API_ROOT:-/v1}
+      # The organization ID for the OpenAI API.
+      # This variable needs to be provided
       OPENAI_API_ORG_ID: ${OPENAI_API_ORG_ID:?}
+      # Specifies whether to reset the SQLite database on startup.
+      # Default is "no"
       SQLITE_RESET: ${SQLITE_RESET:-no}
-      SSL_CERTS_DIR: ${SSL_CERTS_DIR:?}
+      # The directory where SSL certificates are stored.
+      # Default is "/etc/soakp"
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}/cert
     volumes:
-      - ./node_modules:${WORKDIR:?}/node_modules
-      - ./docker/myca/certs:${SSL_CERTS_DIR:?}
-      - /var/lib/soakp:${DATA_FILE_DIR:?}
-      - ./src:${WORKDIR:?}/src
+      # Mounts the node_modules directory from the host
+      - ./node_modules:${SERVER_ROOT:?}/node_modules
+      # Mounts the src directory from the host
+      - ./src:${SERVER_ROOT:?}/src
+      # Mounts the configuration directory
+      - ./docker/server/etc/soakp:${SSL_CERT_DIR:?}
+      # Mounts the data directory
+      - ./docker/server/lib/soakp:${DATA_DIR:?}
+      # Mounts the log directory
+      - ./docker/server/log:/var/log/soakp
     ports:
+      # Forwards the specified server port to the host
       - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
+      # Exposes the Node.js debugging port
       - "9229:9229"
-    user: node:node
+    user: ${HOST_USER_NAME:?}:docker
+    tty: true
 
-  # Certbot service
-  #
-  # Chatbot: add service description
+  # This service runs Certbot to obtain SSL certificates using DNS validation.
+  # It automates the process of obtaining SSL certificates for the server
   certbot:
     image: "certbot/dns-${CB_DNS:?}:v${CB_VERSION:?}"
     entrypoint: certbot certonly -n -d ${SERVER_HOST:?}${WILDCARD_DOMAIN} --dns-${CB_DNS:?} ${CB_DRY_RUN} ${CB_AGREE_TOS}
     environment:
+      # The access key for the AWS account used for DNS validation
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      # The secret key for the AWS account used for DNS validation
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      # The path to the Linode credentials file. Default is "~/.linode"
       LINODE_CREDENTIALS_FILE: ${LINODE_CREDENTIALS_FILE:-~/.linode}
+      # The token for the DigitalOcean DNS provider
       DNS_DIGITALOCEAN_TOKEN: ${DNS_DIGITALOCEAN_TOKEN}
     volumes:
-      - ./docker/certbot/etc/letsencrypt:/etc/letsencrypt
-      - ssl_keystore:/var/lib/letsencrypt
-      - ./docker/certbot/var/log/letsencrypt:/var/log/letsencrypt
+      # Mounts the Certbot configuration directory
+      - /usr/local/etc/letsencrypt:/etc/letsencrypt
+      # Mounts the Certbot library directory
+      - /usr/local/etc/certbot:/var/lib/letsencrypt
+      # Mounts the Certbot log directory
+      - /usr/local/log/letsencrypt:/var/log/letsencrypt
 
-  # SSL service
-  #
-  # On 1st run generates SSL certificate self-signed with user-specified CA.
-  # Then they're available for server to mount from `docker/ssl/certs` folder.
-  #
-  # Chatbot: rewrite existing service description if needed
+  # This service generates a self-signed SSL certificate using a
+  # user-specified CA. It provides a self-signed SSL certificate
+  # that can be used by the server service.
   myca:
     image: lehcode/ssl-myca:latest
-    # entrypoint: sleep infinity
+    # container_name: mycaca
+    entrypoint: /init.sh
     build:
       context: docker/myca/
       args:
-        debug: ${DEBUG:-yes}
+        #  Specifies whether to enable debugging.
+        # Default is "yes"
+        debug: ${DEBUG:-no}
+        # The key length for the SSL certificate.
+        # Default is 4096
         key_len: ${KEY_LEN:-4096}
+        # The validity period of the SSL certificate in days.
+        # Default is 365
         days: ${CERT_DAYS:-365}
+        # The common name for the CA (Certificate Authority).
+        # Default is "CAuth"
         ca_cn: ${MYCA_ORG_CN:-CAuth}
+        # The common name for the server certificate.
+        # This variable needs to be provided
         server_cn: ${SERVER_HOST:?}
+        # The user ID to map on container user.
+        # Default is 1001
         host_user_uid: ${HOST_USER_UID:-1001}
-        key_pass: ${MYCA_KEY_PASS}
-        ssl_certs_dir: ${SSL_CERTS_DIR:?}
+        # The password for the private key of the SSL certificate.
+        # This variable needs to be provided
+        key_pass: ${MYCA_KEY_PASS:?}
+        # The GID of "docker" group of host machine
+        host_docker_gid: ${HOST_DOCKER_GID}
+    environment:
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}
     volumes:
-      - ssl_keystore:${SSL_CERTS_DIR:?}
+      # The location of generated SSL certificates
+      - ./docker/myca/generate:${SSL_CERT_DIR:?}
+      # The logs directory
+      - /usr/local/log/soakp:/var/log/soakp
+    tty: true
 
-
-volumes:
-  soakp_db:
-  ssl_keystore:
+networks:
+  soakp_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.222.0/24

@@ -11,16 +11,16 @@ ARG tz
 ARG workdir
 ARG auth_user
 ARG auth_pass
-ARG data_file_dir
-ARG node_user_pwd
+ARG data_dir
+ARG host_user_pass
 
 ENV DEBUG=${debug}
 ENV NODE_ENV=${node_env}
 ENV NODE_VERSION=${node_version}
 ENV AUTH_USER=${auth_user}
 ENV AUTH_PASS=${auth_pass}
-ENV DATA_FILE_DIR=${data_file_dir}
-ENV NODE_USER_PWD=${node_user_pwd}
+ENV DATA_DIR=${data_dir}
+ENV HOST_USER_PASS=${host_user_pass}
 
 WORKDIR ${workdir}
 
@@ -34,7 +34,7 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && sh -c 'export DEBIAN_FRONTEND="noninteractive"' \
   && userdel node \
   && groupadd -g 1000 node \
-  && useradd -d /home/node -g 1000 -m -u 1000 -p ${node_user_pwd} node \
+  && useradd -d /home/node -g 1000 -m -u 1000 -p ${user_pwd} node \
   && apt-get update \
   && apt-get -y upgrade \
   && apt-get -y --no-install-recommends --no-install-suggests install sudo curl tzdata locales gnupg ca-certificates apache2-utils \
@@ -48,7 +48,7 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
-  && chown -R node:node ${workdir} ${data_file_dir}
+  && chown -R node:node ${workdir} ${data_dir}
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build
