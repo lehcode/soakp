@@ -152,7 +152,7 @@ services:
       SSL_CERT_DIR: ${SSL_CERT_DIR:?}
     volumes:
       # The location of generated SSL certificates
-      - ./docker/server/etc/soakp:${SSL_CERT_DIR:?}
+      - /usr/local/etc/soakp:${SSL_CERTS_DIR:?}
       # The logs directory
       - /usr/local/log/soakp:/var/log/soakp
     tty: true
