@@ -95,7 +95,7 @@ class KeyStorage implements KeyStorageInterface {
    */
   async fetchJWT(jwtToken: string): Promise<string | null> {
     try {
-      const row = await this.backend.find('token', jwtToken);
+      const row = await this.backend.findOne('token', [`token = ${jwtToken}`, 'archived != 1']);
 
       if (row.status === StatusCode.SUCCESS) {
         return row.data.token;
