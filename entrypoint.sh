@@ -10,6 +10,8 @@ fi
 echo "${USER_PWD}" | sudo -S chown -R node:node ./
 echo "${USER_PWD}" | sudo -S chown -R node:node "${DATA_DIR}"
 
+if [[ "${DEBUG}" == "yes" ]]; then ls -al ${SSL_CERT_DIR}; fi
+
 if [[ ! -d "node_modules" ]]; then
   yarn install
 fi
