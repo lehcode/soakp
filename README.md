@@ -22,7 +22,7 @@ Full [documentation is here](https://lehcode.github.io/soakp/docs/).
 
 ## In brief
 
-SOAKP is a perfect solution for developers looking for a secure and seamless way to interact with the OpenAI API. It hides the complexities of key management and API interaction behind a simple, easy-to-use interface.
+SOAKP is a perfect solution for developers looking for a secure and seamless way to interact with the OpenAI API.
 
 Please note that while this package enhances the security of your API key usage, it's always important to follow best practices for security, including regularly rotating keys and monitoring usage for any suspicious activity.
 
