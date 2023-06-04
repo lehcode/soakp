@@ -7,10 +7,11 @@ if [[ "${DEBUG}" == "yes" ]]; then
   env
 fi
 
-echo "${USER_PWD}" | sudo -S chown -R node:node ./
-echo "${USER_PWD}" | sudo -S chown -R node:node "${DATA_DIR}"
+echo "${USER_PWD}" | sudo -S chown -R ${HOST_USER_UID}:docker ./
+echo "${USER_PWD}" | sudo -S chown -R ${HOST_USER_UID}:docker "${DATA_DIR}"
 
 if [[ "${DEBUG}" == "yes" ]]; then ls -al ${SSL_CERT_DIR}; fi
+if [[ "${DEBUG}" == "yes" ]]; then ls -al ${SERVER_ROOT}; fi
 
 if [[ ! -d "node_modules" ]]; then
   yarn install
