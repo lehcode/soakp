@@ -92,7 +92,7 @@ services:
       - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
       # Exposes the Node.js debugging port
       - "9229:9229"
-    user: ${HOST_USER_NAME:?}:${HOST_USER_NAME:?}
+    user: ${HOST_USER_NAME:?}:docker
     tty: true
     depends_on:
       - myca
@@ -157,7 +157,7 @@ services:
       SSL_CERT_DIR: ${SSL_CERT_DIR:?}
     volumes:
       # The location of generated SSL certificates
-      - ./docker/myca/generate:${SSL_CERT_DIR:?}
+      - ./docker/server/etc/soakp:${SSL_CERT_DIR:?}
       # The logs directory
       - /usr/local/log/soakp:/var/log/soakp
     tty: true
