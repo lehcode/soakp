@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 
-set -e
-if [ "${DEBUG}" = "yes" ]; then
-  set -ex
+set -eo pipefail
+
+if [[ "${DEBUG}" == "yes" ]]; then
+  set -x
   env
 fi
 
-echo ${USER_PWD} | sudo -S chown -R node:node ./
-echo ${USER_PWD} | sudo -S chown -R node:node ${DATA_DIR}
-# echo ${USER_PWD} | sudo -S chown -R node:node /etc/ssl/soakp
-#  echo ${USER_PWD} | sudo -S ls -al ${DATA_DIR}
-#  sudo ls -al ${WORKDIR}
-# sudo ls -al ${DATA_DIR}
-#  ls -al /tmp
+echo "${USER_PWD}" | sudo -S chown -R node:node ./
+echo "${USER_PWD}" | sudo -S chown -R node:node "${DATA_DIR}"
 
-if [ ! -d "node_modules" ]; then yarn install; fi
-
-if [ "${NODE_ENV}" = "development" ]; then
-  yarn dev
-else
-  yarn serve
+if [[ ! -d "node_modules" ]]; then
+  yarn install
 fi
+
+if [[ "${NODE_ENV}" == "development" ]]; then
+  yarn dev
+  exit $?
+fi
+
+if [[ "${NODE_ENV}" == "testing" ]]; then
+  yarn test
+  exit $?
+fi
+
+yarn serve
+exit $?
