@@ -2,7 +2,7 @@
 
 SOAKP is a Node.js application and library that facilitates secure usage of the [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) through a proxy-like application.
 
-It stores you OpenAI API keys securely and provides a mechanism to interact with the OpenAI API without directly exposing it's keys using secure personal JWT token. To ensure optimal security, the library leverages Docker to automatically generate renewable SSL certificates using [Certbot](https://certbot.eff.org/).
+It stores your OpenAI API keys securely and provides a mechanism to interact with the OpenAI API without directly exposing its keys using a secure personal JWT token. To ensure optimal security, the library leverages Docker to automatically generate renewable SSL certificates using [Certbot](https://certbot.eff.org/).
 
 This package features a companion library for client-side browser applications where revealing API keys is a security concern.
 
@@ -18,7 +18,7 @@ This package features a companion library for client-side browser applications w
 
 ## Documentation
 
-Full [documentation is here](./docs/index.md).
+Full [documentation is here](https://lehcode.github.io/soakp/).
 
 ## In brief
 
