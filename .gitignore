@@ -8,3 +8,4 @@ docker/.secret/
 .env
 soakp_secrets.sqlite
 docker/certbot/credentials
+docker/myca/generate
