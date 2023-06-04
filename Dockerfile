@@ -11,22 +11,27 @@ ARG tz
 ARG server_workdir
 ARG auth_user
 ARG auth_pass
-ARG data_dir
 ARG host_user_pass
 ARG host_user_uid
+ARG host_user_gid
 ARG host_user_name
+ARG host_docker_gid
+ARG ssl_cert_dir
 
 ENV DEBUG=${debug}
 ENV NODE_ENV=${node_env}
 ENV NODE_VERSION=${node_version}
 ENV AUTH_USER=${auth_user}
 ENV AUTH_PASS=${auth_pass}
-ENV DATA_DIR=${data_dir}
 ENV HOST_USER_PASS=${host_user_pass}
 ENV HOST_USER_UID=${host_user_uid}
+ENV HOST_USER_GID=${host_user_gid}
 ENV HOST_USER_NAME=${host_user_name}
+ENV HOST_DOCKER_GID=${host_docker_gid}
+ENV SSL_CERT_DIR=${ssl_cert_dir}
+ENV SERVER_ROOT="/srv/soakp"
 
-WORKDIR ${server_workdir}
+WORKDIR ${SERVER_ROOT}
 
 COPY package.json .
 COPY yarn.lock .
@@ -38,8 +43,14 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && export HOST_USER_PASS=$(openssl passwd -1 "${host_user_pass}") \
   && sh -c 'export DEBIAN_FRONTEND="noninteractive"' \
   && userdel node \
-  && groupadd -g 1000 node \
-  && useradd -d "/home/${host_user_name}" -g "${host_user_name}" -m -u "${host_user_uid}" -p "${HOST_USER_PASS}" "${host_user_name}" \
+  && groupadd -g ${host_docker_gid} docker \
+  && groupadd -g ${host_user_gid} ${host_user_name} \
+  && mkdir "/home/${host_user_name}" \
+  && useradd --home "/home/${host_user_name}" \
+    --gid "${host_user_name}" \
+    --groups docker \
+    --uid "${host_user_uid}" \
+    --password "${HOST_USER_PASS}" "${host_user_name}" \
   && apt-get update \
   && apt-get -y upgrade \
   && apt-get -y --no-install-recommends --no-install-suggests \
@@ -54,7 +65,7 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
-  && chown -R ${host_user_name}:${host_user_name} ${server_workdir} ${data_dir}
+  && chown -R ${host_user_name}:docker "${SERVER_ROOT}" "/home/${host_user_name}"
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build

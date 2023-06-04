@@ -31,22 +31,19 @@ export class SoakpProxy {
     });
     this.openAI = new OpenAIApi(config);
 
-    console.log(`Initialized Soakp proxy with ${this.config.query.apiKey}`);
+    console.log(`Initialized Soakp proxy with ${params.apiKey}`);
   }
 
   /**
    *
    * @param params
-   * @param maxTokens
-   * @param temperature
    */
   async request(params: OpenAIRequestInterface) {
-    const request = {
+    const request: OpenAIRequestInterface = {
       model: params.model,
-      prompt: params.prompt,
+      prompt: params.messages,
       max_tokens: params.maxTokens,
-      temperature: params.temperature,
-      maxTokens: params.maxTokens
+      temperature: params.temperature
     };
 
     try {
