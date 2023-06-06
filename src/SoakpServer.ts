@@ -141,10 +141,11 @@ class SoakpServer {
    */
   private async generateAndSaveToken(openAIKey: string, res: express.Response) {
     try {
-      const jwtSaved = await this.keyStorage.saveToken(this.getSignedJWT(openAIKey));
+      const signed = this.getSignedJWT(openAIKey);
+      const saved = await this.keyStorage.saveToken(signed);
 
-      if (jwtSaved === StatusCode.CREATED) {
-        Response.tokenAdded(res, token);
+      if (saved === StatusCode.CREATED) {
+        Response.tokenAdded(res, signed);
       } else {
         throw new Error(Message.JWT_NOT_SAVED);
       }
@@ -228,7 +229,7 @@ class SoakpServer {
                 res,
                 {
                   response: response.data,
-                  config: response.config.data
+                  responseConfig: response.config.data
                 },
                 'Received OpenAI API response'
               );
@@ -315,7 +316,8 @@ class SoakpServer {
     );
 
     const credentials = { key: privateKey, cert: certificate };
-    this.app = https.createServer(credentials, app).listen(port);
+    this.app = https.createServer(credentials, app) as express.Application;
+    this.app.listen(port);
   }
 }
 
