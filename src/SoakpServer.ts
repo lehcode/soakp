@@ -110,7 +110,7 @@ class SoakpServer {
           } catch (e) {
             if (e.message === 'jwt expired') {
               console.log(`${Message.JWT_EXPIRED}. Generating a replacement`);
-              const updated = await this.generateAndUpdateToken(row.token, openAIKey);
+              const updated = await this.generateAndUpdateToken(row.token, openAIKey, res);
               console.log(updated);
             }
           }
@@ -122,7 +122,7 @@ class SoakpServer {
         Response.loadedToken(res, verified[0].token);
       } else {
         // No saved JWTs found, generate and save a new one
-        const token = await this.generateAndSaveToken(openAIKey);
+        const token = await this.generateAndSaveToken(openAIKey, res);
       }
     } catch (err) {
       // console.error(err);
@@ -139,7 +139,7 @@ class SoakpServer {
    * @param openAIKey
    * @private
    */
-  private async generateAndSaveToken(openAIKey: string) {
+  private async generateAndSaveToken(openAIKey: string, res: express.Response) {
     try {
       const jwtSaved = await this.keyStorage.saveToken(this.getSignedJWT(openAIKey));
 
@@ -159,7 +159,7 @@ class SoakpServer {
    * @param openAIKey
    * @private
    */
-  private async generateAndUpdateToken(oldToken: string, openAIKey: string) {
+  private async generateAndUpdateToken(oldToken: string, openAIKey: string, res: express.Response) {
     try {
       const token = this.getSignedJWT(openAIKey);
       const accepted = await this.keyStorage.updateToken(oldToken, token);
