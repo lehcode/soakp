@@ -6,13 +6,7 @@
     "type": "git",
     "url": "git@github.com:lehcode/soakp.git"
   },
-  "keywords": [
-    "soakp",
-    "openai",
-    "key",
-    "browser",
-    "gpt"
-  ],
+  "keywords": [ "soakp", "openai", "key", "browser", "gpt" ],
   "module": "SoakpServer",
   "author": "Antony Repin",
   "license": "MIT",
