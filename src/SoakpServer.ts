@@ -13,23 +13,20 @@ import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
 import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
 import { SoakpProxy } from './SoakpProxy';
-import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 import { Response } from './http/Response';
 import { DbSchemaInterface } from './interfaces/DbSchema.interface';
-import { ResponseInterface } from './interfaces/Response.interface';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
-import tls from 'tls';
 
 class SoakpServer {
-  private app: Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
+  private app: express.Application;
   private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
-  private config: ServerConfigInterface = {
-    port: 3033
-  };
+  // private config: ServerConfigInterface = {
+  //   port: 3033
+  // };
   private proxy: SoakpProxy;
 
   constructor() {
@@ -43,7 +40,10 @@ class SoakpServer {
     this.initializeEndpoints();
 
     this.proxy = new SoakpProxy({
-      port: this.config.port
+      query: {
+        model: 'text-gpt3.5-turbo',
+        prompt: ['Say Hello!']
+      }
     });
   }
 
