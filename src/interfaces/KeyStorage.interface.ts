@@ -6,9 +6,11 @@ export interface KeyStorageInterface {
   readonly backend: Database;
   readonly tableName: string;
 
-  saveJWT(jwtToken: string, openAIKey: string): Promise<StatusCode>;
+  saveToken(jwtToken: string, openAIKey: string): Promise<StatusCode>;
 
-  fetchJWT(jwtToken: string): Promise<string>;
+  updateToken(oldToken: string, newToken: string): Promise<StatusCode>;
+
+  fetchToken(jwtToken: string): Promise<string>;
 
   jwtExists(value: string): Promise<string | boolean>;
 
