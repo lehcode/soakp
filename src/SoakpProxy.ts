@@ -7,7 +7,7 @@ export class SoakpProxy {
   private openAI: OpenAIApi;
   private query = {
     apiKey: '',
-    apiOrgKey: 'org-euRh4hyXOmAEh9QagXatalSU',
+    apiOrgKey: process.env.OPENAI_API_ORG_ID,
     prompt: 'Hello World, Buddy! :-)',
     model: 'text-davinci-003'
   };
@@ -42,7 +42,7 @@ export class SoakpProxy {
     const request: OpenAIRequestInterface = {
       model: params.model,
       prompt: params.messages,
-      max_tokens: params.maxTokens,
+      max_tokens: params.max_tokens,
       temperature: params.temperature
     };
 
