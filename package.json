@@ -7,19 +7,20 @@
     "url": "git@github.com:lehcode/soakp.git"
   },
   "keywords": [
+    "soakp",
     "openai",
-    "proxy",
-    "gpt",
-    "gpt3",
-    "gpt-3",
-    "gpt4",
-    "gpt-4"
+    "key",
+    "browser",
+    "gpt"
   ],
-  "module": "node",
-  "author": "Antony Repin",
+  "module": "SoakpServer",
+  "author": "Lehcode",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/lehcode/soakp/issues"
+  },
   "scripts": {
     "build": "NODE_OPTIONS=\"--no-warnings\" tsc --outDir ./dist/",
     "lint": "eslint 'src/**/*.{ts}' --fix --quiet",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@tsconfig/node-lts": "^18.12.2",
     "@tsconfig/recommended": "^1.0.2",
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/nedb": "^1.8.13",

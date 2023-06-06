@@ -53,7 +53,7 @@ export class Response {
   static notAuthorized(res: express.Response, what?: 'key' | 'jwt') {
     switch (what) {
       case 'key':
-        return res.status(StatusCode.NOT_AUTHORIZED).json(<ResponseInterface>{
+        return res.status(statusCode.NOT_AUTHORIZED).json(<ResponseInterface>{
           status: Message.NOT_AUTHORIZED,
           message: Message.INVALID_KEY
         });
@@ -95,8 +95,16 @@ export class Response {
 
   static tokenAdded(res: express.Response, token: string) {
     return res.status(StatusCode.SUCCESS).json({
-      status: StatusCode.CREATED,
+      status: Message.SUCCESS,
       message: Message.JWT_ADDED,
+      data: { jwt: token }
+    });
+  }
+
+  static tokenUpdated(res: express.Response, token: string) {
+    return res.status(StatusCode.ACCEPTED).json({
+      status: StatusCode.ACCEPTED,
+      message: Message.JWT_UPDATED,
       data: { jwt: token }
     });
   }
