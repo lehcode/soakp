@@ -6,20 +6,15 @@
     "type": "git",
     "url": "git@github.com:lehcode/soakp.git"
   },
-  "keywords": [
-    "openai",
-    "proxy",
-    "gpt",
-    "gpt3",
-    "gpt-3",
-    "gpt4",
-    "gpt-4"
-  ],
-  "module": "node",
+  "keywords": [ "soakp", "openai", "key", "browser", "gpt" ],
+  "module": "SoakpServer",
   "author": "Antony Repin",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/lehcode/soakp/issues"
+  },
   "scripts": {
     "build": "NODE_OPTIONS=\"--no-warnings\" tsc --outDir ./dist/",
     "lint": "eslint 'src/**/*.{ts}' --fix --quiet",
