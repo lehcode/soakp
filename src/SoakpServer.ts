@@ -13,23 +13,20 @@ import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
 import { ServerConfigInterface } from './interfaces/ServerConfig.interface';
 import { SoakpProxy } from './SoakpProxy';
-import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 import { Response } from './http/Response';
 import { DbSchemaInterface } from './interfaces/DbSchema.interface';
-import { ResponseInterface } from './interfaces/Response.interface';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
-import tls from 'tls';
 
 class SoakpServer {
-  private app: Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
+  private app: express.Application;
   private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
-  private config: ServerConfigInterface = {
-    port: 3033
-  };
+  // private config: ServerConfigInterface = {
+  //   port: 3033
+  // };
   private proxy: SoakpProxy;
 
   constructor() {
@@ -43,7 +40,10 @@ class SoakpServer {
     this.initializeEndpoints();
 
     this.proxy = new SoakpProxy({
-      port: this.config.port
+      query: {
+        model: 'text-gpt3.5-turbo',
+        prompt: ['Say Hello!']
+      }
     });
   }
 
@@ -60,7 +60,7 @@ class SoakpServer {
         this.handleGetJwt.bind(this)
       );
     }
-    this.app.post('/openai/completion', this.handleOpenAIQuery.bind(this));
+    this.app.post('/openai/completions', this.handleOpenAIQuery.bind(this));
     this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
   }
 
@@ -104,7 +104,17 @@ class SoakpServer {
 
       let verified = [];
       if (existingTokens.length) {
-        verified = existingTokens.filter((row: DbSchemaInterface) => this.jwtVerify(row.token, openAIKey));
+        verified = existingTokens.filter(async (row: DbSchemaInterface) => {
+          try {
+            return jwt.verify(row.token, this.jwtHash);
+          } catch (e) {
+            if (e.message === 'jwt expired') {
+              console.log(`${Message.JWT_EXPIRED}. Generating a replacement`);
+              const updated = await this.generateAndUpdateToken(row.token, openAIKey, res);
+              console.log(updated);
+            }
+          }
+        });
       }
 
       if (verified.length) {
@@ -112,17 +122,10 @@ class SoakpServer {
         Response.loadedToken(res, verified[0].token);
       } else {
         // No saved JWTs found, generate and save a new one
-        const token = await this.generateAndSaveToken(openAIKey);
-
-        if (token) {
-          Response.tokenAdded(res, token);
-        } else {
-          throw new Error(Message.JWT_NOT_SAVED);
-        }
+        const token = await this.generateAndSaveToken(openAIKey, res);
       }
     } catch (err) {
-      console.error(err);
-
+      // console.error(err);
       if (err.message === Message.JWT_NOT_SAVED) {
         Response.jwtNotSaved(res);
       } else {
@@ -136,15 +139,15 @@ class SoakpServer {
    * @param openAIKey
    * @private
    */
-  private async generateAndSaveToken(openAIKey: string) {
+  private async generateAndSaveToken(openAIKey: string, res: express.Response) {
     try {
-      const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
-      const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
+      const signed = this.getSignedJWT(openAIKey);
+      const saved = await this.keyStorage.saveToken(signed);
 
-      if (jwtSaved === StatusCode.CREATED) {
-        return jwtSigned;
+      if (saved === StatusCode.CREATED) {
+        Response.tokenAdded(res, signed);
       } else {
-        return false;
+        throw new Error(Message.JWT_NOT_SAVED);
       }
     } catch (err) {
       throw err;
@@ -153,18 +156,39 @@ class SoakpServer {
 
   /**
    *
-   * @param token
+   * @param oldToken
    * @param openAIKey
+   * @private
    */
-  private jwtVerify(token: string, openAIKey: string): boolean {
-    let verified = false;
+  private async generateAndUpdateToken(oldToken: string, openAIKey: string, res: express.Response) {
+    try {
+      const token = this.getSignedJWT(openAIKey);
+      const accepted = await this.keyStorage.updateToken(oldToken, token);
 
-    jwt.verify(token, this.jwtHash, (err: any, decoded: any) => {
-      if (decoded.key === openAIKey) verified = true;
-    });
-
-    return verified;
+      if (accepted === StatusCode.ACCEPTED) {
+        Response.tokenUpdated(res, token);
+      } else {
+        throw new Error(Message.JWT_NOT_SAVED);
+      }
+    } catch (err) {
+      throw err;
+    }
   }
+
+  private getSignedJWT(openAIKey: string) {
+    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+  }
+
+  // /**
+  //  *
+  //  * @param token
+  //  * @param openAIKey
+  //  */
+  // private async jwtVerify(token: string, openAIKey: string): boolean {
+  //   let verified = jwt.verify(token, this.jwtHash);
+  //
+  //   return verified;
+  // }
 
   /**
    * Handle POST `/openai/query` request
@@ -205,7 +229,7 @@ class SoakpServer {
                 res,
                 {
                   response: response.data,
-                  config: response.config.data
+                  responseConfig: response.config.data
                 },
                 'Received OpenAI API response'
               );
@@ -292,7 +316,8 @@ class SoakpServer {
     );
 
     const credentials = { key: privateKey, cert: certificate };
-    this.app = https.createServer(credentials, app).listen(port);
+    this.app = https.createServer(credentials, app) as express.Application;
+    this.app.listen(port);
   }
 }
 

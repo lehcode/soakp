@@ -9,6 +9,7 @@ import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
 import { StatusCode } from './enums/StatusCode.enum';
 import { ResponseInterface } from './interfaces/Response.interface';
 import { DbSchemaInterface } from './interfaces/DbSchema.interface';
+import { Message } from './enums/Message.enum';
 
 interface StorageConfigInterface {
   dataFileLocation?: string;
@@ -75,7 +76,7 @@ class KeyStorage implements KeyStorageInterface {
    *
    * @param jwtToken
    */
-  async saveJWT(jwtToken: string): Promise<StatusCode> {
+  async saveToken(jwtToken: string): Promise<StatusCode> {
     try {
       const statusCode = await this.backend.insert(jwtToken);
 
@@ -93,12 +94,12 @@ class KeyStorage implements KeyStorageInterface {
    *
    * @param jwtToken
    */
-  async fetchJWT(jwtToken: string): Promise<string | null> {
+  async fetchToken(jwtToken: string): Promise<string | null> {
     try {
       const row = await this.backend.findOne('token', [`token = ${jwtToken}`, 'archived != 1']);
 
-      if (row.status === StatusCode.SUCCESS) {
-        return row.data.token;
+      if (row?.token) {
+        return row.token;
       }
 
       return;
@@ -114,7 +115,7 @@ class KeyStorage implements KeyStorageInterface {
    */
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
-      const result = await this.backend.find('*', [`token ='${jwtToken}'`]);
+      const result = await this.backend.findOne('token', ['archived != 1']);
 
       if (result.status === StatusCode.SUCCESS) {
         console.log('JWT supplied to API was found in DB');
@@ -193,6 +194,28 @@ class KeyStorage implements KeyStorageInterface {
    */
   get dbInstance(): SqliteStorage {
     return this.backend;
+  }
+
+  /**
+   *
+   * @param oldToken
+   * @param newToken
+   */
+  async updateToken(oldToken: string, newToken: string) {
+    try {
+      const statusCode = await this.backend.update(
+        [`token = '${oldToken}'`],
+        [`token = '${newToken}'`, `created_at = '${Date.now()}'`, `updated_at = '${Date.now()}'`]
+      );
+
+      if (statusCode === StatusCode.ACCEPTED) {
+        console.log(Message.JWT_UPDATED);
+      }
+
+      return StatusCode.ACCEPTED;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
 

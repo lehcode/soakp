@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="server.ts" type="NodeJSConfigurationType" path-to-node="wsl://Ubuntu-22.04@/home/dev/.nvm/versions/node/v16.20.0/bin/node" nameIsGenerated="true" node-parameters="-r ts-node/register" path-to-js-file="server.ts" working-dir="$PROJECT_DIR$">
-    <envs pass-parent-envs="false" />
-    <method v="2" />
-  </configuration>
-</component>

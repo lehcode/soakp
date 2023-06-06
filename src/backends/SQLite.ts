@@ -127,7 +127,7 @@ id, token, created_at, updated_at, last_access, archived
    */
   async update(where: string[], values: string[]) {
     const vals = [...values].join(',');
-    const query = `UPDATE '${this.tableName}' SET ${vals} WHERE ${where}`;
+    const query = `UPDATE '${this.tableName}' SET ${vals} WHERE ${where.join(' AND ')}`;
 
     return new Promise((resolve, reject) => {
       this.db.run(query, (err) => {
