@@ -60,7 +60,7 @@ class SoakpServer {
         this.handleGetJwt.bind(this)
       );
     }
-    this.app.post('/openai/completion', this.handleOpenAIQuery.bind(this));
+    this.app.post('/openai/completions', this.handleOpenAIQuery.bind(this));
     this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
   }
 
@@ -104,7 +104,17 @@ class SoakpServer {
 
       let verified = [];
       if (existingTokens.length) {
-        verified = existingTokens.filter((row: DbSchemaInterface) => this.jwtVerify(row.token, openAIKey));
+        verified = existingTokens.filter(async (row: DbSchemaInterface) => {
+          try {
+            return jwt.verify(row.token, this.jwtHash);
+          } catch (e) {
+            if (e.message === 'jwt expired') {
+              console.log(`${Message.JWT_EXPIRED}. Generating a replacement`);
+              const updated = await this.generateAndUpdateToken(row.token, openAIKey);
+              console.log(updated);
+            }
+          }
+        });
       }
 
       if (verified.length) {
@@ -113,16 +123,9 @@ class SoakpServer {
       } else {
         // No saved JWTs found, generate and save a new one
         const token = await this.generateAndSaveToken(openAIKey);
-
-        if (token) {
-          Response.tokenAdded(res, token);
-        } else {
-          throw new Error(Message.JWT_NOT_SAVED);
-        }
       }
     } catch (err) {
-      console.error(err);
-
+      // console.error(err);
       if (err.message === Message.JWT_NOT_SAVED) {
         Response.jwtNotSaved(res);
       } else {
@@ -138,13 +141,12 @@ class SoakpServer {
    */
   private async generateAndSaveToken(openAIKey: string) {
     try {
-      const jwtSigned = jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
-      const jwtSaved = await this.keyStorage.saveJWT(jwtSigned);
+      const jwtSaved = await this.keyStorage.saveToken(this.getSignedJWT(openAIKey));
 
       if (jwtSaved === StatusCode.CREATED) {
-        return jwtSigned;
+        Response.tokenAdded(res, token);
       } else {
-        return false;
+        throw new Error(Message.JWT_NOT_SAVED);
       }
     } catch (err) {
       throw err;
@@ -153,18 +155,39 @@ class SoakpServer {
 
   /**
    *
-   * @param token
+   * @param oldToken
    * @param openAIKey
+   * @private
    */
-  private jwtVerify(token: string, openAIKey: string): boolean {
-    let verified = false;
+  private async generateAndUpdateToken(oldToken: string, openAIKey: string) {
+    try {
+      const token = this.getSignedJWT(openAIKey);
+      const accepted = await this.keyStorage.updateToken(oldToken, token);
 
-    jwt.verify(token, this.jwtHash, (err: any, decoded: any) => {
-      if (decoded.key === openAIKey) verified = true;
-    });
-
-    return verified;
+      if (accepted === StatusCode.ACCEPTED) {
+        Response.tokenUpdated(res, token);
+      } else {
+        throw new Error(Message.JWT_NOT_SAVED);
+      }
+    } catch (err) {
+      throw err;
+    }
   }
+
+  private getSignedJWT(openAIKey: string) {
+    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+  }
+
+  // /**
+  //  *
+  //  * @param token
+  //  * @param openAIKey
+  //  */
+  // private async jwtVerify(token: string, openAIKey: string): boolean {
+  //   let verified = jwt.verify(token, this.jwtHash);
+  //
+  //   return verified;
+  // }
 
   /**
    * Handle POST `/openai/query` request
