@@ -7,6 +7,8 @@
       // compilerOptions specified here will override those declared below,
       // but *only* in ts-node.  Useful if you want ts-node and tsc to use
       // different options with a single tsconfig.json.
+      "target": "es2018",
+      "module": "Node16"
     }
   },
   "module": "commonjs",
@@ -16,14 +18,11 @@
     "outDir": "dist",
     "rootDir": ".",
     "noImplicitAny": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "inlineSourceMap": true,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
     "lib": [
       "esnext",
       "dom"
