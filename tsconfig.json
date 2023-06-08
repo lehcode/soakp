@@ -1,43 +1,46 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
-  "ts-node": {
-    "transpileOnly": true,
-    "files": true,
-    "compilerOptions": {
-      // compilerOptions specified here will override those declared below,
-      // but *only* in ts-node.  Useful if you want ts-node and tsc to use
-      // different options with a single tsconfig.json.
-    }
-  },
-  "module": "commonjs",
+  "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
-    "strict": true,
+    "target": "es2018",
+    "module": "esnext",
     "outDir": "dist",
     "rootDir": ".",
+    "strict": true,
     "noImplicitAny": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "inlineSourceMap": true,
     "noEmitOnError": false,
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "strictNullChecks": false
+    "lib": [ "esnext" ],
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    },
+    "strictNullChecks": true
   },
-  "include": ["*.ts"],
-  "exclude": ["dist" ,"**/node_modules"],
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "**/node_modules"
+  ],
   "watchOptions": {
     "watchFile": "useFsEvents",
     "watchDirectory": "useFsEvents",
     "fallbackPolling": "dynamicPriority",
     "synchronousWatchDirectory": true,
-    "excludeDirectories": ["**/node_modules", "dist/**"],
-    "excludeFiles": ["**/*.js"]
+    "excludeDirectories": [
+      "**/node_modules",
+      "dist/**"
+    ],
+    "excludeFiles": [
+      "**/*.js"
+    ]
   }
 }
