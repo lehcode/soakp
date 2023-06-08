@@ -1,7 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
-import { SoakpServer } from './src/SoakpServer';
-import { KeyStorage, StorageType } from './src/KeyStorage';
+import SoakpServer from './src/SoakpServer';
+import KeyStorage, { StorageType } from './src/KeyStorage';
 
 dotenv.config();
 

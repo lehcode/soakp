@@ -5,7 +5,7 @@ import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interf
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
-  private query = {
+  private query: OpenAIRequestInterface = {
     apiKey: '',
     apiOrgKey: process.env.OPENAI_API_ORG_ID,
     prompt: 'Hello World, Buddy! :-)',
@@ -41,7 +41,7 @@ export class SoakpProxy {
   async request(params: OpenAIRequestInterface) {
     const request: OpenAIRequestInterface = {
       model: params.model,
-      prompt: params.messages,
+      prompt: params.prompt,
       max_tokens: params.max_tokens,
       temperature: params.temperature
     };
