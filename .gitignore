@@ -1,4 +1,3 @@
-dist/
 node_modules/
 .env
 .idea/
@@ -10,3 +9,4 @@ docker/myca/generate/cert
 docker/server/etc
 docker/server/lib
 docker/server/log
+/.npmrc
