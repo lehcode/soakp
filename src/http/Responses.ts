@@ -8,7 +8,7 @@ export interface ResponseInterface {
   data: undefined | null | [];
 }
 
-export class Responses {
+export default class Responses {
   /**
    *
    * @param res
@@ -95,10 +95,10 @@ export class Responses {
    */
   static serverError(res: express.Response) {
     return res.status(StatusCode.INTERNAL_ERROR)
-      .json({
-        status: Message.INTERNAL_SERVER_ERROR,
-        message: Message.INTERNAL_SERVER_ERROR
-      });
+    .json({
+      status: Message.INTERNAL_SERVER_ERROR,
+      message: Message.INTERNAL_SERVER_ERROR
+    });
   }
 
   static tokenAdded(res: express.Response, token: string) {

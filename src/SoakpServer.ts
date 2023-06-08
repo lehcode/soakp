@@ -1,6 +1,6 @@
 /**
- * Author: Lehcode
- * Copyright: (C) Lehcode.com 2023
+ * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
+ * Copyright: (C)2023
  */
 import express from 'express';
 import cors from 'cors';
@@ -12,35 +12,25 @@ import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
 import { SoakpProxy } from './SoakpProxy';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
-import { Responses } from './http/Responses';
-import { KeyStorage, StorageConfigInterface, DbSchemaInterface } from './KeyStorage';
+import Responses from './http/Responses';
+import { DbSchemaInterface } from './interfaces/DbSchema.interface';
+import KeyStorage from './KeyStorage';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
 
-export const fallback = {
-  dataFileLocation: './fallback',
-  dbName: 'fallback',
-  tableName: 'fallback',
-  serverPort: 3033
-};
-
-export class SoakpServer {
+export default class SoakpServer {
   private app: any;
+  private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
-  private proxy: SoakpProxy;
-  private storageConfig: StorageConfigInterface = {
-    tableName: process.env.SQLITE_TABLE || fallback.tableName,
-    dbName: process.env.SQLITE_DB || fallback.dbName,
-    dataFileDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : fallback.dataFileLocation,
-    lifetime: 86400
+  private config: ServerConfigInterface = {
+    port: 3033
   };
+  private proxy: SoakpProxy;
 
   constructor() {
     this.app = express();
     this.app.use(cors());
-
-    console.log(this.storageConfig);
 
     // Configure middleware
     this.app.use(bodyParser.json());
@@ -176,7 +166,7 @@ export class SoakpServer {
   }
 
   private getSignedJWT(openAIKey: string) {
-    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.storageConfig.lifetime });
+    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
   }
 
   // /**
@@ -202,6 +192,7 @@ export class SoakpServer {
 
       if (token !== false) {
         jwt.verify(token, this.jwtHash, async (err: any, decoded: any) => {
+
           if (err) {
             Responses.notAuthorized(res, 'jwt');
             return;
@@ -222,7 +213,7 @@ export class SoakpServer {
 
           try {
             // Query OpenAI API with provided query and parameters
-            const response = await this.proxy.makeRequest(params);
+            const response = await this.proxy.request(params);
             console.log(response);
 
             if (response.status === StatusCode.SUCCESS) {
@@ -251,19 +242,15 @@ export class SoakpServer {
   /**
    * Start the server
    * @public
-   * @param sslPort
    */
-  public async start(sslPort: number) {
-    this.keyStorage = await KeyStorage.getInstance(this.storageConfig);
-    const httpPort = 3003;
-
-    this.app.listen(httpPort, () => {
+  public start(port: number, storage: KeyStorage) {
+    this.keyStorage = storage;
+    this.app.listen(3035, () => {
       console.log(
-        `Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
-Please consider to provide your support: https://opencollective.com/soakp`
+        `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`
       );
     });
-    this.initSSL(this.app, sslPort);
+    this.initSSL(this.app, port);
   }
 
   /**
@@ -324,4 +311,8 @@ Please consider to provide your support: https://opencollective.com/soakp`
     this.app = https.createServer(credentials, app);
     this.app.listen(port);
   }
+}
+
+interface ServerConfigInterface {
+  port: number;
 }
