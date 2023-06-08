@@ -1,11 +1,7 @@
-/**
- * Author: Lehcode
- * Copyright: (C)2023
- */
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Database } from 'sqlite3';
+import { DbSchemaInterface } from '../interfaces/DbSchema.interface';
 import { promises as fs } from 'fs';
-import { DbSchemaInterface } from '../KeyStorage';
 import path from 'path';
 import { Message } from '../enums/Message.enum';
 
