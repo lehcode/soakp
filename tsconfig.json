@@ -23,7 +23,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
-    "inlineSourceMap": true,
+    "sourceMap": true,
+    "inlineSourceMap": false,
     "noEmitOnError": true,
     "lib": [
       "esnext",
