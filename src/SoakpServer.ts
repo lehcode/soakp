@@ -8,12 +8,12 @@ import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
-import StatusCode from './enums/StatusCode.enum';
-import Message from './enums/Message.enum';
-import SoakpProxy from './SoakpProxy';
-import OpenAIRequestInterface from './interfaces/OpenAI/OpenAIRequest.interface';
-import Responses from './http/Responses';
-import KeyStorage, { StorageConfigInterface, DbSchemaInterface } from './KeyStorage';
+import { StatusCode } from './enums/StatusCode.enum';
+import { Message } from './enums/Message.enum';
+import { SoakpProxy } from './SoakpProxy';
+import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { Responses } from './http/Responses';
+import { KeyStorage, StorageConfigInterface, DbSchemaInterface } from './KeyStorage';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
@@ -25,7 +25,7 @@ export const fallback = {
   serverPort: 3033
 };
 
-export default class SoakpServer {
+export class SoakpServer {
   private app: any;
   private keyStorage: KeyStorage;
   private proxy: SoakpProxy;
@@ -65,7 +65,7 @@ export default class SoakpServer {
     if (this.basicAuthCredentialsValidated) {
       this.app.post(
         '/get-jwt',
-        basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS } }),
+        basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS }}),
         this.handleGetJwt.bind(this)
       );
     }
@@ -88,7 +88,8 @@ export default class SoakpServer {
    * @private
    */
   private get jwtHash(): string {
-    return createHash('sha256').update(this.secret).digest('hex');
+    return createHash('sha256').update(this.secret)
+      .digest('hex');
   }
 
   /**
@@ -221,7 +222,7 @@ export default class SoakpServer {
 
           try {
             // Query OpenAI API with provided query and parameters
-            const response = await this.proxy.request(params);
+            const response = await this.proxy.makeRequest(params);
             console.log(response);
 
             if (response.status === StatusCode.SUCCESS) {
@@ -250,16 +251,19 @@ export default class SoakpServer {
   /**
    * Start the server
    * @public
+   * @param sslPort
    */
-  public async start(port: number) {
+  public async start(sslPort: number) {
     this.keyStorage = await KeyStorage.getInstance(this.storageConfig);
+    const httpPort = 3003;
 
-    this.app.listen(port, () => {
+    this.app.listen(httpPort, () => {
       console.log(
-        `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`
+        `Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
+        Please consider to provide your support: https://opencollective.com/soakp`
       );
     });
-    this.initSSL(this.app, port);
+    this.initSSL(this.app, sslPort);
   }
 
   /**
