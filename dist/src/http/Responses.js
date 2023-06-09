@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Responses = void 0;
 const StatusCode_enum_1 = require("../enums/StatusCode.enum");
 const Message_enum_1 = require("../enums/Message.enum");
 class Responses {
@@ -103,5 +104,5 @@ class Responses {
         });
     }
 }
-exports.default = Responses;
+exports.Responses = Responses;
 //# sourceMappingURL=Responses.js.map

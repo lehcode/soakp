@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SoakpServer = exports.fallback = void 0;
 /**
- * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
- * Copyright: (C)2023
+ * Author: Lehcode
+ * Copyright: (C) Lehcode.com 2023
  */
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -25,18 +26,28 @@ const crypto_1 = require("crypto");
 const StatusCode_enum_1 = require("./enums/StatusCode.enum");
 const Message_enum_1 = require("./enums/Message.enum");
 const SoakpProxy_1 = require("./SoakpProxy");
-const Responses_1 = __importDefault(require("./http/Responses"));
+const Responses_1 = require("./http/Responses");
+const KeyStorage_1 = require("./KeyStorage");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+exports.fallback = {
+    dataFileLocation: './fallback',
+    dbName: 'fallback',
+    tableName: 'fallback',
+    serverPort: 3033
+};
 class SoakpServer {
     constructor() {
-        this.jwtExpiration = 86400;
-        this.config = {
-            port: 3033
+        this.storageConfig = {
+            tableName: process.env.SQLITE_TABLE || exports.fallback.tableName,
+            dbName: process.env.SQLITE_DB || exports.fallback.dbName,
+            dataFileDir: process.env.DATA_DIR ? path_1.default.resolve(process.env.DATA_DIR) : exports.fallback.dataFileLocation,
+            lifetime: 86400
         };
         this.app = (0, express_1.default)();
         this.app.use((0, cors_1.default)());
+        console.log(this.storageConfig);
         // Configure middleware
         this.app.use(body_parser_1.default.json());
         this.app.use(body_parser_1.default.urlencoded({ extended: true }));
@@ -100,7 +111,7 @@ class SoakpServer {
                     // No saved JWTs found, generate and save a new one
                     console.log('No matching tokens found. Generateing a new one.');
                     const savedToken = yield this.generateAndSaveToken(openAIKey, res);
-                    Responses_1.default.tokenAdded(res, savedToken);
+                    Responses_1.Responses.tokenAdded(res, savedToken);
                 }
                 else {
                     const verified = existingTokens.filter((row) => __awaiter(this, void 0, void 0, function* () {
@@ -112,7 +123,7 @@ class SoakpServer {
                                 console.log(`${Message_enum_1.Message.JWT_EXPIRED}. Replacing it...`);
                                 const updated = yield this.generateAndUpdateToken(row.token, openAIKey, res);
                                 console.log('Token refreshed');
-                                Responses_1.default.tokenUpdated(res, updated);
+                                Responses_1.Responses.tokenUpdated(res, updated);
                             }
                         }
                     }));
@@ -166,7 +177,7 @@ class SoakpServer {
         });
     }
     getSignedJWT(openAIKey) {
-        return jsonwebtoken_1.default.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+        return jsonwebtoken_1.default.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.storageConfig.lifetime });
     }
     // /**
     //  *
@@ -191,7 +202,7 @@ class SoakpServer {
                 if (token !== false) {
                     jsonwebtoken_1.default.verify(token, this.jwtHash, (err, decoded) => __awaiter(this, void 0, void 0, function* () {
                         if (err) {
-                            Responses_1.default.notAuthorized(res, 'jwt');
+                            Responses_1.Responses.notAuthorized(res, 'jwt');
                             return;
                         }
                         // Update parameters without reinitializing the OpenAI client
@@ -208,10 +219,10 @@ class SoakpServer {
                         this.proxy.initAI(params);
                         try {
                             // Query OpenAI API with provided query and parameters
-                            const response = yield this.proxy.request(params);
+                            const response = yield this.proxy.makeRequest(params);
                             console.log(response);
                             if (response.status === StatusCode_enum_1.StatusCode.SUCCESS) {
-                                Responses_1.default.success(res, {
+                                Responses_1.Responses.success(res, {
                                     response: response.data,
                                     responseConfig: response.config.data
                                 }, 'Received OpenAI API response');
@@ -219,12 +230,12 @@ class SoakpServer {
                         }
                         catch (error) {
                             console.error(error);
-                            Responses_1.default.unknownError(res);
+                            Responses_1.Responses.unknownError(res);
                         }
                     }));
                 }
                 else {
-                    Responses_1.default.notAuthorized(res, 'jwt');
+                    Responses_1.Responses.notAuthorized(res, 'jwt');
                 }
             }
             catch (e) {
@@ -235,13 +246,18 @@ class SoakpServer {
     /**
      * Start the server
      * @public
+     * @param sslPort
      */
-    start(port, storage) {
-        this.keyStorage = storage;
-        this.app.listen(3035, () => {
-            console.log(`Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`);
+    start(sslPort) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.keyStorage = yield KeyStorage_1.KeyStorage.getInstance(this.storageConfig);
+            const httpPort = 3003;
+            this.app.listen(httpPort, () => {
+                console.log(`Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
+        Please consider to provide your support: https://opencollective.com/soakp`);
+            });
+            this.initSSL(this.app, sslPort);
         });
-        this.initSSL(this.app, port);
     }
     /**
      * Validate OpenAI API key
@@ -288,5 +304,5 @@ class SoakpServer {
         this.app.listen(port);
     }
 }
-exports.default = SoakpServer;
+exports.SoakpServer = SoakpServer;
 //# sourceMappingURL=SoakpServer.js.map
