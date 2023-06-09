@@ -18,7 +18,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Author: Anton Repin <53556648+lehcode@users.noreply.github.com>
+ * Author: Lehcode
  * Copyright: (C)2023.
  */
 const dotenv_1 = __importDefault(require("dotenv"));

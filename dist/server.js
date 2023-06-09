@@ -12,47 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __importDefault(require("path"));
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 const dotenv_1 = __importDefault(require("dotenv"));
-const SoakpServer_1 = __importDefault(require("./src/SoakpServer"));
-const KeyStorage_1 = __importDefault(require("./src/KeyStorage"));
+const SoakpServer_1 = require("./src/SoakpServer");
 dotenv_1.default.config();
-const fallback = {
-    dataFileLocation: './fallback',
-    dbName: 'fallback',
-    tableName: 'fallback',
-    serverPort: 3033
-};
-const dataFileLocation = process.env.DATA_DIR ? path_1.default.resolve(process.env.DATA_DIR) : fallback.dataFileLocation;
-const dbName = process.env.SQLITE_DB || fallback.dbName;
-const tableName = process.env.SQLITE_TABLE || fallback.tableName;
-const serverPort = parseInt(process.env.SERVER_PORT, 10) || fallback.serverPort;
-const storageType = process.env.STORAGE_TYPE;
-const storageConfig = {
-    dataFileLocation,
-    sql: {
-        dbName,
-        tableName
+const sslPort = parseInt(process.env.SERVER_PORT, 10) || SoakpServer_1.fallback.serverPort;
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield new SoakpServer_1.SoakpServer().start(sslPort);
     }
-};
-const server = new SoakpServer_1.default();
-function start() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const storage = yield KeyStorage_1.default.getInstance(storageType, storageConfig);
-            try {
-                yield server.start(serverPort, storage);
-            }
-            catch (initErr) {
-                console.error('Error initializing server:', initErr);
-                process.exit(1);
-            }
-        }
-        catch (storageErr) {
-            console.error('Error getting storage instance:', storageErr);
-            process.exit(1);
-        }
-    });
-}
-start();
+    catch (initErr) {
+        console.error('Error initializing server:', initErr);
+        process.exit(1);
+    }
+}))();
 //# sourceMappingURL=server.js.map

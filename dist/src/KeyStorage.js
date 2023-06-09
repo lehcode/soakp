@@ -12,33 +12,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StorageType = void 0;
+exports.KeyStorage = void 0;
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 const path_1 = __importDefault(require("path"));
 const SQLite_1 = __importDefault(require("./backends/SQLite"));
 const StatusCode_enum_1 = require("./enums/StatusCode.enum");
-var StorageType;
-(function (StorageType) {
-    StorageType["SQLITE"] = "STORAGE_SQLITE";
-    StorageType["FILE"] = "STORAGE_FILE";
-    StorageType["MEMORY"] = "STORAGE_MEMORY";
-})(StorageType || (exports.StorageType = StorageType = {}));
 class KeyStorage {
-    constructor(type, configuration) {
+    constructor(configuration) {
         this.backend = null;
         this.config = Object.assign({}, configuration);
-        this.type = type;
     }
-    static getInstance(storageType, config) {
+    static getInstance(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            const keyStorageInstance = new KeyStorage(storageType, config);
-            if (config.sql && config.dataFileLocation) {
-                const sqliteFile = path_1.default.resolve(config.dataFileLocation, `./${config.sql.dbName}`);
-                try {
-                    keyStorageInstance.backend = yield SQLite_1.default.getInstance(config.sql.dbName, config.sql.tableName, sqliteFile);
-                }
-                catch (err) {
-                    throw err;
-                }
+            const keyStorageInstance = new KeyStorage(config);
+            const sqliteFile = path_1.default.resolve(config === null || config === void 0 ? void 0 : config.dataFileDir, `./${config.dbName}`);
+            try {
+                keyStorageInstance.backend = yield SQLite_1.default.getInstance(config.dbName, config.tableName, sqliteFile);
+            }
+            catch (err) {
+                throw err;
             }
             return keyStorageInstance;
         });
@@ -117,7 +112,7 @@ class KeyStorage {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return (_b = yield ((_a = this.backend) === null || _a === void 0 ? void 0 : _a.findAll('token'))) !== null && _b !== void 0 ? _b : [];
+                return (_b = (yield ((_a = this.backend) === null || _a === void 0 ? void 0 : _a.findAll('token')))) !== null && _b !== void 0 ? _b : [];
             }
             catch (err) {
                 throw err;
@@ -160,5 +155,5 @@ class KeyStorage {
         });
     }
 }
-exports.default = KeyStorage;
+exports.KeyStorage = KeyStorage;
 //# sourceMappingURL=KeyStorage.js.map
