@@ -13,7 +13,7 @@
       "declarationMap": true
     }
   },
-  "module": "commonjs",
+  "module": "node",
   "compilerOptions": {
     "target": "es6",
     "strict": true,
@@ -26,13 +26,10 @@
     "sourceMap": true,
     "inlineSourceMap": false,
     "noEmitOnError": true,
-    "lib": [
-      "esnext",
-      "dom"
-    ],
+    "lib": ["esnext"],
     "strictNullChecks": false
   },
-  "include": ["*.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["dist" ,"**/node_modules"],
   "watchOptions": {
     "watchFile": "useFsEvents",
