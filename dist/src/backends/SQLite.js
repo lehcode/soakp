@@ -12,6 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 const StatusCode_enum_1 = require("../enums/StatusCode.enum");
 const sqlite3_1 = require("sqlite3");
 const fs_1 = require("fs");

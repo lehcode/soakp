@@ -10,6 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SoakpProxy = void 0;
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 const openai_1 = require("openai");
 class SoakpProxy {
     /**
@@ -41,7 +45,7 @@ class SoakpProxy {
      *
      * @param params
      */
-    request(params) {
+    makeRequest(params) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = {
                 model: params.model,
@@ -49,12 +53,8 @@ class SoakpProxy {
                 max_tokens: params.max_tokens,
                 temperature: params.temperature
             };
-            try {
-                return yield this.openAI.createCompletion(request);
-            }
-            catch (error) {
-                throw error;
-            }
+            // @ts-ignore
+            return yield this.openAI.createCompletion(request);
         });
     }
     /**
