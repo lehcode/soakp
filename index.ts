@@ -1,5 +1,5 @@
 /**
- * Author: Anton Repin <53556648+lehcode@users.noreply.github.com>
+ * Author: Lehcode
  * Copyright: (C)2023.
  */
 import dotenv from 'dotenv';
