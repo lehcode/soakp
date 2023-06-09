@@ -1,6 +1,6 @@
 import path from 'path';
 import SqliteStorage from './backends/SQLite';
-import StatusCode from './enums/StatusCode.enum';
+import { StatusCode } from './enums/StatusCode.enum';
 
 export interface DbSchemaInterface extends Object {
   id: null | number;
@@ -18,7 +18,7 @@ export interface StorageConfigInterface {
   dataFileDir?: string;
 }
 
-export default class KeyStorage {
+export class KeyStorage {
   private readonly config: StorageConfigInterface;
   private backend: SqliteStorage | null = null;
 
