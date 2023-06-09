@@ -1,3 +1,7 @@
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import dotenv from 'dotenv';
 import { SoakpServer, fallback } from './src/SoakpServer';
 
