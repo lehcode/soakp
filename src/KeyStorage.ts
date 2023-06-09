@@ -20,21 +20,23 @@ export enum StorageType {
 export default class KeyStorage {
   private readonly type: StorageType;
   private readonly config: StorageConfigInterface;
-  private backend: SqliteStorage;
+  private backend: SqliteStorage | null = null;
 
   constructor(type: StorageType, configuration: StorageConfigInterface) {
     this.config = { ...configuration };
     this.type = type;
   }
 
-  static async getInstance(storageType: StorageType, config: StorageConfigInterface) {
+  static async getInstance(storageType: StorageType, config: StorageConfigInterface): Promise<KeyStorage> {
     const keyStorageInstance = new KeyStorage(storageType, config);
-    const sqliteFile = path.resolve(config.dataFileLocation, `./${config.sql?.dbName}`);
+    if (config.sql && config.dataFileLocation) {
+      const sqliteFile = path.resolve(config.dataFileLocation, `./${config.sql.dbName}`);
 
-    try {
-      keyStorageInstance.backend = await SqliteStorage.getInstance(config.sql?.dbName, config.sql?.tableName, sqliteFile);
-    } catch (err) {
-      throw err;
+      try {
+        keyStorageInstance.backend = await SqliteStorage.getInstance(config.sql.dbName, config.sql.tableName, sqliteFile);
+      } catch (err) {
+        throw err;
+      }
     }
 
     return keyStorageInstance;
@@ -57,8 +59,7 @@ export default class KeyStorage {
 
   async fetchToken(jwtToken: string): Promise<string> {
     try {
-      const row = await this.backend.findOne('token', [`token = ${jwtToken}`, 'archived != 1']);
-
+      const row = await this.backend?.findOne('token', [`token = '${jwtToken}'`, 'archived != 1']);
       if (row instanceof Error) {
         console.error(row.message);
         return '';
@@ -72,8 +73,7 @@ export default class KeyStorage {
 
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
-      const row = await this.backend.findOne('token', ['archived != 1', `token = ${jwtToken}`]);
-
+      const row = await this.backend?.findOne('token', ['archived != 1', `token = '${jwtToken}'`]);
       if (row instanceof Error) {
         console.error(row.message);
         return false;
@@ -102,7 +102,7 @@ export default class KeyStorage {
 
   async getActiveTokens(): Promise<DbSchemaInterface[] | Error> {
     try {
-      return await this.backend.findAll('token');
+      return await this.backend?.findAll('token') ?? [];
     } catch (err: any) {
       throw err;
     }
@@ -110,13 +110,12 @@ export default class KeyStorage {
 
   async getRecentToken(): Promise<string | false> {
     try {
-      const result = await this.backend.findOne();
-
+      const result = await this.backend?.findOne();
       if (result instanceof Error) {
         console.error(result.message);
         return false;
       } else {
-        return result.token;
+        return result?.token ?? false;
       }
     } catch (err) {
       throw err;
