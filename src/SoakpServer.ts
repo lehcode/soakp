@@ -1,6 +1,6 @@
 /**
- * Author: Lehcode<53556648+lehcode@users.noreply.github.com>
- * Copyright: (C)2023
+ * Author: Lehcode
+ * Copyright: (C) Lehcode.com 2023
  */
 import express from 'express';
 import cors from 'cors';
@@ -260,7 +260,7 @@ export class SoakpServer {
     this.app.listen(httpPort, () => {
       console.log(
         `Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
-        Please consider to provide your support: https://opencollective.com/soakp`
+Please consider to provide your support: https://opencollective.com/soakp`
       );
     });
     this.initSSL(this.app, sslPort);
