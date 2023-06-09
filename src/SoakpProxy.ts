@@ -1,7 +1,10 @@
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 import { AxiosResponse } from 'axios';
-import { CreateCompletionResponse } from 'openai/api';
 
 interface ProxyConfigInterface {
   apiHost?: string;
