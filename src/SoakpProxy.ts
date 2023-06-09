@@ -1,5 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { AxiosResponse } from 'axios';
+import { CreateCompletionResponse } from 'openai/api';
 
 interface ProxyConfigInterface {
   apiHost?: string;
@@ -7,7 +9,7 @@ interface ProxyConfigInterface {
   query: OpenAIRequestInterface;
 }
 
-export default class SoakpProxy {
+export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
   private query: OpenAIRequestInterface = {
@@ -43,7 +45,7 @@ export default class SoakpProxy {
    *
    * @param params
    */
-  async request(params: OpenAIRequestInterface) {
+  async makeRequest(params: OpenAIRequestInterface): Promise<AxiosResponse<any, any>> {
     const request: OpenAIRequestInterface = {
       model: params.model,
       prompt: params.prompt,
@@ -51,11 +53,8 @@ export default class SoakpProxy {
       temperature: params.temperature
     };
 
-    try {
-      return await this.openAI.createCompletion(request);
-    } catch (error) {
-      throw error;
-    }
+    // @ts-ignore
+    return await this.openAI.createCompletion(request);
   }
 
   /**
