@@ -8,29 +8,39 @@ import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
-import { StatusCode } from './enums/StatusCode.enum';
-import { Message } from './enums/Message.enum';
-import { SoakpProxy } from './SoakpProxy';
-import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import StatusCode from './enums/StatusCode.enum';
+import Message from './enums/Message.enum';
+import SoakpProxy from './SoakpProxy';
+import OpenAIRequestInterface from './interfaces/OpenAI/OpenAIRequest.interface';
 import Responses from './http/Responses';
-import { DbSchemaInterface } from './interfaces/DbSchema.interface';
-import KeyStorage from './KeyStorage';
+import KeyStorage, { StorageConfigInterface, DbSchemaInterface } from './KeyStorage';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
 
+export const fallback = {
+  dataFileLocation: './fallback',
+  dbName: 'fallback',
+  tableName: 'fallback',
+  serverPort: 3033
+};
+
 export default class SoakpServer {
   private app: any;
-  private jwtExpiration = 86400;
   private keyStorage: KeyStorage;
-  private config: ServerConfigInterface = {
-    port: 3033
-  };
   private proxy: SoakpProxy;
+  private storageConfig: StorageConfigInterface = {
+    tableName: process.env.SQLITE_TABLE || fallback.tableName,
+    dbName: process.env.SQLITE_DB || fallback.dbName,
+    dataFileDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : fallback.dataFileLocation,
+    lifetime: 86400
+  };
 
   constructor() {
     this.app = express();
     this.app.use(cors());
+
+    console.log(this.storageConfig);
 
     // Configure middleware
     this.app.use(bodyParser.json());
@@ -55,7 +65,7 @@ export default class SoakpServer {
     if (this.basicAuthCredentialsValidated) {
       this.app.post(
         '/get-jwt',
-        basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS }}),
+        basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS } }),
         this.handleGetJwt.bind(this)
       );
     }
@@ -78,8 +88,7 @@ export default class SoakpServer {
    * @private
    */
   private get jwtHash(): string {
-    return createHash('sha256').update(this.secret)
-      .digest('hex');
+    return createHash('sha256').update(this.secret).digest('hex');
   }
 
   /**
@@ -166,7 +175,7 @@ export default class SoakpServer {
   }
 
   private getSignedJWT(openAIKey: string) {
-    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.jwtExpiration });
+    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.storageConfig.lifetime });
   }
 
   // /**
@@ -192,7 +201,6 @@ export default class SoakpServer {
 
       if (token !== false) {
         jwt.verify(token, this.jwtHash, async (err: any, decoded: any) => {
-
           if (err) {
             Responses.notAuthorized(res, 'jwt');
             return;
@@ -243,9 +251,10 @@ export default class SoakpServer {
    * Start the server
    * @public
    */
-  public start(port: number, storage: KeyStorage) {
-    this.keyStorage = storage;
-    this.app.listen(3035, () => {
+  public async start(port: number) {
+    this.keyStorage = await KeyStorage.getInstance(this.storageConfig);
+
+    this.app.listen(port, () => {
       console.log(
         `Started Secure OpenAI Key Proxy on port ${port}.\nPlease consider to provide your support: https://opencollective.com/soakp`
       );
@@ -311,8 +320,4 @@ export default class SoakpServer {
     this.app = https.createServer(credentials, app);
     this.app.listen(port);
   }
-}
-
-interface ServerConfigInterface {
-  port: number;
 }

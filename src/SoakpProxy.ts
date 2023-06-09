@@ -1,10 +1,5 @@
-/**
- * Author: Lehcode
- * Copyright: (C)2023
- */
 import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
-import { AxiosResponse } from 'axios';
 
 interface ProxyConfigInterface {
   apiHost?: string;
@@ -12,7 +7,7 @@ interface ProxyConfigInterface {
   query: OpenAIRequestInterface;
 }
 
-export class SoakpProxy {
+export default class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
   private query: OpenAIRequestInterface = {
@@ -48,7 +43,7 @@ export class SoakpProxy {
    *
    * @param params
    */
-  async makeRequest(params: OpenAIRequestInterface): Promise<AxiosResponse<any, any>> {
+  async request(params: OpenAIRequestInterface) {
     const request: OpenAIRequestInterface = {
       model: params.model,
       prompt: params.prompt,
@@ -56,8 +51,11 @@ export class SoakpProxy {
       temperature: params.temperature
     };
 
-    // @ts-ignore
-    return await this.openAI.createCompletion(request);
+    try {
+      return await this.openAI.createCompletion(request);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

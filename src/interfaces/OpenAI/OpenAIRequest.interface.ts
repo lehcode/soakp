@@ -1,4 +1,4 @@
-export interface OpenAIRequestInterface {
+export default interface OpenAIRequestInterface {
   /*
    ID of the model to use
    */
