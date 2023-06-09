@@ -1,3 +1,7 @@
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Database } from 'sqlite3';
 import { promises as fs } from 'fs';

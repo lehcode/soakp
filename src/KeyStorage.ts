@@ -1,3 +1,7 @@
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import path from 'path';
 import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
