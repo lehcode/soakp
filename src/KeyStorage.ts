@@ -1,38 +1,41 @@
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import path from 'path';
 import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
-import { DbSchemaInterface } from './interfaces/DbSchema.interface';
+
+export interface DbSchemaInterface extends Object {
+  id: null | number;
+  token: string | null;
+  createdAt: number | string;
+  updatedAt: number | string;
+  lastAccess: number | string;
+  archived: boolean | 0 | 1 | '0' | '1';
+}
 
 export interface StorageConfigInterface {
-  dataFileLocation?: string;
-  sql?: {
-    dbName: string;
-    tableName: string;
-  };
+  tableName: string;
+  lifetime: number;
+  dbName?: string;
+  dataFileDir?: string;
 }
 
-export enum StorageType {
-  SQLITE = 'STORAGE_SQLITE',
-  FILE = 'STORAGE_FILE',
-  MEMORY = 'STORAGE_MEMORY'
-}
-
-export default class KeyStorage {
-  private readonly type: StorageType;
+export class KeyStorage {
   private readonly config: StorageConfigInterface;
-  private backend: SqliteStorage;
+  private backend: SqliteStorage | null = null;
 
-  constructor(type: StorageType, configuration: StorageConfigInterface) {
+  constructor(configuration: StorageConfigInterface) {
     this.config = { ...configuration };
-    this.type = type;
   }
 
-  static async getInstance(storageType: StorageType, config: StorageConfigInterface) {
-    const keyStorageInstance = new KeyStorage(storageType, config);
-    const sqliteFile = path.resolve(config.dataFileLocation, `./${config.sql?.dbName}`);
+  static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
+    const keyStorageInstance = new KeyStorage(config);
+    const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
 
     try {
-      keyStorageInstance.backend = await SqliteStorage.getInstance(config.sql?.dbName, config.sql?.tableName, sqliteFile);
+      keyStorageInstance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
     } catch (err) {
       throw err;
     }
@@ -57,8 +60,7 @@ export default class KeyStorage {
 
   async fetchToken(jwtToken: string): Promise<string> {
     try {
-      const row = await this.backend.findOne('token', [`token = ${jwtToken}`, 'archived != 1']);
-
+      const row = await this.backend?.findOne('token', [`token = '${jwtToken}'`, 'archived != 1']);
       if (row instanceof Error) {
         console.error(row.message);
         return '';
@@ -72,8 +74,7 @@ export default class KeyStorage {
 
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
-      const row = await this.backend.findOne('token', ['archived != 1', `token = ${jwtToken}`]);
-
+      const row = await this.backend?.findOne('token', ['archived != 1', `token = '${jwtToken}'`]);
       if (row instanceof Error) {
         console.error(row.message);
         return false;
@@ -102,7 +103,7 @@ export default class KeyStorage {
 
   async getActiveTokens(): Promise<DbSchemaInterface[] | Error> {
     try {
-      return await this.backend.findAll('token');
+      return (await this.backend?.findAll('token')) ?? [];
     } catch (err: any) {
       throw err;
     }
@@ -110,13 +111,12 @@ export default class KeyStorage {
 
   async getRecentToken(): Promise<string | false> {
     try {
-      const result = await this.backend.findOne();
-
+      const result = await this.backend?.findOne();
       if (result instanceof Error) {
         console.error(result.message);
         return false;
       } else {
-        return result.token;
+        return result?.token ?? false;
       }
     } catch (err) {
       throw err;

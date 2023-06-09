@@ -1,10 +1,10 @@
 /**
- * Author: Anton Repin <53556648+lehcode@users.noreply.github.com>
+ * Author: Lehcode
  * Copyright: (C)2023.
  */
 import dotenv from 'dotenv';
-import KeyStorage, { StorageType } from './src/KeyStorage';
-import SoakpServer from './src/SoakpServer';
+import { KeyStorage } from './src/KeyStorage';
+import { SoakpServer } from './src/SoakpServer';
 
 dotenv.config();
 

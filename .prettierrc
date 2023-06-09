@@ -10,7 +10,6 @@
       "files": ["*.ts"],
       "options": {
         "parser": "typescript",
-        "semi": true,
         "singleQuote": true
       }
     },
@@ -18,7 +17,6 @@
       "files": ["*.json"],
       "options": {
         "tabWidth": 4,
-        "semi": true,
         "singleQuote": false
       }
     }
