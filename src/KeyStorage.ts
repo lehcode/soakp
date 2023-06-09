@@ -1,42 +1,39 @@
 import path from 'path';
 import SqliteStorage from './backends/SQLite';
-import { StatusCode } from './enums/StatusCode.enum';
-import { DbSchemaInterface } from './interfaces/DbSchema.interface';
+import StatusCode from './enums/StatusCode.enum';
 
-export interface StorageConfigInterface {
-  dataFileLocation?: string;
-  sql?: {
-    dbName: string;
-    tableName: string;
-  };
+export interface DbSchemaInterface extends Object {
+  id: null | number;
+  token: string | null;
+  createdAt: number | string;
+  updatedAt: number | string;
+  lastAccess: number | string;
+  archived: boolean | 0 | 1 | '0' | '1';
 }
 
-export enum StorageType {
-  SQLITE = 'STORAGE_SQLITE',
-  FILE = 'STORAGE_FILE',
-  MEMORY = 'STORAGE_MEMORY'
+export interface StorageConfigInterface {
+  tableName: string;
+  lifetime: number;
+  dbName?: string;
+  dataFileDir?: string;
 }
 
 export default class KeyStorage {
-  private readonly type: StorageType;
   private readonly config: StorageConfigInterface;
   private backend: SqliteStorage | null = null;
 
-  constructor(type: StorageType, configuration: StorageConfigInterface) {
+  constructor(configuration: StorageConfigInterface) {
     this.config = { ...configuration };
-    this.type = type;
   }
 
-  static async getInstance(storageType: StorageType, config: StorageConfigInterface): Promise<KeyStorage> {
-    const keyStorageInstance = new KeyStorage(storageType, config);
-    if (config.sql && config.dataFileLocation) {
-      const sqliteFile = path.resolve(config.dataFileLocation, `./${config.sql.dbName}`);
+  static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
+    const keyStorageInstance = new KeyStorage(config);
+    const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
 
-      try {
-        keyStorageInstance.backend = await SqliteStorage.getInstance(config.sql.dbName, config.sql.tableName, sqliteFile);
-      } catch (err) {
-        throw err;
-      }
+    try {
+      keyStorageInstance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+    } catch (err) {
+      throw err;
     }
 
     return keyStorageInstance;
@@ -102,7 +99,7 @@ export default class KeyStorage {
 
   async getActiveTokens(): Promise<DbSchemaInterface[] | Error> {
     try {
-      return await this.backend?.findAll('token') ?? [];
+      return (await this.backend?.findAll('token')) ?? [];
     } catch (err: any) {
       throw err;
     }

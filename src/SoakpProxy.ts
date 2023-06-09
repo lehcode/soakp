@@ -1,8 +1,13 @@
-import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
 import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
 
-export class SoakpProxy {
+interface ProxyConfigInterface {
+  apiHost?: string;
+  apiBaseUrl?: string;
+  query: OpenAIRequestInterface;
+}
+
+export default class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
   private query: OpenAIRequestInterface = {
