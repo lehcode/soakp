@@ -1,5 +1,21 @@
 {
-  "extends": "@tsconfig/node-lts/tsconfig.json",
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      // compilerOptions specified here will override those declared below,
+      // but *only* in ts-node.  Useful if you want ts-node and tsc to use
+      // different options with a single tsconfig.json.
+      "target": "es2018",
+      "module": "Node16",
+      "declaration": true,
+      "declarationMap": true,
+      "lib": ["esnext", "dom", "dom.iterable"],
+      "allowJs": true
+    }
+  },
+  "module": "node",
   "compilerOptions": {
     "target": "es2018",
     "module": "esnext",
@@ -10,26 +26,14 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
-    "inlineSourceMap": true,
-    "noEmitOnError": false,
-    "lib": [ "esnext" ],
-    "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
-      ]
-    },
-    "strictNullChecks": true
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "noEmitOnError": true,
+    "lib": ["esnext"],
+    "strictNullChecks": false
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "dist",
-    "**/node_modules"
-  ],
+  "include": ["**/*.ts"],
+  "exclude": ["dist" ,"**/node_modules"],
   "watchOptions": {
     "watchFile": "useFsEvents",
     "watchDirectory": "useFsEvents",

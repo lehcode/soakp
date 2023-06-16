@@ -1,222 +1,143 @@
 /**
- * Author: Anton Repin<53556648+lehcode@users.noreply.github.com>
- * Copyright: (C)2023.
+ * Author: Lehcode
+ * Copyright: (C)2023
  */
 import path from 'path';
-import { SqliteStorage } from './backends/SQLite';
-// import { FileStorage } from './backends/File';
-import { KeyStorageInterface } from './interfaces/KeyStorage.interface';
+import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
-import { ResponseInterface } from './interfaces/Response.interface';
-import { DbSchemaInterface } from './interfaces/DbSchema.interface';
-import { Message } from './enums/Message.enum';
 
-interface StorageConfigInterface {
-  dataFileLocation?: string;
-  sql?: {
-    dbName: string;
-    tableName: string;
-  };
+export interface DbSchemaInterface extends Object {
+  id: null | number;
+  token: string | null;
+  createdAt: number | string;
+  updatedAt: number | string;
+  lastAccess: number | string;
+  archived: boolean | 0 | 1 | '0' | '1';
 }
 
-enum StorageType {
-  SQLITE = 'STORAGE_SQLITE',
-  FILE = 'STORAGE_FILE',
-  MEMORY = 'STORAGE_MEMORY'
+export interface StorageConfigInterface {
+  tableName: string;
+  lifetime: number;
+  dbName?: string;
+  dataFileDir?: string;
 }
 
-class KeyStorage implements KeyStorageInterface {
-  private readonly type: StorageType;
+export class KeyStorage {
   private readonly config: StorageConfigInterface;
-  private backend: SqliteStorage;
+  private backend: SqliteStorage | null = null;
 
-  /**
-   * Class KeyStorage.
-   * SQLite/file/memory storage for tokens.
-   *
-   * @param type
-   * @param configuration
-   */
-  constructor(type: StorageType, configuration: StorageConfigInterface) {
+  constructor(configuration: StorageConfigInterface) {
     this.config = { ...configuration };
-    this.type = type;
   }
 
-  /**
-   *
-   * @param storageType
-   * @param config
-   */
-  static async getInstance(storageType: StorageType, config: StorageConfigInterface) {
-    const keyStorageInstance = new KeyStorage(storageType, config);
+  static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
+    const keyStorageInstance = new KeyStorage(config);
+    const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
 
-    switch (storageType) {
-      default:
-      case StorageType.SQLITE:
-        const sqliteFile = path.resolve(config.dataFileLocation, `./${config.sql?.dbName}`);
-
-        try {
-          keyStorageInstance.backend = await SqliteStorage.getInstance(
-            config.sql?.dbName,
-            config.sql?.tableName,
-            sqliteFile
-          );
-          console.log('Key Storage backend initialized');
-        } catch (error) {
-          console.error('Error initializing SQLite backend:', error);
-          throw error;
-        }
-        break;
+    try {
+      keyStorageInstance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+    } catch (err) {
+      throw err;
     }
 
     return keyStorageInstance;
   }
 
-  /**
-   *
-   * @param jwtToken
-   */
-  async saveToken(jwtToken: string): Promise<StatusCode> {
+  async saveToken(jwtToken: string): Promise<StatusCode | boolean> {
     try {
-      const statusCode = await this.backend.insert(jwtToken);
+      const error = await this.backend.insert(jwtToken);
 
-      if (statusCode === StatusCode.CREATED) {
-        console.log('JWT token successfully saved');
+      if (error instanceof Error) {
+        console.error(error.message);
+        return false;
+      } else {
+        return StatusCode.CREATED;
       }
-
-      return StatusCode.CREATED;
-    } catch (e) {
-      throw new Error(e);
+    } catch (err: any) {
+      throw err;
     }
   }
 
-  /**
-   *
-   * @param jwtToken
-   */
-  async fetchToken(jwtToken: string): Promise<string | null> {
+  async fetchToken(jwtToken: string): Promise<string> {
     try {
-      const row = await this.backend.findOne('token', [`token = ${jwtToken}`, 'archived != 1']);
-
-      if (row?.token) {
+      const row = await this.backend?.findOne('token', [`token = '${jwtToken}'`, 'archived != 1']);
+      if (row instanceof Error) {
+        console.error(row.message);
+        return '';
+      } else {
         return row.token;
       }
-
-      return;
-    } catch (e) {
-      throw e;
+    } catch (err: any) {
+      throw err;
     }
   }
 
-  /**
-   * Check for JWT token existence
-   *
-   * @param jwtToken
-   */
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
-      const result = await this.backend.findOne('token', ['archived != 1']);
-
-      if (result.status === StatusCode.SUCCESS) {
-        console.log('JWT supplied to API was found in DB');
-        return result.data.token;
-      } else {
-        console.log('Supplied JWT was not found in DB');
+      const row = await this.backend?.findOne('token', ['archived != 1', `token = '${jwtToken}'`]);
+      if (row instanceof Error) {
+        console.error(row.message);
         return false;
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  /**
-   *
-   * @param what
-   */
-  async archive(what: string) {
-    debugger;
-
-    const result = await this.backend.archive(what);
-  }
-
-  /**
-   *
-   */
-  async getActiveTokens(): Promise<DbSchemaInterface[]> {
-    try {
-      const tokens: DbSchemaInterface[] = await this.backend.findAll('*', ['archived != 1']);
-      if (tokens) {
-        if (tokens.length === 0) {
-          console.info('No active tokens found');
-        }
-
-        return tokens;
       } else {
+        return row.token;
       }
-    } catch (e) {
-      throw e;
+    } catch (err: any) {
+      throw err;
     }
   }
 
-  /**
-   *
-   */
-  async getRecentToken() {
+  async archive(what: string): Promise<StatusCode | boolean> {
     try {
-      const row: DbSchemaInterface = await this.backend.findOne('*', ['archived != 1']);
-      if (row && row instanceof Object) {
-        return row;
+      const result = await this.backend.archive(what);
+
+      if (result instanceof Error) {
+        console.error(result.message);
+        return false;
       } else {
-        console.log('No active tokens found');
+        return StatusCode.ACCEPTED;
       }
-    } catch (e) {
-      throw e;
+    } catch (err: any) {
+      throw err;
     }
   }
 
-  /**
-   *
-   */
-  get tableName(): string {
-    return this.config.sql?.tableName;
-  }
-
-  /**
-   *
-   * @param query
-   */
-  async custom(query: string): Promise<Record<string, string | number>[]> {
-    return await this.backend.custom(query);
-  }
-
-  /**
-   *
-   */
-  get dbInstance(): SqliteStorage {
-    return this.backend;
-  }
-
-  /**
-   *
-   * @param oldToken
-   * @param newToken
-   */
-  async updateToken(oldToken: string, newToken: string) {
+  async getActiveTokens(): Promise<DbSchemaInterface[] | Error> {
     try {
-      const statusCode = await this.backend.update(
+      return (await this.backend?.findAll('token')) ?? [];
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  async getRecentToken(): Promise<string | false> {
+    try {
+      const result = await this.backend?.findOne();
+      if (result instanceof Error) {
+        console.error(result.message);
+        return false;
+      } else {
+        return result?.token ?? false;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateToken(oldToken: string, newToken: string): Promise<StatusCode | false> {
+    try {
+      const result = await this.backend.update(
         [`token = '${oldToken}'`],
         [`token = '${newToken}'`, `created_at = '${Date.now()}'`, `updated_at = '${Date.now()}'`]
       );
 
-      if (statusCode === StatusCode.ACCEPTED) {
-        console.log(Message.JWT_UPDATED);
+      if (result instanceof Error) {
+        console.error(result.message);
+        return false;
+      } else {
+        return StatusCode.ACCEPTED;
       }
-
-      return StatusCode.ACCEPTED;
-    } catch (e) {
-      throw new Error(e);
+    } catch (err: any) {
+      throw err;
     }
   }
 }
-
-export { KeyStorage, StorageType, StorageConfigInterface };

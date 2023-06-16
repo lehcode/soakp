@@ -1,15 +1,20 @@
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Message } from '../enums/Message.enum';
-import { ResponseInterface } from '../interfaces/Response.interface';
 import express from 'express';
 
-export class Response {
+export interface ResponseInterface {
+  status: undefined | StatusCode;
+  message: undefined | Message;
+  data: undefined | null | [];
+}
+
+export class Responses {
   /**
    *
    * @param res
    */
   static jwtNotSaved(res: express.Response) {
-    return res.status(StatusCode.INTERNAL_ERROR).json(<ResponseInterface>{
+    return res.status(StatusCode.INTERNAL_ERROR).json({
       status: Message.INTERNAL_SERVER_ERROR,
       message: Message.JWT_NOT_SAVED
     });
@@ -20,7 +25,7 @@ export class Response {
    * @param res
    */
   static unknownError(res: express.Response) {
-    return Response.serverError(res);
+    return Responses.serverError(res);
   }
 
   /**
@@ -31,7 +36,11 @@ export class Response {
   static loadedToken(res: express.Response, token: string) {
     return res
       .status(StatusCode.SUCCESS)
-      .json(<ResponseInterface>{ status: Message.SUCCESS, message: Message.LOADED_JWT_TOKEN, data: token });
+      .json({
+        status: Message.SUCCESS,
+        message: Message.LOADED_JWT_TOKEN,
+        data: token
+      });
   }
 
   /**
@@ -39,7 +48,7 @@ export class Response {
    * @param res
    */
   static invalidJwt(res: express.Response) {
-    return res.status(StatusCode.BAD_REQUEST).json(<ResponseInterface>{
+    return res.status(StatusCode.BAD_REQUEST).json({
       status: Message.WRONG_REQUEST,
       message: Message.INVALID_JWT
     });
@@ -53,19 +62,17 @@ export class Response {
   static notAuthorized(res: express.Response, what?: 'key' | 'jwt') {
     switch (what) {
       case 'key':
-        return res.status(statusCode.NOT_AUTHORIZED).json(<ResponseInterface>{
+        return res.status(StatusCode.NOT_AUTHORIZED).json({
           status: Message.NOT_AUTHORIZED,
           message: Message.INVALID_KEY
         });
-        break;
       case 'jwt':
-        return res.status(StatusCode.NOT_AUTHORIZED).json(<ResponseInterface>{
+        return res.status(StatusCode.NOT_AUTHORIZED).json({
           status: Message.NOT_AUTHORIZED,
           message: Message.INVALID_JWT
         });
-        break;
       default:
-        return res.status(StatusCode.NOT_AUTHORIZED).json(<ResponseInterface>{
+        return res.status(StatusCode.NOT_AUTHORIZED).json({
           status: Message.INTERNAL_SERVER_ERROR,
           message: Message.UNKNOWN_ERROR
         });
@@ -87,10 +94,11 @@ export class Response {
    * @param res
    */
   static serverError(res: express.Response) {
-    return res.status(StatusCode.INTERNAL_ERROR).json(<ResponseInterface>{
-      status: Message.INTERNAL_SERVER_ERROR,
-      message: Message.INTERNAL_SERVER_ERROR
-    });
+    return res.status(StatusCode.INTERNAL_ERROR)
+      .json({
+        status: Message.INTERNAL_SERVER_ERROR,
+        message: Message.INTERNAL_SERVER_ERROR
+      });
   }
 
   static tokenAdded(res: express.Response, token: string) {
