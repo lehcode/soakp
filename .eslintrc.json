@@ -15,11 +15,11 @@
         "function-call-argument-newline": ["warn", "consistent"],
         "function-paren-newline": ["warn", "consistent"],
         "id-length": ["warn", { "min": 2 }],
-        "indent": ["error", 2, {
+        "indent": ["warn", 2, {
           "CallExpression": { "arguments": "first" },
-          "FunctionDeclaration": { "body": 1, "parameters": 2 },
-          "FunctionExpression": { "body": 1, "parameters": 2 }
-          // SwitchCase: 1
+//          "FunctionDeclaration": { "body": 1, "parameters": 1 },
+//          "FunctionExpression": { "body": 1, "parameters": 2 },
+          "SwitchCase": 1
         }],
         "keyword-spacing": ["warn", { "before": true, "after": true }],
         "lines-between-class-members": "off",
@@ -31,7 +31,7 @@
             "skipComments": true
           }
         ],
-        "newline-per-chained-call": ["warn", { "ignoreChainWithDepth": 1 }],
+        "newline-per-chained-call": ["warn", { "ignoreChainWithDepth": 2 }],
         "no-inline-comments": ["error"],
         "object-curly-spacing": ["warn", "always", {
           "arraysInObjects": false,
