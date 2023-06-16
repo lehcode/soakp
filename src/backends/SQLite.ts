@@ -7,6 +7,7 @@ import { Database } from 'sqlite3';
 import { promises as fs } from 'fs';
 import { DbSchemaInterface } from '../KeyStorage';
 import path from 'path';
+import { Message } from '../enums/Message.enum';
 
 /**
  * Database connection management class prototype.
@@ -226,6 +227,12 @@ id, token, created_at, updated_at, last_access, archived
           resolve(row);
         }
       });
+    });
+  }
+
+  public close() {
+    this.db.close(() => {
+      console.error(Message.UNKNOWN_ERROR);
     });
   }
 }

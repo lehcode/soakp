@@ -1,6 +1,4 @@
-require('@babel/register');
-
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleFileExtensions: ["ts", "tsx", "json", "node", "js"],
@@ -12,7 +10,7 @@ module.exports = {
     }]
   },
   coverageDirectory: './coverage',
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/'],
   collectCoverageFrom: [
     '**/*.ts',
     '!main/**/*'

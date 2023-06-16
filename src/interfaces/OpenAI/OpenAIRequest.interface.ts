@@ -8,7 +8,7 @@ export interface OpenAIRequestInterface {
    encoded as a string, array of strings, array of tokens, or array of token arrays.
    */
   prompt?: string | string[] | Record<string, any>[];
-  apiKey?: string;
+  apiKey?: string | null;
   apiOrgKey?: string;
   engineId?: string;
   /*
