@@ -2,7 +2,7 @@
  * Author: Lehcode
  * Copyright: (C) Lehcode.com 2023
  */
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
@@ -25,24 +25,27 @@ export const fallback = {
   serverPort: 3033
 };
 
+export interface ServerConfigInterface {
+  storage: StorageConfigInterface;
+  httpPort: number;
+  sslPort: number;
+}
+
 export class SoakpServer {
-  private app: any;
+  private app: Express;
   private keyStorage: KeyStorage;
   private proxy: SoakpProxy;
-  private storageConfig: StorageConfigInterface = {
-    tableName: process.env.SQLITE_TABLE || fallback.tableName,
-    dbName: process.env.SQLITE_DB || fallback.dbName,
-    dataFileDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : fallback.dataFileLocation,
-    lifetime: 86400
-  };
+  private readonly config: ServerConfigInterface;
 
-  constructor() {
+  constructor(config: ServerConfigInterface) {
+    this.config = { ...config };
+
+    console.log(this.config);
+
     this.app = express();
-    this.app.use(cors());
-
-    console.log(this.storageConfig);
 
     // Configure middleware
+    this.app.use(cors());
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -62,13 +65,19 @@ export class SoakpServer {
    * @private
    */
   private initializeEndpoints() {
-    if (this.basicAuthCredentialsValidated) {
-      this.app.post(
-        '/get-jwt',
-        basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS }}),
-        this.handleGetJwt.bind(this)
-      );
+
+    try {
+      if (this.basicAuthCredentialsValidated) {
+        this.app.post(
+          '/get-jwt',
+          basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS }}),
+          this.handleGetJwt.bind(this)
+        );
+      }
+    } catch (err) {
+      throw err;
     }
+
     this.app.post('/openai/completions', this.handleOpenAIQuery.bind(this));
     this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
   }
@@ -171,24 +180,13 @@ export class SoakpServer {
         return token;
       }
     } catch (err) {
-      throw err;
+      console.error(err);
     }
   }
 
   private getSignedJWT(openAIKey: string) {
-    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.storageConfig.lifetime });
+    return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.config.storage.lifetime });
   }
-
-  // /**
-  //  *
-  //  * @param token
-  //  * @param openAIKey
-  //  */
-  // private async jwtVerify(token: string, openAIKey: string): boolean {
-  //   let verified = jwt.verify(token, this.jwtHash);
-  //
-  //   return verified;
-  // }
 
   /**
    * Handle POST `/openai/query` request
@@ -251,19 +249,14 @@ export class SoakpServer {
   /**
    * Start the server
    * @public
-   * @param sslPort
    */
-  public async start(sslPort: number) {
-    this.keyStorage = await KeyStorage.getInstance(this.storageConfig);
-    const httpPort = 3003;
+  public async start() {
+    this.keyStorage = await KeyStorage.getInstance(this.config.storage);
 
-    this.app.listen(httpPort, () => {
-      console.log(
-        `Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
-Please consider to provide your support: https://opencollective.com/soakp`
-      );
-    });
-    this.initSSL(this.app, sslPort);
+    this.app.listen(this.config.httpPort);
+    this.initSSL(this.app);
+    console.log(`Started Secure OpenAI Key Proxy with TLS on port ${this.config.sslPort}.
+Please provide support here: https://opencollective.com/soakp`);
   }
 
   /**
@@ -291,13 +284,13 @@ Please consider to provide your support: https://opencollective.com/soakp`
     const password = process.env.AUTH_PASS as string;
 
     // Check username
-    const usernameRegex = /^[\w\d_]{3,16}$/;
+    const usernameRegex = /^[\w_]{3,16}$/;
     if (!usernameRegex.test(username)) {
       throw new Error('Invalid username format');
     }
 
     // Check password
-    const passwordRegex = /^[\w\d_]{8,32}$/;
+    const passwordRegex = /^[\w_]{8,32}$/;
     if (!passwordRegex.test(password)) {
       throw new Error('Invalid password format');
     }
@@ -309,7 +302,7 @@ Please consider to provide your support: https://opencollective.com/soakp`
    *
    * @param app
    */
-  private initSSL(app: express.Application, port: number) {
+  private initSSL(app: express.Application) {
     const privateKey = fs.readFileSync(
       path.join(process.env.SSL_CERT_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
       'utf8'
@@ -320,8 +313,8 @@ Please consider to provide your support: https://opencollective.com/soakp`
       'utf8'
     );
 
-    const credentials = { key: privateKey, cert: certificate };
-    this.app = https.createServer(credentials, app);
-    this.app.listen(port);
+    // @ts-ignore
+    this.app = https.createServer({ key: privateKey, cert: certificate }, app);
+    this.app.listen(this.config.sslPort);
   }
 }
