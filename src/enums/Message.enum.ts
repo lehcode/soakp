@@ -6,6 +6,7 @@ export enum Message {
   INVALID_KEY_STORAGE = 'Invalid key storage',
   INVALID_OPENAI_KEY = 'OpenAI API key validation failed',
   INVALID_JWT = 'JWT validation failed',
+  JWT_ACCEPTED = 'JWT accepted',
   JWT_ADDED = 'JWT added',
   JWT_EXPIRED = 'JWT expired',
   JWT_NOT_SAVED = 'JWT not saved',
