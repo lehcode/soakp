@@ -21,6 +21,9 @@ const path_1 = __importDefault(require("path"));
 const SQLite_1 = __importDefault(require("./backends/SQLite"));
 const StatusCode_enum_1 = require("./enums/StatusCode.enum");
 class KeyStorage {
+    /**
+     * @param configuration
+     */
     constructor(configuration) {
         this.backend = null;
         this.config = Object.assign({}, configuration);
@@ -153,6 +156,9 @@ class KeyStorage {
                 throw err;
             }
         });
+    }
+    get database() {
+        return this.backend;
     }
 }
 exports.KeyStorage = KeyStorage;

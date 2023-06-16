@@ -18,11 +18,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const dotenv_1 = __importDefault(require("dotenv"));
 const SoakpServer_1 = require("./src/SoakpServer");
+const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
+const httpPort = 3003;
 const sslPort = parseInt(process.env.SERVER_PORT, 10) || SoakpServer_1.fallback.serverPort;
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    const config = {
+        storage: {
+            tableName: process.env.SQLITE_TABLE || SoakpServer_1.fallback.tableName,
+            dbName: process.env.SQLITE_DB || SoakpServer_1.fallback.dbName,
+            dataFileDir: process.env.DATA_DIR ? path_1.default.resolve(process.env.DATA_DIR) : SoakpServer_1.fallback.dataFileLocation,
+            lifetime: 86400
+        },
+        httpPort: httpPort,
+        sslPort: sslPort
+    };
     try {
-        yield new SoakpServer_1.SoakpServer().start(sslPort);
+        yield new SoakpServer_1.SoakpServer(config).start();
     }
     catch (initErr) {
         console.error('Error initializing server:', initErr);

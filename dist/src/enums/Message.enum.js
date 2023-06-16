@@ -10,6 +10,7 @@ var Message;
     Message["INVALID_KEY_STORAGE"] = "Invalid key storage";
     Message["INVALID_OPENAI_KEY"] = "OpenAI API key validation failed";
     Message["INVALID_JWT"] = "JWT validation failed";
+    Message["JWT_ACCEPTED"] = "JWT accepted";
     Message["JWT_ADDED"] = "JWT added";
     Message["JWT_EXPIRED"] = "JWT expired";
     Message["JWT_NOT_SAVED"] = "JWT not saved";

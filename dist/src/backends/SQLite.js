@@ -20,6 +20,7 @@ const StatusCode_enum_1 = require("../enums/StatusCode.enum");
 const sqlite3_1 = require("sqlite3");
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
+const Message_enum_1 = require("../enums/Message.enum");
 /**
  * Database connection management class prototype.
  */
@@ -179,6 +180,11 @@ id, token, created_at, updated_at, last_access, archived
                     }
                 });
             });
+        });
+    }
+    close() {
+        this.db.close(() => {
+            console.error(Message_enum_1.Message.UNKNOWN_ERROR);
         });
     }
 }

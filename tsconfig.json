@@ -32,7 +32,7 @@
     "strictNullChecks": false
   },
   "include": ["**/*.ts"],
-  "exclude": ["dist" ,"**/node_modules"],
+  "exclude": ["**/node_modules", "src/__tests__/**/*"],
   "watchOptions": {
     "watchFile": "useFsEvents",
     "watchDirectory": "useFsEvents",

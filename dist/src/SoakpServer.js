@@ -31,6 +31,7 @@ const KeyStorage_1 = require("./KeyStorage");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const config_1 = __importDefault(require("./config"));
 exports.fallback = {
     dataFileLocation: './fallback',
     dbName: 'fallback',
@@ -38,19 +39,10 @@ exports.fallback = {
     serverPort: 3033
 };
 class SoakpServer {
-    constructor() {
-        this.storageConfig = {
-            tableName: process.env.SQLITE_TABLE || exports.fallback.tableName,
-            dbName: process.env.SQLITE_DB || exports.fallback.dbName,
-            dataFileDir: process.env.DATA_DIR ? path_1.default.resolve(process.env.DATA_DIR) : exports.fallback.dataFileLocation,
-            lifetime: 86400
-        };
-        this.app = (0, express_1.default)();
-        this.app.use((0, cors_1.default)());
-        console.log(this.storageConfig);
-        // Configure middleware
-        this.app.use(body_parser_1.default.json());
-        this.app.use(body_parser_1.default.urlencoded({ extended: true }));
+    constructor(config) {
+        this.config = Object.assign({}, config);
+        console.log(this.config);
+        this.initializeExpressApp();
         this.initializeEndpoints();
         this.proxy = new SoakpProxy_1.SoakpProxy({
             query: {
@@ -59,14 +51,26 @@ class SoakpServer {
             }
         });
     }
+    initializeExpressApp() {
+        this.app = (0, express_1.default)();
+        // Configure middleware
+        this.app.use((0, cors_1.default)());
+        this.app.use(body_parser_1.default.json());
+        this.app.use(body_parser_1.default.urlencoded({ extended: true }));
+    }
     /**
      * Initialize API endpoints
      *
      * @private
      */
     initializeEndpoints() {
-        if (this.basicAuthCredentialsValidated) {
-            this.app.post('/get-jwt', (0, express_basic_auth_1.default)({ users: { [process.env.AUTH_USER]: process.env.AUTH_PASS } }), this.handleGetJwt.bind(this));
+        try {
+            if (this.basicAuthCredentialsValidated()) {
+                this.app.post('/get-jwt', (0, express_basic_auth_1.default)({ users: { [process.env.AUTH_USER]: process.env.AUTH_PASS } }), this.handleGetJwt.bind(this));
+            }
+        }
+        catch (err) {
+            throw err;
         }
         this.app.post('/openai/completions', this.handleOpenAIQuery.bind(this));
         this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
@@ -109,14 +113,14 @@ class SoakpServer {
                 const existingTokens = yield this.keyStorage.getActiveTokens();
                 if (existingTokens instanceof Error) {
                     // No saved JWTs found, generate and save a new one
-                    console.log('No matching tokens found. Generateing a new one.');
+                    console.log('No matching tokens found. Generating a new one.');
                     const savedToken = yield this.generateAndSaveToken(openAIKey, res);
                     Responses_1.Responses.tokenAdded(res, savedToken);
                 }
                 else {
-                    const verified = existingTokens.filter((row) => __awaiter(this, void 0, void 0, function* () {
+                    existingTokens.map((row) => __awaiter(this, void 0, void 0, function* () {
                         try {
-                            return jsonwebtoken_1.default.verify(row.token, this.jwtHash);
+                            jsonwebtoken_1.default.verify(row.token, this.jwtHash);
                         }
                         catch (err) {
                             if (err.message === 'jwt expired') {
@@ -126,6 +130,7 @@ class SoakpServer {
                                 Responses_1.Responses.tokenUpdated(res, updated);
                             }
                         }
+                        console.log(Message_enum_1.Message.JWT_ACCEPTED);
                     }));
                 }
             }
@@ -137,22 +142,18 @@ class SoakpServer {
     /**
      *
      * @param openAIKey
+     * @param res
      * @private
      */
     generateAndSaveToken(openAIKey, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const signed = this.getSignedJWT(openAIKey);
-                const saved = yield this.keyStorage.saveToken(signed);
-                if (saved === StatusCode_enum_1.StatusCode.CREATED) {
-                    return signed;
-                }
-                else {
-                    throw new Error(Message_enum_1.Message.JWT_NOT_SAVED);
-                }
+            const signed = this.getSignedJWT(openAIKey);
+            const saved = yield this.keyStorage.saveToken(signed);
+            if (saved === StatusCode_enum_1.StatusCode.CREATED) {
+                return signed;
             }
-            catch (err) {
-                throw err;
+            else {
+                throw new Error(Message_enum_1.Message.JWT_NOT_SAVED);
             }
         });
     }
@@ -160,6 +161,7 @@ class SoakpServer {
      *
      * @param oldToken
      * @param openAIKey
+     * @param res
      * @private
      */
     generateAndUpdateToken(oldToken, openAIKey, res) {
@@ -172,23 +174,18 @@ class SoakpServer {
                 }
             }
             catch (err) {
-                throw err;
+                console.error(err);
             }
         });
     }
+    /**
+     *
+     * @param openAIKey
+     * @private
+     */
     getSignedJWT(openAIKey) {
-        return jsonwebtoken_1.default.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.storageConfig.lifetime });
+        return jsonwebtoken_1.default.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.config.storage.lifetime });
     }
-    // /**
-    //  *
-    //  * @param token
-    //  * @param openAIKey
-    //  */
-    // private async jwtVerify(token: string, openAIKey: string): boolean {
-    //   let verified = jwt.verify(token, this.jwtHash);
-    //
-    //   return verified;
-    // }
     /**
      * Handle POST `/openai/query` request
      *
@@ -246,17 +243,14 @@ class SoakpServer {
     /**
      * Start the server
      * @public
-     * @param sslPort
      */
-    start(sslPort) {
+    start() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.keyStorage = yield KeyStorage_1.KeyStorage.getInstance(this.storageConfig);
-            const httpPort = 3003;
-            this.app.listen(httpPort, () => {
-                console.log(`Started Secure OpenAI Key Proxy with TLS on port ${sslPort}.
-        Please consider to provide your support: https://opencollective.com/soakp`);
-            });
-            this.initSSL(this.app, sslPort);
+            this.keyStorage = yield KeyStorage_1.KeyStorage.getInstance(this.config.storage);
+            this.app.listen(this.config.httpPort);
+            this.initSSL(this.app);
+            console.log(`Started Secure OpenAI Key Proxy with TLS on port ${this.config.sslPort}.
+Please provide support here: https://opencollective.com/soakp`);
         });
     }
     /**
@@ -274,21 +268,19 @@ class SoakpServer {
      *
      * @private
      */
-    get basicAuthCredentialsValidated() {
+    basicAuthCredentialsValidated() {
         if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {
             throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
         }
-        const username = process.env.AUTH_USER;
-        const password = process.env.AUTH_PASS;
         // Check username
-        const usernameRegex = /^[\w\d_]{3,16}$/;
-        if (!usernameRegex.test(username)) {
-            throw new Error('Invalid username format');
+        const usernameRegex = config_1.default.usernameRegex;
+        if (!usernameRegex.test(process.env.AUTH_USER)) {
+            throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
         }
         // Check password
-        const passwordRegex = /^[\w\d_]{8,32}$/;
-        if (!passwordRegex.test(password)) {
-            throw new Error('Invalid password format');
+        const passwordRegex = config_1.default.passwordRegex;
+        if (!passwordRegex.test(process.env.AUTH_PASS)) {
+            throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
         }
         return true;
     }
@@ -296,12 +288,12 @@ class SoakpServer {
      *
      * @param app
      */
-    initSSL(app, port) {
+    initSSL(app) {
         const privateKey = fs_1.default.readFileSync(path_1.default.join(process.env.SSL_CERT_DIR, `${process.env.SERVER_HOST}-key.pem`), 'utf8');
         const certificate = fs_1.default.readFileSync(path_1.default.join(process.env.SSL_CERT_DIR, `${process.env.SERVER_HOST}-crt.pem`), 'utf8');
-        const credentials = { key: privateKey, cert: certificate };
-        this.app = https_1.default.createServer(credentials, app);
-        this.app.listen(port);
+        // @ts-ignore
+        this.app = https_1.default.createServer({ key: privateKey, cert: certificate }, app);
+        this.app.listen(this.config.sslPort);
     }
 }
 exports.SoakpServer = SoakpServer;
