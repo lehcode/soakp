@@ -67,10 +67,10 @@ export class SoakpServer {
   private initializeEndpoints() {
 
     try {
-      if (this.basicAuthCredentialsValidated) {
+      if (this.basicAuthCredentialsValidated()) {
         this.app.post(
           '/get-jwt',
-          basicAuth({ users: { [<string>process.env.AUTH_USER]: <string>process.env.AUTH_PASS }}),
+          basicAuth({ users: { [process.env.AUTH_USER as string]: process.env.AUTH_PASS as string }}),
           this.handleGetJwt.bind(this)
         );
       }
@@ -88,7 +88,7 @@ export class SoakpServer {
    * @private
    */
   private get secret(): string {
-    const secret = (<string>process.env.JWT_SECRET) as string;
+    const secret = process.env.JWT_SECRET as string;
     return secret.trim();
   }
 
@@ -123,7 +123,7 @@ export class SoakpServer {
 
       if (existingTokens instanceof Error) {
         // No saved JWTs found, generate and save a new one
-        console.log('No matching tokens found. Generateing a new one.');
+        console.log('No matching tokens found. Generating a new one.');
         const savedToken = await this.generateAndSaveToken(openAIKey, res);
         Responses.tokenAdded(res, savedToken);
       } else {
@@ -184,6 +184,11 @@ export class SoakpServer {
     }
   }
 
+  /**
+   *
+   * @param openAIKey
+   * @private
+   */
   private getSignedJWT(openAIKey: string) {
     return jwt.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.config.storage.lifetime });
   }
@@ -275,7 +280,7 @@ Please provide support here: https://opencollective.com/soakp`);
    *
    * @private
    */
-  private get basicAuthCredentialsValidated() {
+  private basicAuthCredentialsValidated(): boolean {
     if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {
       throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
     }
