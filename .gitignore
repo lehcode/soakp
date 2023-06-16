@@ -1,12 +1,10 @@
 node_modules/
 .env
 .idea/
-/.npmrc
 /**/*.map
-/docker/certbot/credentials/**/*
-/docker/certbot/var/**/*
-/docker/myca/generate/ca/**/*
-/docker/myca/generate/cert/**/*
-/docker/server/etc/**/*
-/docker/server/lib/**/*
+/docker/certbot
+/docker/myca/generate/ca
+/docker/myca/generate/cert
+/docker/server
 yarn-error.log
+/.vscode/
