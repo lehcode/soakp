@@ -17,6 +17,7 @@ import { KeyStorage, StorageConfigInterface, DbSchemaInterface } from './KeyStor
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
+import config from './config';
 
 export const fallback = {
   dataFileLocation: './fallback',
@@ -42,13 +43,7 @@ export class SoakpServer {
 
     console.log(this.config);
 
-    this.app = express();
-
-    // Configure middleware
-    this.app.use(cors());
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
-
+    this.initializeExpressApp();
     this.initializeEndpoints();
 
     this.proxy = new SoakpProxy({
@@ -57,6 +52,15 @@ export class SoakpServer {
         prompt: ['Say Hello!']
       }
     });
+  }
+
+  private initializeExpressApp() {
+    this.app = express();
+
+    // Configure middleware
+    this.app.use(cors());
+    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.urlencoded({ extended: true }));
   }
 
   /**
@@ -127,9 +131,9 @@ export class SoakpServer {
         const savedToken = await this.generateAndSaveToken(openAIKey, res);
         Responses.tokenAdded(res, savedToken);
       } else {
-        const verified: DbSchemaInterface[] = existingTokens.filter(async (row: DbSchemaInterface) => {
+        existingTokens.map(async (row: DbSchemaInterface) => {
           try {
-            return jwt.verify(row.token, this.jwtHash);
+            jwt.verify(row.token, this.jwtHash);
           } catch (err: any) {
             if (err.message === 'jwt expired') {
               console.log(`${Message.JWT_EXPIRED}. Replacing it...`);
@@ -138,6 +142,8 @@ export class SoakpServer {
               Responses.tokenUpdated(res, updated);
             }
           }
+
+          console.log(Message.JWT_ACCEPTED);
         });
       }
     } catch (err: any) {
@@ -148,20 +154,17 @@ export class SoakpServer {
   /**
    *
    * @param openAIKey
+   * @param res
    * @private
    */
   private async generateAndSaveToken(openAIKey: string, res: express.Response) {
-    try {
-      const signed = this.getSignedJWT(openAIKey);
-      const saved = await this.keyStorage.saveToken(signed);
+    const signed = this.getSignedJWT(openAIKey);
+    const saved = await this.keyStorage.saveToken(signed);
 
-      if (saved === StatusCode.CREATED) {
-        return signed;
-      } else {
-        throw new Error(Message.JWT_NOT_SAVED);
-      }
-    } catch (err) {
-      throw err;
+    if (saved === StatusCode.CREATED) {
+      return signed;
+    } else {
+      throw new Error(Message.JWT_NOT_SAVED);
     }
   }
 
@@ -169,6 +172,7 @@ export class SoakpServer {
    *
    * @param oldToken
    * @param openAIKey
+   * @param res
    * @private
    */
   private async generateAndUpdateToken(oldToken: string, openAIKey: string, res: express.Response) {
@@ -285,19 +289,16 @@ Please provide support here: https://opencollective.com/soakp`);
       throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
     }
 
-    const username = process.env.AUTH_USER as string;
-    const password = process.env.AUTH_PASS as string;
-
     // Check username
-    const usernameRegex = /^[\w_]{3,16}$/;
-    if (!usernameRegex.test(username)) {
-      throw new Error('Invalid username format');
+    const usernameRegex = config.usernameRegex;
+    if (!usernameRegex.test(process.env.AUTH_USER as string)) {
+      throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
     }
 
     // Check password
-    const passwordRegex = /^[\w_]{8,32}$/;
-    if (!passwordRegex.test(password)) {
-      throw new Error('Invalid password format');
+    const passwordRegex = config.passwordRegex;
+    if (!passwordRegex.test(process.env.AUTH_PASS as string)) {
+      throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
     }
 
     return true;

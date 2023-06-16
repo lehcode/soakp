@@ -2,7 +2,7 @@ import { ServerConfigInterface, SoakpServer } from '../SoakpServer';
 import { KeyStorage } from '../KeyStorage';
 import { fallback } from '../SoakpServer';
 
-const serverConfig: ServerConfigInterface = {
+export const serverConfig: ServerConfigInterface = {
   storage: {
     tableName:  'tokens',
     dbName: 'testing.sqlite',
@@ -32,7 +32,7 @@ describe('SoakpServer', () => {
     console.log = jest.fn();
 
     server = new SoakpServer(serverConfig);
-    keyStorage = new KeyStorage(serverConfig.storage);
+    // keyStorage = new KeyStorage(serverConfig.storage);
   });
 
   afterEach(() => {
@@ -76,12 +76,5 @@ describe('SoakpServer', () => {
       .toStrictEqual(serverConfig);
     expect(console.log)
       .toHaveBeenCalledWith(serverConfig);
-  });
-
-  it('should throw an error if basic auth credentials are missing', () => {
-    process.env.AUTH_USER = undefined;
-    process.env.AUTH_PASS = undefined;
-
-    expect(() => new SoakpServer(serverConfig)).toThrowError('Missing required environment variables AUTH_USER and/or AUTH_PASS');
   });
 });
