@@ -1,73 +1,128 @@
-import { StorageStrategy } from './Storage.strategy';
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import { StatusCode } from '../enums/StatusCode.enum';
-import path from 'path';
 import { Database } from 'sqlite3';
-import { Message } from '../enums/Message.enum';
-import { DbSchemaInterface } from '../interfaces/DbSchema.interface';
-import { ResponseInterface } from '../interfaces/Response.interface';
 import { promises as fs } from 'fs';
+import { DbSchemaInterface } from '../KeyStorage';
+import path from 'path';
+import { Message } from '../enums/Message.enum';
 
-class SqliteStorage implements StorageStrategy {
+/**
+ * Database connection management class prototype.
+ */
+abstract class StorageStrategy {
+  /**
+   * @abstract
+   * @param jwtToken
+   * @return {Promise<number | Error>}
+   */
+  abstract insert(jwtToken: string): Promise<number | Error>;
+
+  /**
+   * @abstract
+   * @param where
+   * @param values
+   * @return {Promise<number | Error>}
+   */
+  abstract update(where: string[], values: string[]): Promise<number | Error>;
+
+  /**
+   * @abstract
+   * @param what
+   * @param where
+   * @param order
+   * @param sort
+   * @param limit
+   * @return {Promise<DbSchemaInterface[] | Error>}
+   */
+  abstract findAll(
+    what: string,
+    where: string[] | null,
+    order: 'last_access' | 'created_at',
+    sort: 'ASC' | 'DESC',
+    limit?: number
+  ): Promise<DbSchemaInterface[] | Error>;
+
+  /**
+   * @abstract
+   * @param what
+   * @param where
+   * @param order
+   * @param sort
+   * @return {Promise<DbSchemaInterface | Error>}
+   */
+  abstract findOne(
+    what: string,
+    where: string[] | null,
+    order: 'last_access' | 'created_at',
+    sort: 'ASC' | 'DESC'
+  ): Promise<DbSchemaInterface | Error>;
+
+  /**
+   * @abstract
+   * @param what
+   * @return {Promise<number | Error>}
+   */
+  abstract archive(what: string): Promise<number | Error>;
+}
+
+/**
+ * SQLite storage class
+ */
+export default class SqliteStorage extends StorageStrategy {
   private db: Database;
   private dbName: string;
   private tableName: string;
   private dbFile: string;
 
-  /**
-   * @constructor
-   * @param db
-   * @param dbName
-   * @param tableName
-   * @param dbFile
-   */
   constructor(db: Database, dbName: string, tableName: string, dbFile: string) {
+    super();
     this.db = db;
     this.dbName = dbName;
     this.tableName = tableName;
     this.dbFile = dbFile;
   }
 
-  /**
-   * Initialize database
-   */
-  static async createDatabase(dbName: string, tableName: string, dbFile: string) {
-    if ((process.env.SQLITE_MEMORY_DB as string) === 'no' && process.env.SQLITE_RESET === 'yes') {
+
+  static async createDatabase(dbName: string, tableName: string, dbFile: string): Promise<Database> {
+    if (process.env.SQLITE_MEMORY_DB === 'no' && process.env.SQLITE_RESET === 'yes') {
       try {
         await fs.unlink(path.resolve(dbFile));
       } catch (e) {
         console.log(e);
       }
     }
-
-    const db = (process.env.SQLITE_MEMORY_DB as string) === 'yes' ? new Database(':memory:') : new Database(dbFile);
-
-    if ((process.env.SQLITE_MEMORY_DB as string) === 'yes') {
+    const db = process.env.SQLITE_MEMORY_DB === 'yes' ? new Database(':memory:') : new Database(dbFile);
+    if (process.env.SQLITE_MEMORY_DB === 'yes') {
       console.log('In-memory database initialized');
     } else {
       console.log(`Database '${path.resolve(dbFile)}' initialized`);
     }
-
-    await db.run(
-      `CREATE TABLE IF NOT EXISTS '${tableName}'
-        (
-          id INTEGER PRIMARY KEY,
-          token TEXT UNIQUE
-            CHECK(LENGTH(token) <= 255),
-          created_at INTEGER NOT NULL,
-          updated_at INTEGER NOT NULL,
-          last_access INTEGER NOT NULL,
-          archived INTEGER NOT NULL
-            CHECK (archived IN (0, 1)));`,
-      (err) => {
-        if (err) {
-          throw err;
+    return new Promise((resolve, reject) => {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS '${tableName}'
+          (
+            id INTEGER PRIMARY KEY,
+            token TEXT UNIQUE
+              CHECK(LENGTH(token) <= 255),
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            last_access INTEGER NOT NULL,
+            archived INTEGER NOT NULL
+              CHECK (archived IN (0, 1))
+          );`,
+        (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(process.env.RESET_DB === 'yes' ? `Table '${tableName}' created` : `Table '${tableName}' initialized`);
+            resolve(db);
+          }
         }
-      }
-    );
-
-    console.log(process.env.RESET_DB === 'yes' ? `Table '${tableName}' created` : `Table '${tableName}' initialized`);
-
-    return db;
+      );
+    });
   }
 
   static async getInstance(dbName: string, tableName: string, dbFile: string): Promise<SqliteStorage> {
@@ -75,13 +130,7 @@ class SqliteStorage implements StorageStrategy {
     return new SqliteStorage(db, dbName, tableName, dbFile);
   }
 
-  /**
-   * Inset SQLite row
-   *
-   * @param jwtToken
-   * @private
-   */
-  async insert(jwtToken: string) {
+  async insert(jwtToken: string): Promise<StatusCode | Error> {
     const defaults: DbSchemaInterface = {
       id: null,
       token: jwtToken,
@@ -94,7 +143,6 @@ class SqliteStorage implements StorageStrategy {
     const query = `INSERT INTO ${this.tableName} (
 id, token, created_at, updated_at, last_access, archived
 ) VALUES (?, ?, ?, ?, ?, ?)`;
-
     return new Promise((resolve, reject) => {
       this.db.run(query, [...params], (err) => {
         if (err) {
@@ -106,12 +154,7 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
-  /**
-   *
-   * @param row
-   * @private
-   */
-  private prepareRow(row: Record<string, any>): Record<string, string> {
+  private prepareRow(row: DbSchemaInterface): DbSchemaInterface {
     row.createdAt = row.createdAt.toString();
     row.updatedAt = row.updatedAt.toString();
     row.lastAccess = row.lastAccess.toString();
@@ -119,16 +162,9 @@ id, token, created_at, updated_at, last_access, archived
     return row;
   }
 
-  /**
-   * Update SQLite row
-   *
-   * @param where
-   * @param values
-   */
-  async update(where: string[], values: string[]) {
+  async update(where: string[], values: string[]): Promise<StatusCode | Error> {
     const vals = [...values].join(',');
     const query = `UPDATE '${this.tableName}' SET ${vals} WHERE ${where.join(' AND ')}`;
-
     return new Promise((resolve, reject) => {
       this.db.run(query, (err) => {
         if (err) {
@@ -140,149 +176,63 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
-  /**
-   * Archive SQLite row
-   *
-   * @param token
-   */
-  archive(token: string): Promise<Record<string, any>> {
+  archive(token: string): Promise<StatusCode | Error> {
     return new Promise((resolve, reject) => {
-      this.db.run(`UPDATE '${this.tableName}' SET archived ='1' WHERE token =?`, [token]);
-    });
-  }
-
-  /**
-   *
-   * @param what
-   * @param where
-   * @param order
-   * @param sort
-   * @param limit
-   */
-  async findAll(
-    what = 'token',
-    where: string['archived != 1'] | null = null,
-    order: 'last_access' | 'created_at' = 'last_access',
-    sort: 'ASC' | 'DESC' = 'DESC',
-    limit?: number
-  ): Promise<DbSchemaInterface[]> {
-    const qWhere = [...where].join(' AND ');
-
-    let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
-    if (limit) sql = `${sql} LIMIT ${limit}`;
-
-    try {
-      return new Promise((resolve, reject) => {
-        this.db.all(sql, (err, rows: DbSchemaInterface[]) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        });
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  /**
-   *
-   * @param what
-   * @param where
-   * @param order
-   * @param sort
-   * @param limit
-   */
-  async findOne(
-    what = 'token',
-    where: string['archived !=1 '] | null = null,
-    order: 'last_access' | 'created_at' = 'last_access',
-    sort: 'ASC' | 'DESC' = 'DESC'
-  ): Promise<DbSchemaInterface> {
-    const qWhere = [...where].join(' AND ');
-
-    const sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere} LIMIT 1`;
-
-    try {
-      return new Promise((resolve, reject) => {
-        this.db.get(sql, (err, row: DbSchemaInterface) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        });
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  /**
-   *
-   * @param selectQuery
-   */
-  async select(selectQuery: string): Promise<ResponseInterface> {
-    return new Promise((resolve, reject) => {
-      this.db.all(selectQuery, (err, rows) => {
+      this.db.run(`UPDATE '${this.tableName}' SET archived ='1' WHERE token =? AND archived ='0'`, [token], (err) => {
         if (err) {
           reject(err);
         } else {
-          try {
-            resolve(this.formatData(rows));
-          } catch (error) {
-            reject(error);
-          }
+          resolve(StatusCode.SUCCESS);
         }
       });
     });
   }
 
-  /**
-   *
-   * @param rows
-   * @private
-   */
-  private formatData(rows: DbSchemaInterface[]): ResponseInterface {
-    const result: ResponseInterface = {
-      status: StatusCode.NOT_FOUND,
-      message: Message.NOT_FOUND,
-      data: []
-    };
-
-    if (rows.length) {
-      result.status = StatusCode.SUCCESS;
-      result.message = Message.FOUND;
-      result.data = rows;
-    }
-
-    return result;
-  }
-
-  /**
-   *
-   * @param query
-   */
-  async custom(query: string): Promise<Record<string, string | number>[]> {
-    try {
-      const result = await this.db.all(query, (err, rows) => {
-        if (result.status === StatusCode.SUCCESS) {
-          console.log(`Custom query executed: ${query}`);
-          return result.data;
+  async findAll(
+    what = 'token',
+    where: string[] = ['archived != 1'],
+    order: 'last_access' | 'created_at' = 'last_access',
+    sort: 'ASC' | 'DESC' = 'DESC',
+    limit?: number
+  ): Promise<DbSchemaInterface[] | Error> {
+    const qWhere = [...where].join(' AND ');
+    let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
+    if (order) sql += ` ORDER BY ${order} ${sort}`;
+    if (limit) sql += ` LIMIT ${limit}`;
+    return new Promise((resolve, reject) => {
+      this.db.all(sql, (err, rows: DbSchemaInterface[]) => {
+        if (err) {
+          reject(err);
         } else {
-          return [];
+          resolve(rows);
         }
       });
-    } catch (e) {
-      throw e;
-    }
+    });
   }
 
-  limit: number;
-  sort: 'ASC' | 'DESC';
+  async findOne(
+    what = 'token',
+    where: string[] = ['archived !=1 '],
+    order: 'last_access' | 'created_at' = 'last_access',
+    sort: 'ASC' | 'DESC' = 'DESC'
+  ): Promise<DbSchemaInterface | Error> {
+    const qWhere = [...where].join(' AND ');
+    let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
+    if (order) sql += ` ORDER BY ${order} ${sort} LIMIT 1`;
+    return new Promise((resolve, reject) => {
+      this.db.get(sql, (err, row: DbSchemaInterface) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  }
 
-  Promise<ResponseInterface>() {}
+  public close() {
+    this.db.close(() => {
+      console.error(Message.UNKNOWN_ERROR);
+    });
+  }
 }
-
-export { SqliteStorage };

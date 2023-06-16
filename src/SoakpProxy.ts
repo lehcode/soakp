@@ -1,12 +1,22 @@
-import { ProxyConfigInterface } from './interfaces/ProxyConfig.interface';
+/**
+ * Author: Lehcode
+ * Copyright: (C)2023
+ */
 import { Configuration, OpenAIApi } from 'openai';
 import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { AxiosResponse } from 'axios';
+
+interface ProxyConfigInterface {
+  apiHost?: string;
+  apiBaseUrl?: string;
+  query: OpenAIRequestInterface;
+}
 
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
-  private query = {
-    apiKey: '',
+  private query: OpenAIRequestInterface = {
+    apiKey: null,
     apiOrgKey: process.env.OPENAI_API_ORG_ID,
     prompt: 'Hello World, Buddy! :-)',
     model: 'text-davinci-003'
@@ -38,19 +48,16 @@ export class SoakpProxy {
    *
    * @param params
    */
-  async request(params: OpenAIRequestInterface) {
+  async makeRequest(params: OpenAIRequestInterface): Promise<AxiosResponse<any, any>> {
     const request: OpenAIRequestInterface = {
       model: params.model,
-      prompt: params.messages,
+      prompt: params.prompt,
       max_tokens: params.max_tokens,
       temperature: params.temperature
     };
 
-    try {
-      return await this.openAI.createCompletion(request);
-    } catch (error) {
-      throw error;
-    }
+    // @ts-ignore
+    return await this.openAI.createCompletion(request);
   }
 
   /**
