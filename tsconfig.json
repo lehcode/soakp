@@ -17,10 +17,11 @@
   },
   "module": "node",
   "compilerOptions": {
-    "target": "es6",
-    "strict": true,
+    "target": "es2018",
+    "module": "esnext",
     "outDir": "dist",
     "rootDir": ".",
+    "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -38,7 +39,12 @@
     "watchDirectory": "useFsEvents",
     "fallbackPolling": "dynamicPriority",
     "synchronousWatchDirectory": true,
-    "excludeDirectories": ["**/node_modules", "dist/**"],
-    "excludeFiles": ["**/*.js"]
+    "excludeDirectories": [
+      "**/node_modules",
+      "dist/**"
+    ],
+    "excludeFiles": [
+      "**/*.js"
+    ]
   }
 }

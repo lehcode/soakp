@@ -16,7 +16,7 @@ export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
   private query: OpenAIRequestInterface = {
-    apiKey: '',
+    apiKey: null,
     apiOrgKey: process.env.OPENAI_API_ORG_ID,
     prompt: 'Hello World, Buddy! :-)',
     model: 'text-davinci-003'

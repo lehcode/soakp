@@ -26,6 +26,9 @@ export class KeyStorage {
   private readonly config: StorageConfigInterface;
   private backend: SqliteStorage | null = null;
 
+  /**
+   * @param configuration
+   */
   constructor(configuration: StorageConfigInterface) {
     this.config = { ...configuration };
   }
@@ -139,5 +142,9 @@ export class KeyStorage {
     } catch (err: any) {
       throw err;
     }
+  }
+
+  get database() {
+    return this.backend;
   }
 }
