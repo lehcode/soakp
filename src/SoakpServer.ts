@@ -258,7 +258,6 @@ export class SoakpServer {
   /**
    * Start the server
    * @public
-   * @param sslPort
    */
   public async start() {
     this.keyStorage = await KeyStorage.getInstance(this.config.storage);
