@@ -23,11 +23,12 @@
     "url": "https://github.com/lehcode/soakp/issues"
   },
   "scripts": {
-    "build": "NODE_OPTIONS='--no-warnings' tsc --outDir ./dist/",
-    "lint": "eslint 'src/**/*.{ts}' --fix --quiet",
-    "dev": "NODE_OPTIONS='--trace-warnings' npx ts-node --esm server.ts",
+    "build": "NODE_ENV='production' NODE_OPTIONS='--no-warnings' tsc --outDir ./dist/",
+    "lint": "eslint './**/*.{ts}' --fix --quiet",
+    "dev": "NODE_OPTIONS='--trace-warnings' npx ts-node server.ts",
     "serve": "node -r ts-node/register server.ts",
-    "test": "NODE_ENV='testing' jest"
+    "test": "NODE_ENV='testing' jest",
+    "ci": "jest --ci"
   },
   "files": [
     "**/*.ts",
