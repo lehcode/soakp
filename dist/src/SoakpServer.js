@@ -31,7 +31,7 @@ const KeyStorage_1 = require("./KeyStorage");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const config_1 = require("./config");
+const configs_1 = require("./configs");
 class SoakpServer {
     constructor(config) {
         this.config = Object.assign({}, config);
@@ -265,11 +265,11 @@ class SoakpServer {
             throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
         }
         // Check username
-        if (!config_1.appConfig.usernameRegex.test(process.env.AUTH_USER)) {
+        if (!configs_1.appConfig.usernameRegex.test(process.env.AUTH_USER)) {
             throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
         }
         // Check password
-        if (!config_1.appConfig.passwordRegex.test(process.env.AUTH_PASS)) {
+        if (!configs_1.appConfig.passwordRegex.test(process.env.AUTH_PASS)) {
             throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
         }
         return true;
