@@ -10,7 +10,7 @@ export default {
     }]
   },
   coverageDirectory: './coverage',
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/', '__mocks__'],
   collectCoverageFrom: [
     '**/*.ts',
     '!main/**/*'
