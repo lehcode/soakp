@@ -17,19 +17,14 @@ import { KeyStorage, StorageConfigInterface, DbSchemaInterface } from './KeyStor
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
-import config from './config';
-
-export const fallback = {
-  dataFileLocation: './fallback',
-  dbName: 'fallback',
-  tableName: 'fallback',
-  serverPort: 3033
-};
+import { appConfig } from './configs';
 
 export interface ServerConfigInterface {
   storage: StorageConfigInterface;
   httpPort: number;
   sslPort: number;
+  httpAuthUser: string;
+  httpAuthPass: string;
 }
 
 export class SoakpServer {
@@ -69,9 +64,8 @@ export class SoakpServer {
    * @private
    */
   private initializeEndpoints() {
-
     try {
-      if (this.basicAuthCredentialsValidated()) {
+      if (this.basicAuthCredentialsValid()) {
         this.app.post(
           '/get-jwt',
           basicAuth({ users: { [process.env.AUTH_USER as string]: process.env.AUTH_PASS as string }}),
@@ -264,8 +258,6 @@ export class SoakpServer {
 
     this.app.listen(this.config.httpPort);
     this.initSSL(this.app);
-    console.log(`Started Secure OpenAI Key Proxy with TLS on port ${this.config.sslPort}.
-Please provide support here: https://opencollective.com/soakp`);
   }
 
   /**
@@ -284,20 +276,18 @@ Please provide support here: https://opencollective.com/soakp`);
    *
    * @private
    */
-  private basicAuthCredentialsValidated(): boolean {
+  private basicAuthCredentialsValid(): boolean {
     if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {
       throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
     }
 
     // Check username
-    const usernameRegex = config.usernameRegex;
-    if (!usernameRegex.test(process.env.AUTH_USER as string)) {
+    if (!appConfig.usernameRegex.test(process.env.AUTH_USER as string)) {
       throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
     }
 
     // Check password
-    const passwordRegex = config.passwordRegex;
-    if (!passwordRegex.test(process.env.AUTH_PASS as string)) {
+    if (!appConfig.passwordRegex.test(process.env.AUTH_PASS as string)) {
       throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
     }
 

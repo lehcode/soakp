@@ -1,29 +1,8 @@
-import { ServerConfigInterface, SoakpServer } from '../SoakpServer';
-import { KeyStorage } from '../KeyStorage';
-import { fallback } from '../SoakpServer';
+import { SoakpServer } from '../SoakpServer';
+import serverConfig from '../configs';
 
-export const serverConfig: ServerConfigInterface = {
-  storage: {
-    tableName:  'tokens',
-    dbName: 'testing.sqlite',
-    dataFileDir: '/tmp',
-    lifetime: 60
-  },
-  httpPort: 3003,
-  sslPort: 3033
-};
-const fallbackConfig = {
-  storage: {
-    tableName: fallback.tableName,
-    dbName: fallback.dbName,
-    dataFileDir: fallback.dataFileLocation,
-    lifetime: 86400,
-  },
-  httpPort: 3030,
-  sslPort: 3333
-};
 let server: SoakpServer;
-let keyStorage: KeyStorage;
+// let keyStorage: KeyStorage;
 
 describe('SoakpServer', () => {
   beforeEach(() => {
@@ -37,15 +16,6 @@ describe('SoakpServer', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('should initialize correctly with default values', () => {
-    server = new SoakpServer(fallbackConfig);
-    expect(server['app']).toBeDefined();
-    // keyStorage is initialized in the start() method
-    expect(server['keyStorage']).toBeUndefined();
-    expect(server['proxy']).toBeDefined();
-    expect(server['config']).toStrictEqual(fallbackConfig);
   });
 
   it('should initialize server with specified config', () => {
