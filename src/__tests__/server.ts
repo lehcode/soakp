@@ -1,5 +1,5 @@
 import { SoakpServer } from '../SoakpServer';
-import serverConfig from '../config';
+import serverConfig from '../configs';
 
 let server: SoakpServer;
 // let keyStorage: KeyStorage;

@@ -1,4 +1,4 @@
-import { appConfig } from '../../config';
+import { appConfig } from '../../configs';
 
 export const mockBasicAuthCredentialsValid = jest.fn(() => {
   if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {

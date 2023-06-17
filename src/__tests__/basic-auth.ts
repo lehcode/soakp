@@ -2,7 +2,7 @@
  * Author: Lehcode
  * Copyright: (C)Lehcode.com 2023
  */
-import serverConfig from '../config';
+import serverConfig from '../configs';
 import SoakpServer from './__mocks__/SoakpServer';
 import * as dotenv from 'dotenv';
 

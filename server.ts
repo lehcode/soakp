@@ -3,7 +3,7 @@
  * Copyright: (C)2023
  */
 import { SoakpServer } from './src/SoakpServer';
-import serverConfig from './src/config';
+import serverConfig from './src/configs';
 import { Message } from './src/enums/Message.enum';
 
 Promise.resolve(new SoakpServer(serverConfig).start()).then(() => {

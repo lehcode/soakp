@@ -17,7 +17,7 @@ import { KeyStorage, StorageConfigInterface, DbSchemaInterface } from './KeyStor
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
-import { appConfig } from './config';
+import { appConfig } from './configs';
 
 export interface ServerConfigInterface {
   storage: StorageConfigInterface;
