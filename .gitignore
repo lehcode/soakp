@@ -8,3 +8,4 @@ node_modules/
 /docker/server
 yarn-error.log
 /.vscode/
+/coverage/**/*

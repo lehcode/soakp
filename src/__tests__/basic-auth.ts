@@ -2,22 +2,22 @@
  * Author: Lehcode
  * Copyright: (C)Lehcode.com 2023
  */
-// import { SoakpServer } from '../SoakpServer';
-import { serverConfig } from './server';
+import serverConfig from '../configs';
 import SoakpServer from './__mocks__/SoakpServer';
+import * as dotenv from 'dotenv';
 
-// const serverMock = jest.mock('../SoakpServer');
-// jest.mock('../SoakpServer');
-const server = new SoakpServer(serverConfig);
+dotenv.config();
 
 describe('SoakpServer', () => {
+  const server = new SoakpServer(serverConfig);
+
   beforeEach(() => {
     // Mock the console.error and console.log methods
     console.error = jest.fn();
     console.log = jest.fn();
 
-    process.env.AUTH_USER = 'valid_user';
-    process.env.AUTH_PASS = 'valid_pass';
+    process.env.AUTH_USER = 'valid_user1';
+    process.env.AUTH_PASS = 'valid_pass12345';
   });
 
   afterEach(() => {
@@ -28,14 +28,14 @@ describe('SoakpServer', () => {
   });
 
   describe('basicAuthCredentialsValidated', () => {
-    it('should return true if the environment variables are valid', () => {
-      expect(server.basicAuthCredentialsValidated()).toBe(true);
+    it('should return true if the credentials are valid', () => {
+      expect(server.basicAuthCredentialsValid()).toBe(true);
     });
 
     it('should throw an error if AUTH_USER environment variable is missing', () => {
       delete process.env.AUTH_USER;
 
-      expect(() => server.basicAuthCredentialsValidated())
+      expect(() => server.basicAuthCredentialsValid())
         .toThrowError(
           'Missing required environment variables AUTH_USER and/or AUTH_PASS'
         );
@@ -44,17 +44,22 @@ describe('SoakpServer', () => {
     it('should throw an error if AUTH_PASS environment variable is missing', () => {
       delete process.env.AUTH_PASS;
 
-      expect(() => server.basicAuthCredentialsValidated())
+      expect(() => server.basicAuthCredentialsValid())
         .toThrowError(
           'Missing required environment variables AUTH_USER and/or AUTH_PASS'
         );
     });
 
     it('should throw an error if the username has an invalid format', () => {
-      process.env.AUTH_USER = 'in.valid-username';
-      process.env.AUTH_PASS = 'valid_password';
+      process.env.AUTH_USER = 'in.valid-usernamein.valid-usernamein.valid-usernamein.valid-username';
 
-      expect(() => server.basicAuthCredentialsValidated()).toThrowError('Invalid username format');
+      expect(() => server.basicAuthCredentialsValid()).toThrowError('Invalid username format');
+    });
+
+    it('should throw an error if the password has an invalid format', () => {
+      process.env.AUTH_PASS = 'invalid.passwordinvalid.passwordinvalid.passwordinvalid.password';
+
+      expect(() => server.basicAuthCredentialsValid()).toThrowError('Invalid password format');
     });
   });
 });
