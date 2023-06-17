@@ -8,9 +8,9 @@ Key Benefits for Web Software Developers:
 
 2. **Secure JWT Generation**: Generate unlimited secure JWTs for authorized users, enabling them to access the OpenAI API without directly exposing your key. Maintain granular control over API usage while ensuring high-level security.
 
-3. **Web Client Compatibility**: SOAKP Server includes [soakp-client](https://github.com/lehcode/soakp-client), a companion library specifically designed for modern web browsers. It acts as a secure connection module, eliminating the need to expose the OpenAI API key in client-side code. soakp-client seamlessly interacts with the OpenAI API using JWT-based authorization.
+3. **Web Client Compatibility**: `SOAKP Server`'s companion library specifically designed for modern web browsers, [soakp-client](https://github.com/lehcode/soakp-client), acts as a secure connection module, eliminating the need to expose the OpenAI API key in client-side code. `Soakp-client` seamlessly interacts with the OpenAI API using JWT-based authorization.
 
-4. **Simplified Integration**: Seamlessly integrate SOAKP Server into your web applications and services. Both SOAKP and client library offer familiar APIs, making it easy to incorporate OpenAI capabilities without extensive setup or configuration.
+4. **Simplified Integration**: Seamlessly integrate `SOAKP Server` into your web applications and services. Both SOAKP and client library offer familiar APIs, making it easy to incorporate OpenAI capabilities without extensive setup or configuration.
 
 5. **Documentation and Support**: Benefit from detailed documentation and community support. Both SOAKP and SOAKP client are provided with clear instructions and examples to guide you through the integration process, ensuring a smooth and hassle-free experience.
 
