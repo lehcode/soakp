@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SoakpServer = exports.fallback = void 0;
+exports.SoakpServer = void 0;
 /**
  * Author: Lehcode
  * Copyright: (C) Lehcode.com 2023
@@ -31,13 +31,7 @@ const KeyStorage_1 = require("./KeyStorage");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const config_1 = __importDefault(require("./config"));
-exports.fallback = {
-    dataFileLocation: './fallback',
-    dbName: 'fallback',
-    tableName: 'fallback',
-    serverPort: 3033
-};
+const configs_1 = require("./configs");
 class SoakpServer {
     constructor(config) {
         this.config = Object.assign({}, config);
@@ -65,7 +59,7 @@ class SoakpServer {
      */
     initializeEndpoints() {
         try {
-            if (this.basicAuthCredentialsValidated()) {
+            if (this.basicAuthCredentialsValid()) {
                 this.app.post('/get-jwt', (0, express_basic_auth_1.default)({ users: { [process.env.AUTH_USER]: process.env.AUTH_PASS } }), this.handleGetJwt.bind(this));
             }
         }
@@ -249,8 +243,6 @@ class SoakpServer {
             this.keyStorage = yield KeyStorage_1.KeyStorage.getInstance(this.config.storage);
             this.app.listen(this.config.httpPort);
             this.initSSL(this.app);
-            console.log(`Started Secure OpenAI Key Proxy with TLS on port ${this.config.sslPort}.
-Please provide support here: https://opencollective.com/soakp`);
         });
     }
     /**
@@ -268,18 +260,16 @@ Please provide support here: https://opencollective.com/soakp`);
      *
      * @private
      */
-    basicAuthCredentialsValidated() {
+    basicAuthCredentialsValid() {
         if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {
             throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
         }
         // Check username
-        const usernameRegex = config_1.default.usernameRegex;
-        if (!usernameRegex.test(process.env.AUTH_USER)) {
+        if (!configs_1.appConfig.usernameRegex.test(process.env.AUTH_USER)) {
             throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
         }
         // Check password
-        const passwordRegex = config_1.default.passwordRegex;
-        if (!passwordRegex.test(process.env.AUTH_PASS)) {
+        if (!configs_1.appConfig.passwordRegex.test(process.env.AUTH_PASS)) {
             throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
         }
         return true;

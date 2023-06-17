@@ -15,8 +15,8 @@ $ cd soakp
 $ node -r ts-node/register server.ts
 ```
 
-Use any service to make your machine's port SERVER_PORT (in .env) available externally if you use this approach.
-Once started, server is available at `https://[your-domain]:3033` with a completely valid SSL certificate. You need to specify `localhost` as `CB_DOMAIN` and leave empty `CB_WILDCARD_DOMAIN`
+Use any service to make your machine's port SECURE_PORT (in .env) available externally if you use this approach.
+Once started, server is available at `https://[your-domain]:[SECURE_PORT]` with a completely valid SSL certificate. You need to specify `localhost` as `CB_DOMAIN` and leave empty `CB_WILDCARD_DOMAIN`
 
 ## Support for Cloud DNS Providers
 

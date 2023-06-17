@@ -6,7 +6,7 @@ To deploy the server script, you have the choice to host it on a cloud platform 
 
 SOAKP can be run using the `ts-node` environment without the need for generating separate JavaScript files. Please consult the [ts-node documentation](https://www.npmjs.com/package/ts-node) for instructions on how to achieve this, it's easy.
 
-Ultimately, you can [build the JavaScript](./CompileJS.md) files to run directly on any platform with Node.js, or choose to [deploy the application to AWS Lambda Cloud](./AWSLambda.md) for efficient and scalable serverless deployment.
+Ultimately, you can [build the JavaScript](./ProductionBuild.md) files to run directly on any platform with Node.js, or choose to [deploy the application to AWS Lambda Cloud](./AWSLambda.md) for efficient and scalable serverless deployment.
 
 ---
 
