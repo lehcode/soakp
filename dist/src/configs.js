@@ -23,4 +23,4 @@ const serverConfig = {
     httpAuthPass: process.env.AUTH_PASS
 };
 exports.default = serverConfig;
-//# sourceMappingURL=config.js.map
+//# sourceMappingURL=configs.js.map

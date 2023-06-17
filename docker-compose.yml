@@ -84,7 +84,7 @@ services:
       - ./docker/server/log:/var/log/soakp
     ports:
       # Forwards the specified server port to the host
-      - "${SERVER_PORT:-3033}:${SERVER_PORT:-3033}"
+      - "${SECURE_PORT:-3033}:${SECURE_PORT:-3033}"
       # Exposes the Node.js debugging port
       - "9229:9229"
     user: ${HOST_USER_NAME:?}:docker
