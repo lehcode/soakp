@@ -3,9 +3,7 @@
     "ignorePatterns": ["dist", "node_modules"],
     "parser": "@typescript-eslint/parser",
     "plugins": [],
-    "parserOptions": {
-        "project": ["./tsconfig.json"]
-    },
+    "parserOptions": {},
     "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
     "rules": {
         "array-bracket-newline": ["warn", "consistent"],
