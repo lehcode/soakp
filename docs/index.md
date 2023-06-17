@@ -9,16 +9,18 @@ Table of contents:
 
 [SOAKP](https://github.com/lehcode/soakp) is a Node.js application and library that facilitates secure usage of the [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) through a proxy-like application.
 
-It stores your OpenAI API keys securely and provides a mechanism to interact with the OpenAI API without directly exposing its keys using a secure personal JWT token. To ensure optimal security, the library leverages Docker to automatically generate renewable SSL certificates using [Certbot](https://certbot.eff.org/).
+It stores your OpenAI API keys securely and provides a mechanism to interact with the OpenAI API without directly exposing its keys by using a secure personal JWT token. The library leverages Docker to automatically generate renewable SSL certificates using [Certbot](https://certbot.eff.org/) for live domains.
 
-This package features a companion library for client-side browser applications where revealing API keys is a security concern.
+This package features an [companion NPM library](https://www.npmjs.com/package/@lehcode/soakp-client) for client-side browser applications where revealing API keys is a security concern.
 
 ## Features
 
-**1. Secure Key Storage:** SOAKP securely stores your OpenAI API keys as JWTs encrypted with a custom (your) secret string. OpenAI API key is not stored unencrypted at all since JWT is a "container" for it. The keys are never directly exposed to any party other than OpenAI.
+1. **Enhanced Security**: Keep your OpenAI API key safe from unauthorized access and exposure. SOAKP Server ensures the confidentiality of your OpenAI key by securely managing and validating it within your application.
 
-**2. Proxy-like Interaction:** Instead of directly calling the OpenAI API from the browser environment, and possibly revealing your keys, you can send your requests to this application, which forwards them to the OpenAI API and sends back a filtered (though untweaked in any manner) JSON response. The responses from OpenAI are then returned to your application, ensuring a seamless experience.
+2. **Secure JWT Generation**: Generate unlimited secure JWTs for authorized users, enabling them to access the OpenAI API without directly exposing your key. Maintain granular control over API usage while ensuring high-level security.
 
-**3. Unique Bearer Tokens:** Upon saving the OpenAI API key, the application provides a unique custom Bearer token. This token is used for future authentication, replacing the need to directly use the OpenAI API key.
+3. **Web Client Compatibility**: `SOAKP Server`'s companion library specifically designed for modern web browsers, [soakp-client](https://github.com/lehcode/soakp-client), acts as a secure connection module, eliminating the need to expose the OpenAI API key in client-side code. `Soakp-client` seamlessly interacts with the OpenAI API using JWT-based authorization.
 
-**4. Integration with OpenAI API:** SOAKP is designed to work seamlessly with the OpenAI API. Any endpoint, method, or feature available on the OpenAI API can be accessed via this package, ensuring you don't lose any functionality while gaining enhanced security.
+4. **Simplified Integration**: Seamlessly integrate `SOAKP Server` into your web applications and services. Both SOAKP and client library offer familiar APIs, making it easy to incorporate OpenAI capabilities without extensive setup or configuration.
+
+5. **Documentation and Support**: Benefit from detailed documentation and community support. Both SOAKP and SOAKP client are provided with clear instructions and examples to guide you through the integration process, ensuring a smooth and hassle-free experience.
