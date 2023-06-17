@@ -8,5 +8,4 @@ node_modules/
 /docker/server
 yarn-error.log
 /.vscode/
-/src/coverage/lcov-report/**/*
-/src/coverage/lcov.info
+/coverage/**/*

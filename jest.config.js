@@ -9,7 +9,7 @@ export default {
       tsconfig: 'tsconfig.json',
     }]
   },
-  coverageDirectory: './coverage',
+  coverageDirectory: '../coverage',
   testPathIgnorePatterns: ['/node_modules/', '__mocks__'],
   collectCoverageFrom: [
     '**/*.ts',
