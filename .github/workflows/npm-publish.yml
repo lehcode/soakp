@@ -1,11 +1,12 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# This workflow will run tests using node and then publish a package to
+# GitHub Packages and NPM when a release is created.
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
-name: Publish to NPM
+name: Remote Deployment
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
@@ -16,7 +17,23 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
+      - run: npm lint
       - run: npm test
+
+  publish-github:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+          scope: ${{ vars.USERNAME }}
+      - run: npm ci
+      - run: npm publish --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.RO_GITHUB }}
 
   publish-npm:
     needs: build
@@ -28,6 +45,6 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm publish
+      - run: npm publish --dry-run
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
