@@ -7,6 +7,10 @@ name: Remote Deployment Dry Run
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - publish
+
 
 jobs:
   build:
