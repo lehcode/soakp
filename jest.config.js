@@ -15,6 +15,5 @@ module.exports = {
     '**/*.ts',
     '!main/**/*'
   ],
-  coverageReporters: ['text-summary', 'lcov'],
-  automock: true,
+  coverageReporters: ['text-summary', 'lcov']
 };
