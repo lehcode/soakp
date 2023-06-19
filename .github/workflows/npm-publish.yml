@@ -16,9 +16,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci
-      - run: npm lint
-      - run: npm test
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+        env:
+          NODE_ENV: 'production'
 
   publish-github:
     needs: build
@@ -30,7 +31,7 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
           scope: ${{ vars.USERNAME }}
-      - run: npm ci
+      - run: yarn install --frozen-lockfile
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.RO_GITHUB }}
@@ -44,7 +45,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: yarn install --frozen-lockfile
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
