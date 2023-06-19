@@ -11,7 +11,7 @@ describe('SoakpServer', () => {
     console.log = jest.fn();
 
     server = new SoakpServer(serverConfig);
-    //keyStorage = new KeyStorage(serverConfig.storage);
+    // keyStorage = new KeyStorage(serverConfig.storage);
   });
 
   afterEach(() => {
@@ -23,8 +23,10 @@ describe('SoakpServer', () => {
     // keyStorage is initialized in the start() method
     expect(server['keyStorage']).toBeUndefined();
     expect(server['proxy']).toBeDefined();
-    expect(server['config']).toStrictEqual(serverConfig);
-    expect(console.log).toHaveBeenCalledWith(serverConfig);
+    expect(server['config'])
+      .toStrictEqual(serverConfig);
+    expect(console.log)
+      .toHaveBeenCalledWith(serverConfig);
   });
 
   it('should start the server with specified config', async () => {
@@ -40,7 +42,9 @@ describe('SoakpServer', () => {
     expect(server['keyStorage']).toBeDefined();
     expect(server['app']).toBeDefined();
     expect(server['proxy']).toBeDefined();
-    expect(server['config']).toStrictEqual(serverConfig);
-    expect(console.log).toHaveBeenCalledWith(serverConfig);
+    expect(server['config'])
+      .toStrictEqual(serverConfig);
+    expect(console.log)
+      .toHaveBeenCalledWith(serverConfig);
   });
 });
