@@ -1,33 +1,8 @@
 import { SoakpServer } from '../SoakpServer';
 import serverConfig from '../configs';
-import { createServer } from 'net';
+import { waitForPort } from './server';
 
 let server: SoakpServer;
-// let keyStorage: KeyStorage;
-
-async function isPortBusy(port: number) {
-  return new Promise((resolve) => {
-    const server = createServer();
-
-    server.once('error', (error: any) => {
-      if (error.code === 'EADDRINUSE') {
-        // Port is busy
-        resolve(true);
-      } else {
-        // Other error occurred
-        resolve(false);
-      }
-    });
-
-    // server.once('listening', () => {
-    //   // Port is available
-    //   server.close();
-    //   resolve(false);
-    // });
-    //
-    // server.listen(port, '127.0.0.1');
-  });
-}
 
 describe('SoakpServer', () => {
   beforeEach(() => {
@@ -36,7 +11,6 @@ describe('SoakpServer', () => {
     console.log = jest.fn();
 
     server = new SoakpServer(serverConfig);
-    //keyStorage = new KeyStorage(serverConfig.storage);
   });
 
   afterEach(() => {
@@ -56,25 +30,22 @@ describe('SoakpServer', () => {
     jest.useFakeTimers();
     // Mock the start method of the server to test its invocation
     jest.spyOn(server, 'start');
+    // @ts-ignore
     jest.spyOn(server as any, 'initSSL');
 
-    isPortBusy(serverConfig.httpPort)
-      .then(async (busy) => {
-        if (busy) {
-          console.log(`Port ${serverConfig.httpPort} is busy.`);
-        } else {
+    waitForPort(serverConfig.httpPort)
+      .then(async () => {
         // Start the init with the mock storage
-          await server.start();
+        await server.start();
 
-          // Verify that the start method was called with the correct arguments
-          expect(server.start).toHaveBeenCalled();
-          expect(server['keyStorage']).toBeDefined();
-          expect(server['app']).toBeDefined();
-          expect(server['initSSL']).toHaveBeenCalled();
-          expect(server['proxy']).toBeDefined();
-          expect(server['config']).toStrictEqual(serverConfig);
-          expect(console.log).toHaveBeenCalledWith(serverConfig);
-        }
+        // Verify that the start method was called with the correct arguments
+        expect(server.start).toHaveBeenCalled();
+        expect(server['keyStorage']).toBeDefined();
+        expect(server['app']).toBeDefined();
+        expect(server['initSSL']).toHaveBeenCalled();
+        expect(server['proxy']).toBeDefined();
+        expect(server['config']).toStrictEqual(serverConfig);
+        expect(console.log).toHaveBeenCalledWith(serverConfig);
       })
       .catch((error) => {
         console.error('Error occurred:', error);
