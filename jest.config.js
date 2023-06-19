@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'tsx', 'json', 'node', 'js'],
@@ -10,7 +10,7 @@ export default {
     }]
   },
   coverageDirectory: '../coverage',
-  testPathIgnorePatterns: ['/node_modules/', '__mocks__'],
+  testPathIgnorePatterns: ['/node_modules/', '__mocks__', '.js'],
   collectCoverageFrom: [
     '**/*.ts',
     '!main/**/*'
