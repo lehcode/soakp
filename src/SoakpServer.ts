@@ -169,7 +169,7 @@ export class SoakpServer {
    * @param res
    * @private
    */
-  private async generateAndUpdateToken(oldToken: string, openAIKey: string, res: express.Response) {
+  private async generateAndUpdateToken(oldToken: string, openAIKey: string) {
     try {
       const token = this.getSignedJWT(openAIKey);
       const accepted = await this.keyStorage.updateToken(oldToken, token);
@@ -244,8 +244,8 @@ export class SoakpServer {
       } else {
         Responses.notAuthorized(res, 'jwt');
       }
-    } catch (e) {
-      throw e;
+    } catch (err) {
+      throw err;
     }
   }
 
