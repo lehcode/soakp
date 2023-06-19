@@ -16,4 +16,5 @@ module.exports = {
     '!main/**/*'
   ],
   coverageReporters: ['text-summary', 'lcov'],
+  automock: true,
 };
