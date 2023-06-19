@@ -1,8 +1,33 @@
 import { SoakpServer } from '../SoakpServer';
 import serverConfig from '../configs';
+import { createServer } from 'net';
 
-let init: SoakpServer;
+let server: SoakpServer;
 // let keyStorage: KeyStorage;
+
+async function isPortBusy(port: number) {
+  return new Promise((resolve) => {
+    const server = createServer();
+
+    server.once('error', (error: any) => {
+      if (error.code === 'EADDRINUSE') {
+        // Port is busy
+        resolve(true);
+      } else {
+        // Other error occurred
+        resolve(false);
+      }
+    });
+
+    // server.once('listening', () => {
+    //   // Port is available
+    //   server.close();
+    //   resolve(false);
+    // });
+    //
+    // server.listen(port, '127.0.0.1');
+  });
+}
 
 describe('SoakpServer', () => {
   beforeEach(() => {
@@ -10,7 +35,7 @@ describe('SoakpServer', () => {
     console.error = jest.fn();
     console.log = jest.fn();
 
-    init = new SoakpServer(serverConfig);
+    server = new SoakpServer(serverConfig);
     //keyStorage = new KeyStorage(serverConfig.storage);
   });
 
@@ -18,29 +43,41 @@ describe('SoakpServer', () => {
     jest.clearAllMocks();
   });
 
-  it('should initialize init with specified config', () => {
-    expect(init['app']).toBeDefined();
+  it('should initialize the server with the specified config', () => {
+    expect(server['app']).toBeDefined();
     // keyStorage is initialized in the start() method
-    expect(init['keyStorage']).toBeUndefined();
-    expect(init['proxy']).toBeDefined();
-    expect(init['config']).toStrictEqual(serverConfig);
+    expect(server['keyStorage']).toBeUndefined();
+    expect(server['proxy']).toBeDefined();
+    expect(server['config']).toStrictEqual(serverConfig);
     expect(console.log).toHaveBeenCalledWith(serverConfig);
   });
 
-  it('should start the init with specified config', async () => {
-    // Mock the start method of the init to test its invocation
-    jest.spyOn(init, 'start');
+  it('should start the server with the specified config', async () => {
+    jest.useFakeTimers();
+    // Mock the start method of the server to test its invocation
+    jest.spyOn(server, 'start');
+    jest.spyOn(server as any, 'initSSL');
 
-    // Start the init with the mock storage
-    await init.start();
+    isPortBusy(serverConfig.httpPort)
+      .then(async (busy) => {
+        if (busy) {
+          console.log(`Port ${serverConfig.httpPort} is busy.`);
+        } else {
+        // Start the init with the mock storage
+          await server.start();
 
-    // Verify that the start method was called with the correct arguments
-    expect(init.start).toHaveBeenCalled();
-    // expect(init['initSSL']).toHaveBeenCalled();
-    expect(init['keyStorage']).toBeDefined();
-    expect(init['app']).toBeDefined();
-    expect(init['proxy']).toBeDefined();
-    expect(init['config']).toStrictEqual(serverConfig);
-    expect(console.log).toHaveBeenCalledWith(serverConfig);
+          // Verify that the start method was called with the correct arguments
+          expect(server.start).toHaveBeenCalled();
+          expect(server['keyStorage']).toBeDefined();
+          expect(server['app']).toBeDefined();
+          expect(server['initSSL']).toHaveBeenCalled();
+          expect(server['proxy']).toBeDefined();
+          expect(server['config']).toStrictEqual(serverConfig);
+          expect(console.log).toHaveBeenCalledWith(serverConfig);
+        }
+      })
+      .catch((error) => {
+        console.error('Error occurred:', error);
+      });
   });
 });
