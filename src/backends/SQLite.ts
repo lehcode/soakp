@@ -74,7 +74,7 @@ abstract class StorageStrategy {
 export default class SqliteStorage extends StorageStrategy {
   private db: Database;
   private dbName: string;
-  private tableName: string;
+  private readonly tableName: string;
   private dbFile: string;
 
   constructor(db: Database, dbName: string, tableName: string, dbFile: string) {
@@ -85,13 +85,18 @@ export default class SqliteStorage extends StorageStrategy {
     this.dbFile = dbFile;
   }
 
-
+  /**
+   * @return {Promise<number | Error>}
+   * @param dbName
+   * @param tableName
+   * @param dbFile
+   */
   static async createDatabase(dbName: string, tableName: string, dbFile: string): Promise<Database> {
     if (process.env.SQLITE_MEMORY_DB === 'no' && process.env.SQLITE_RESET === 'yes') {
       try {
         await fs.unlink(path.resolve(dbFile));
-      } catch (e) {
-        console.log(e);
+      } catch (err) {
+        console.log(err);
       }
     }
     const db = process.env.SQLITE_MEMORY_DB === 'yes' ? new Database(':memory:') : new Database(dbFile);
@@ -113,7 +118,7 @@ export default class SqliteStorage extends StorageStrategy {
             archived INTEGER NOT NULL
               CHECK (archived IN (0, 1))
           );`,
-        (err) => {
+        (err: any) => {
           if (err) {
             reject(err);
           } else {
