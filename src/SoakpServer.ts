@@ -131,7 +131,7 @@ export class SoakpServer {
           } catch (err: any) {
             if (err.message === 'jwt expired') {
               console.log(`${Message.JWT_EXPIRED}. Replacing it...`);
-              const updated = await this.generateAndUpdateToken(row.token, openAIKey, res);
+              const updated = await this.generateAndUpdateToken(row.token, openAIKey);
               console.log('Token refreshed');
               Responses.tokenUpdated(res, updated);
             }
