@@ -2,11 +2,12 @@
 # GitHub Packages and NPM when a release is created.
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
-name: Remote Deployment
+name: Remote Deployment Dry Run
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - develop
 
 jobs:
   build:
@@ -31,7 +32,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: ${{ vars.USERNAME }}
       - run: npm ci
-      - run: npm publish
+      - run: npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.RO_GITHUB }}
 
@@ -45,6 +46,6 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm publish
+      - run: npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
