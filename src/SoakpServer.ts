@@ -122,7 +122,7 @@ export class SoakpServer {
       if (existingTokens instanceof Error) {
         // No saved JWTs found, generate and save a new one
         console.log('No matching tokens found. Generating a new one.');
-        const savedToken = await this.generateAndSaveToken(openAIKey, res);
+        const savedToken = await this.generateAndSaveToken(openAIKey);
         Responses.tokenAdded(res, savedToken);
       } else {
         existingTokens.map(async (row: DbSchemaInterface) => {
@@ -151,7 +151,7 @@ export class SoakpServer {
    * @param res
    * @private
    */
-  private async generateAndSaveToken(openAIKey: string, res: express.Response) {
+  private async generateAndSaveToken(openAIKey: string) {
     const signed = this.getSignedJWT(openAIKey);
     const saved = await this.keyStorage.saveToken(signed);
 
