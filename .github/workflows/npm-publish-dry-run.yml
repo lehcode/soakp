@@ -18,7 +18,9 @@ jobs:
         with:
           node-version: 16
       - run: yarn install --frozen-lockfile
-      - run: yarn test-ci
+      - run: yarn build
+        env:
+          NODE_ENV: 'production'
 
   publish-github:
     needs: build
