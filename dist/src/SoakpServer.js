@@ -108,7 +108,7 @@ class SoakpServer {
                 if (existingTokens instanceof Error) {
                     // No saved JWTs found, generate and save a new one
                     console.log('No matching tokens found. Generating a new one.');
-                    const savedToken = yield this.generateAndSaveToken(openAIKey, res);
+                    const savedToken = yield this.generateAndSaveToken(openAIKey);
                     Responses_1.Responses.tokenAdded(res, savedToken);
                 }
                 else {
@@ -119,7 +119,7 @@ class SoakpServer {
                         catch (err) {
                             if (err.message === 'jwt expired') {
                                 console.log(`${Message_enum_1.Message.JWT_EXPIRED}. Replacing it...`);
-                                const updated = yield this.generateAndUpdateToken(row.token, openAIKey, res);
+                                const updated = yield this.generateAndUpdateToken(row.token, openAIKey);
                                 console.log('Token refreshed');
                                 Responses_1.Responses.tokenUpdated(res, updated);
                             }
@@ -139,7 +139,7 @@ class SoakpServer {
      * @param res
      * @private
      */
-    generateAndSaveToken(openAIKey, res) {
+    generateAndSaveToken(openAIKey) {
         return __awaiter(this, void 0, void 0, function* () {
             const signed = this.getSignedJWT(openAIKey);
             const saved = yield this.keyStorage.saveToken(signed);
@@ -158,7 +158,7 @@ class SoakpServer {
      * @param res
      * @private
      */
-    generateAndUpdateToken(oldToken, openAIKey, res) {
+    generateAndUpdateToken(oldToken, openAIKey) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = this.getSignedJWT(openAIKey);
@@ -229,8 +229,8 @@ class SoakpServer {
                     Responses_1.Responses.notAuthorized(res, 'jwt');
                 }
             }
-            catch (e) {
-                throw e;
+            catch (err) {
+                throw err;
             }
         });
     }
