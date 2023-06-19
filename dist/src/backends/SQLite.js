@@ -37,14 +37,20 @@ class SqliteStorage extends StorageStrategy {
         this.tableName = tableName;
         this.dbFile = dbFile;
     }
+    /**
+     * @return {Promise<number | Error>}
+     * @param dbName
+     * @param tableName
+     * @param dbFile
+     */
     static createDatabase(dbName, tableName, dbFile) {
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.SQLITE_MEMORY_DB === 'no' && process.env.SQLITE_RESET === 'yes') {
                 try {
                     yield fs_1.promises.unlink(path_1.default.resolve(dbFile));
                 }
-                catch (e) {
-                    console.log(e);
+                catch (err) {
+                    console.log(err);
                 }
             }
             const db = process.env.SQLITE_MEMORY_DB === 'yes' ? new sqlite3_1.Database(':memory:') : new sqlite3_1.Database(dbFile);
