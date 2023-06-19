@@ -4,7 +4,7 @@
   "description": "Secure OpenAI Key Proxy (SOAKP) facilitates secure usage of the OpenAI API key through a proxy-like application.",
   "repository": {
     "type": "git",
-    "url": "git@github.com:lehcode/soakp.git"
+    "url": "https://github.com/lehcode/soakp.git"
   },
   "keywords": [
     "soakp",
@@ -28,7 +28,7 @@
     "dev": "NODE_OPTIONS='--trace-warnings' npx ts-node server.ts",
     "serve": "node -r ts-node/register server.ts",
     "test": "NODE_ENV='testing' jest",
-    "ci": "jest --ci"
+    "test-ci": "NODE_ENV='testing' jest --ci"
   },
   "files": [
     "**/*.ts",
@@ -44,7 +44,6 @@
     "express-winston": "^4.2.0",
     "form-data": "^4.0.0",
     "jsonwebtoken": "^9.0.0",
-    "openai": "^3.2.1",
     "sqlite3": "^5.1.6",
     "stringify": "^5.2.0",
     "winston": "^3.9.0"
@@ -64,7 +63,6 @@
     "@typescript-eslint/parser": "^5.59.8",
     "babel-jest": "^29.5.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "browserslist": "^4.21.5",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
