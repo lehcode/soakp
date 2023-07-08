@@ -23,7 +23,7 @@ if [[ "${NODE_ENV}" == "development" ]]; then
 fi
 
 if [[ "${NODE_ENV}" == "testing" ]]; then
-  yarn test
+  yarn test-ci
   exit $?
 fi
 

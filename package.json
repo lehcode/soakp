@@ -27,8 +27,8 @@
     "lint": "eslint './**/*.{ts}' --fix --quiet",
     "dev": "NODE_OPTIONS='--trace-warnings' npx ts-node server.ts",
     "serve": "node -r ts-node/register server.ts",
-    "test": "NODE_ENV='testing' jest",
-    "test-ci": "NODE_ENV='testing' jest --ci"
+    "test": "NODE_ENV='testing' jest --watchAll --verbose",
+    "test-ci": "jest --ci"
   },
   "files": [
     "**/*.ts",
