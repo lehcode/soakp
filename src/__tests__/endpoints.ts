@@ -37,9 +37,9 @@ describe('SoakpServer', () => {
     console.log = jest.fn();
 
     storageConfig = {
-      tableName: 'tokens_testing',
-      lifetime: 60,
-      dbName: 'testing.sqlite',
+      tableName: config.storage.tableName,
+      lifetime: config.storage.lifetime,
+      dbName: config.storage.dbName,
       dataFileDir: '/tmp/soakp'
     };
     keyStorage = new KeyStorage(storageConfig);
@@ -48,8 +48,8 @@ describe('SoakpServer', () => {
       storage: storageConfig,
       httpPort: config.httpPort,
       sslPort: config.sslPort,
-      httpAuthUser: 'test_user',
-      httpAuthPass: 'test_pass123'
+      httpAuthUser: config.httpAuthUser,
+      httpAuthPass: config.httpAuthPass
     };
 
     server = new SoakpServer(serverConfig);

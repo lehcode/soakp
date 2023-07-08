@@ -211,7 +211,7 @@ export class SoakpServer {
           // Update parameters without reinitializing the OpenAI client
           const params: OpenAIRequestInterface = {
             apiKey: decoded.key,
-            apiOrgKey: process.env.OPENAI_API_ORG_ID as string,
+            apiOrgKey: process.env.OPENAI_ORG_ID as string,
             prompt: req.body.messages || '',
             engineId: req.body.engineId || 'text-davinci-003',
             model: req.body.model || 'text-davinci-003',
