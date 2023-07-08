@@ -1,0 +1,58 @@
+version: "3.8"
+
+# Description: This service runs the soakp server using the specified
+# image and container configuration. It serves as the main component
+# for running the soakp server.
+services:
+  server:
+    depends_on:
+      - myca
+
+  # This service generates a self-signed SSL certificate using a
+  # user-specified CA. It provides a self-signed SSL certificate
+  # that can be used by the server service.
+  myca:
+    image: lehcode/ssl-myca:latest
+    container_name: myca
+    entrypoint: /init.sh
+    build:
+      context: docker/myca/
+      args:
+        #  Specifies whether to enable debugging.
+        # Default is "yes"
+        debug: ${DEBUG:-no}
+        # The key length for the SSL certificate.
+        # Default is 4096
+        key_len: ${KEY_LEN:-4096}
+        # The validity period of the SSL certificate in days.
+        # Default is 365
+        days: ${CERT_DAYS:-365}
+        # The common name for the CA (Certificate Authority).
+        # Default is "CAuth"
+        ca_cn: ${MYCA_ORG_CN:-CAuth}
+        # The common name for the server certificate.
+        # This variable needs to be provided
+        server_cn: ${SERVER_HOST:?}
+        # The user ID to map on container user.
+        # Default is 1001
+        host_user_uid: ${HOST_USER_UID:-1001}
+        # The password for the private key of the SSL certificate.
+        # This variable needs to be provided
+        key_pass: ${MYCA_KEY_PASS:?}
+        # The GID of "docker" group of host machine
+        host_docker_gid: ${HOST_DOCKER_GID}
+    environment:
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}
+    volumes:
+      # The location of generated SSL certificates
+      - ./docker/myca/generate/cert:${SSL_CERT_DIR:?}
+      # The logs directory
+      - /usr/local/log/soakp:/var/log/soakp
+    tty: true
+
+networks:
+  soakp_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.222.0/24
