@@ -4,9 +4,8 @@
  */
 import { SoakpServer, ServerConfigInterface } from '../SoakpServer';
 import { KeyStorage, StorageConfigInterface } from '../KeyStorage';
-import config from '../configs';
+import { storageConfig, serverConfig, OpenAIConfigInterface } from '../configs';
 import { AxiosHeaders, AxiosResponseHeaders } from 'axios';
-import { OpenAIRequestInterface } from '../interfaces/OpenAI/OpenAIRequest.interface';
 import { waitForPort } from './server';
 
 jest.mock('../SoakpProxy');
@@ -16,16 +15,14 @@ jest.mock('../KeyStorage');
 describe('SoakpServer', () => {
   let server: SoakpServer;
   let keyStorage: KeyStorage;
-  let serverConfig: ServerConfigInterface;
-  let storageConfig: StorageConfigInterface;
   const validOpenAiKey = 'sk-cGDjv8fdvyl4wT3BlbkFJAFhkldyJs0Olc9YvaeDA';
   const validToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJzay1IV0dvc0diYWltcmlYZDJFc2xXd1QzQmxia0ZKRnNnV2hsbFMzUGl3TWx0Nk9hbTEiLCJpYXQiOjE2ODY5NDQ5ODgsImV4cCI6MTY4NzAzMTM4OH0.heqkk7zXGQb_tcsamzxY4QvOug-VyX7A7ti2E_6zC90';
-  const query: OpenAIRequestInterface = {
+  const queryParams: OpenAIConfigInterface = {
     apiKey: 'sample-key',
     apiOrgKey: 'sample-org-key',
     prompt: 'Hello',
-    engineId: 'engine-001',
+    // engineId: 'engine-001',
     model: 'text-davinci-003',
     temperature: 0.7,
     max_tokens: 100
@@ -36,23 +33,9 @@ describe('SoakpServer', () => {
     console.error = jest.fn();
     console.log = jest.fn();
 
-    storageConfig = {
-      tableName: config.storage.tableName,
-      lifetime: config.storage.lifetime,
-      dbName: config.storage.dbName,
-      dataFileDir: '/tmp/soakp'
-    };
+
     keyStorage = new KeyStorage(storageConfig);
-
-    serverConfig = {
-      storage: storageConfig,
-      httpPort: config.httpPort,
-      sslPort: config.sslPort,
-      httpAuthUser: config.httpAuthUser,
-      httpAuthPass: config.httpAuthPass
-    };
-
-    server = new SoakpServer(serverConfig);
+    server = new SoakpServer(serverConfig, keyStorage);
   });
 
   afterEach(() => {
@@ -74,7 +57,7 @@ describe('SoakpServer', () => {
     // @ts-ignore
     jest.spyOn(server as any, 'isValidOpenAIKey').mockReturnValue(true);
     // @ts-ignore
-    jest.spyOn(server as any, 'generateAndSaveToken').mockReturnValue(validToken);
+    jest.spyOn(server as any, 'getSignedJWT').mockReturnValue(validToken);
     jest.spyOn(keyStorage, 'getActiveTokens').mockResolvedValue([]);
 
     waitForPort(serverConfig.httpPort)
@@ -88,7 +71,7 @@ describe('SoakpServer', () => {
 
         // Assertions
         expect(server['isValidOpenAIKey']).toHaveBeenCalledWith(validOpenAiKey);
-        expect(server['generateAndSaveToken']).toHaveBeenCalledWith(validOpenAiKey);
+        expect(server['getSignedJWT']).toHaveBeenCalledWith(validOpenAiKey);
         expect(res.send).toHaveBeenCalledWith(validToken);
       })
       .catch((error) => {
@@ -103,7 +86,7 @@ describe('SoakpServer', () => {
       const res = { send: jest.fn() };
       const headers: AxiosResponseHeaders = new AxiosHeaders();
 
-      expect(server['keyStorage']).toBeUndefined();
+      expect(server['keyStorage']).not.toBeUndefined();
 
       waitForPort(serverConfig.httpPort, 1000, 100)
         .then(async () => {
@@ -129,8 +112,8 @@ describe('SoakpServer', () => {
           expect(server['keyStorage'].getRecentToken).toHaveBeenCalled();
           expect(server['keyStorage'].saveToken).not.toHaveBeenCalled();
           expect(server['keyStorage'].updateToken).not.toHaveBeenCalled();
-          expect(server['proxy'].initAI).toHaveBeenCalledWith(query);
-          expect(server['proxy'].makeRequest).toHaveBeenCalled();
+          expect(server['proxy'].initAI).toHaveBeenCalledWith(queryParams);
+          expect(server['proxy'].makeRequest(queryParams)).toHaveBeenCalled();
           expect(res.send).toHaveBeenCalledWith({
             response: 'response-data',
             responseConfig: 'response-config'
