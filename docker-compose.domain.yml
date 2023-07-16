@@ -5,6 +5,7 @@ version: "3.8"
 # for running the soakp server.
 services:
   server:
+    env_file: ".env"
     depends_on:
       - certbot
 

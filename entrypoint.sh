@@ -18,7 +18,7 @@ if [[ ! -d "node_modules" ]]; then
 fi
 
 if [[ "${NODE_ENV}" == "development" ]]; then
-  yarn dev
+  yarn dev --watch
   exit $?
 fi
 
