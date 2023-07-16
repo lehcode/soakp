@@ -12,7 +12,8 @@
       "declaration": true,
       "declarationMap": true,
       "lib": ["esnext", "dom", "dom.iterable"],
-      "allowJs": true
+      "allowJs": true,
+      "typeRoots": ["./node_modules/@types", "./src/types"]
     }
   },
   "module": "node",
