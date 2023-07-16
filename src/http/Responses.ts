@@ -116,4 +116,12 @@ export class Responses {
       data: { jwt: token }
     });
   }
+
+  static tokenAccepted(res: express.Response, token: string) {
+    return res.status(StatusCode.ACCEPTED).json({
+      status: StatusCode.ACCEPTED,
+      message: Message.JWT_ACCEPTED,
+      data: { jwt: token }
+    });
+  }
 }
