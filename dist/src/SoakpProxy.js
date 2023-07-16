@@ -23,7 +23,7 @@ class SoakpProxy {
     constructor(configuration) {
         this.query = {
             apiKey: null,
-            apiOrgKey: process.env.OPENAI_API_ORG_ID,
+            apiOrgKey: process.env.OPENAI_ORG_ID,
             prompt: 'Hello World, Buddy! :-)',
             model: 'text-davinci-003'
         };

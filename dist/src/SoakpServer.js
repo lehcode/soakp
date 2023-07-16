@@ -199,7 +199,7 @@ class SoakpServer {
                         // Update parameters without reinitializing the OpenAI client
                         const params = {
                             apiKey: decoded.key,
-                            apiOrgKey: process.env.OPENAI_API_ORG_ID,
+                            apiOrgKey: process.env.OPENAI_ORG_ID,
                             prompt: req.body.messages || '',
                             engineId: req.body.engineId || 'text-davinci-003',
                             model: req.body.model || 'text-davinci-003',
