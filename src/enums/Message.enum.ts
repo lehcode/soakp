@@ -9,6 +9,7 @@ export enum Message {
   JWT_ACCEPTED = 'JWT accepted',
   JWT_ADDED = 'JWT added',
   JWT_EXPIRED = 'JWT expired',
+  JWT_NOT_FOUND = 'JWT not found',
   JWT_NOT_SAVED = 'JWT not saved',
   JWT_UPDATED = 'JWT updated',
   LOADED_JWT_TOKEN = 'Loaded JWT token',
