@@ -3,38 +3,37 @@
  * Copyright: (C)2023
  */
 import { Configuration, OpenAIApi } from 'openai';
-import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { OpenAIConfigInterface } from './configs';
 import { AxiosResponse } from 'axios';
 
-interface ProxyConfigInterface {
+export interface ProxyConfigInterface {
   apiHost?: string;
   apiBaseUrl?: string;
-  query: OpenAIRequestInterface;
+  openAI: OpenAIConfigInterface;
+  prompt: string | Record<string, string>[];
 }
 
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
-  private query: OpenAIRequestInterface = {
-    apiKey: null,
-    apiOrgKey: process.env.OPENAI_ORG_ID,
-    prompt: 'Hello World, Buddy! :-)',
-    model: 'text-davinci-003'
-  };
+  private openAIConfig: OpenAIConfigInterface;
+  // private query: {
+  //
+  // };
 
   /**
    *
    * @param configuration
    */
-  constructor(configuration: ProxyConfigInterface) {
-    this.config = { ...configuration };
+  constructor(proxyConfig: ProxyConfigInterface) {
+    this.config = proxyConfig;
   }
 
   /**
    *
    * @param params
    */
-  initAI(params: OpenAIRequestInterface) {
+  initAI(params: OpenAIConfigInterface) {
     const config = new Configuration({
       apiKey: params.apiKey || '',
       organization: params.apiOrgKey || ''
@@ -46,14 +45,14 @@ export class SoakpProxy {
 
   /**
    *
-   * @param params
+   * @param config
    */
-  async makeRequest(params: OpenAIRequestInterface): Promise<AxiosResponse<any, any>> {
-    const request: OpenAIRequestInterface = {
-      model: params.model,
-      prompt: params.prompt,
-      max_tokens: params.max_tokens,
-      temperature: params.temperature
+  async makeRequest(config: OpenAIConfigInterface): Promise<AxiosResponse<any, any>> {
+    const request: OpenAIConfigInterface = {
+      model: config.model,
+      prompt: config.prompt,
+      max_tokens: config.max_tokens,
+      temperature: config.temperature
     };
 
     // @ts-ignore
@@ -61,10 +60,23 @@ export class SoakpProxy {
   }
 
   /**
+   * Get list of OpenAI models with properties
    *
-   * @param value
+   * @param config
    */
-  set queryParams(value: OpenAIRequestInterface) {
-    this.query = value;
+  async getModels(config: OpenAIConfigInterface) {
+    const configuration: OpenAIConfigInterface = {
+      apiKey: config.apiKey
+    };
+
+    return await this.openAI.listModels();
   }
+
+  // /**
+  //  *
+  //  * @param config
+  //  */
+  // set queryParams(config: OpenAIConfigInterface) {
+  //   this.query = configuration;
+  // }
 }
