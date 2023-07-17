@@ -7,9 +7,10 @@ import { OpenAIConfigInterface } from './configs';
 import { AxiosResponse } from 'axios';
 
 export interface ProxyConfigInterface {
-  apiHost?: string;
-  apiBaseUrl?: string;
-  openAI: OpenAIConfigInterface;
+  apiHost?: string | undefined;
+  apiRoot?: string | undefined;
+  apiBaseUrl?: string | undefined;
+  chatbot: OpenAIConfigInterface;
   prompt: string | Record<string, string>[];
 }
 
@@ -23,7 +24,7 @@ export class SoakpProxy {
 
   /**
    *
-   * @param configuration
+   * @param proxyConfig
    */
   constructor(proxyConfig: ProxyConfigInterface) {
     this.config = proxyConfig;
@@ -45,14 +46,14 @@ export class SoakpProxy {
 
   /**
    *
-   * @param config
+   * @param params
    */
-  async makeRequest(config: OpenAIConfigInterface): Promise<AxiosResponse<any, any>> {
+  async makeRequest(params: OpenAIConfigInterface): Promise<AxiosResponse<any, any>> {
     const request: OpenAIConfigInterface = {
-      model: config.model,
-      prompt: config.prompt,
-      max_tokens: config.max_tokens,
-      temperature: config.temperature
+      model: params.model,
+      prompt: params.prompt,
+      max_tokens: params.max_tokens,
+      temperature: params.temperature
     };
 
     // @ts-ignore
@@ -65,9 +66,9 @@ export class SoakpProxy {
    * @param config
    */
   async getModels(config: OpenAIConfigInterface) {
-    const configuration: OpenAIConfigInterface = {
-      apiKey: config.apiKey
-    };
+    // const configuration: OpenAIConfigInterface = {
+    //   apiKey: config.apiKey
+    // };
 
     return await this.openAI.listModels();
   }
