@@ -35,6 +35,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.5.2
       - name: Opening pull request
-        run: gh pr create -B develop -H master --title 'Sync master back into develop' --body 'Created by Github action' --label 'internal'
+        run: gh pr create -B develop -H master --title 'Sync master back into develop' --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
