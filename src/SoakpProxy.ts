@@ -16,7 +16,6 @@ export interface ProxyConfigInterface {
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
-  private openAIConfig: OpenAIConfigInterface;
 
   /**
    *

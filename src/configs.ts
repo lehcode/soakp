@@ -26,6 +26,7 @@ export const serverConfig: ServerConfigInterface = {
     model: process.env.OPENAI_MODEL as string,
     apiKey: undefined,
     apiOrgKey: process.env.OPENAI_ORG_ID as string,
+    prompt: 'Are you a chat bot?'
   }
 };
 
