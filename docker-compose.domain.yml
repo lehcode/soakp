@@ -13,7 +13,7 @@ services:
   # It automates the process of obtaining SSL certificates for the server
   certbot:
     image: "certbot/dns-${CB_DNS:?}:v${CB_VERSION:?}"
-    entrypoint: certbot certonly -n -d ${SERVER_HOST:?}${WILDCARD_DOMAIN} --dns-${CB_DNS:?} ${CB_DRY_RUN} ${CB_AGREE_TOS}
+    entrypoint: certbot certonly -n -d ${SERVER_HOST:?} -d ${WILDCARD_DOMAIN} --dns-${CB_DNS:?} ${CB_DRY_RUN} ${CB_AGREE_TOS}
     environment:
       # The access key for the AWS account used for DNS validation
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
