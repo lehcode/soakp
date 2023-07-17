@@ -5,6 +5,7 @@
 import path from 'path';
 import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
+import jwt from 'jsonwebtoken';
 
 export interface DbSchemaInterface extends Object {
   id: null | number;
@@ -150,7 +151,7 @@ export class KeyStorage {
   }
 
   /**
-   * Get dtabase instance
+   * Get database instance
    */
   get database() {
     return this.backend;
@@ -161,5 +162,19 @@ export class KeyStorage {
    */
   get tokenLifetime() {
     return this.config.lifetime;
+  }
+
+  /**
+   *
+   * @param openAIKey
+   * @param jwtHash
+   */
+  generateSignedJWT(openAIKey: string, jwtHash: string) {
+    return jwt.sign({ key: openAIKey }, jwtHash, {
+      expiresIn: this.tokenLifetime,
+      audience: 'user',
+      issuer: 'soakp',
+      subject: 'openai-api'
+    });
   }
 }

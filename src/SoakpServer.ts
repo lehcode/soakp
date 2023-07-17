@@ -88,7 +88,7 @@ export class SoakpServer {
       this.app.post(
         '/openai/completions',
         validateToken(this.jwtHash, this.keyStorage),
-        this.handleOpenAIQuery.bind(this)
+        this.makeOpenAIRequest.bind(this)
       );
     } catch (err) {
       throw err;
@@ -133,7 +133,7 @@ export class SoakpServer {
 
     try {
       const existingTokens = await this.keyStorage.getActiveTokens();
-      const signed = this.getSignedJWT(openAIKey);
+      const signed = this.keyStorage.generateSignedJWT(openAIKey, this.jwtHash);
 
       if (existingTokens instanceof Error || existingTokens.length === 0) {
         // No saved JWTs found, generate and save a new one
@@ -164,37 +164,17 @@ export class SoakpServer {
   }
 
   /**
-   *
-   * @param openAIKey
-   * @private
-   */
-  private getSignedJWT(openAIKey: string) {
-    this.config.openAI.apiKey = openAIKey;
-
-    return jwt.sign({ key: openAIKey }, this.jwtHash, {
-      expiresIn: this.keyStorage.tokenLifetime,
-      audience: 'user',
-      issuer: 'soakp',
-      subject: 'openai-api'
-    });
-  }
-
-  private getApiKeyFromJwt() {
-
-  }
-
-  /**
    * Handle POST `/openai/query` request
    *
    * @param req
    * @param res
    */
-  private async handleOpenAIQuery(req: express.Request, res: express.Response) {
+  private async makeOpenAIRequest(req: express.Request, res: express.Response) {
     try {
       // Update parameters without reinitializing the OpenAI client
       const params: OpenAIConfigInterface = {
-        apiKey: req.user.token,
-        apiOrgKey: process.env.OPENAI_ORG_ID as string,
+        apiKey: req.user.apiKey,
+        apiOrgKey: req.user.orgKey,
         prompt: req.body.messages || '',
         // engineId: req.body.engineId || 'text-davinci-003',
         model: req.body.model || 'text-davinci-003',
