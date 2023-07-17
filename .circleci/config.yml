@@ -9,7 +9,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  build:
+  test:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
@@ -21,10 +21,9 @@ jobs:
       - run:
           name: "Install dependencies"
           command: "yarn install --frozen-lockfile"
-  notify:
-    docker:
-      - image: node:16
-    steps:
+      - run:
+          name: "Run tests"
+          command: "yarn test"
       - slack/notify:
             event: fail 
             branch_pattern: (develop|master) 
@@ -37,5 +36,4 @@ jobs:
 workflows:
   build-workflow:
     jobs:
-      - build
-      - notify
+      - test
