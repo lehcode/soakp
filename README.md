@@ -1,5 +1,7 @@
 # Secure OpenAI Key Proxy (SOAKP)
 
+![CircleCI](https://circleci.com/gh/lehcode/soakp.svg?style=svg)
+
 The SOAKP Server library is a powerful and secure solution tailored specifically for web software developers. It offers seamless management and proxying of [OpenAI API keys](https://platform.openai.com/account/api-keys), ensuring the utmost protection for your OpenAI key while enabling unlimited secure [JSON Web Token (JWT)](https://jwt.io/introduction/) generation for authorized users allowing deeper permissions granularity. It is designed to meet the unique needs of web software developers, making it an ideal choice for integrating OpenAI capabilities into web applications and services.
 
 Key Benefits for Web Software Developers:
