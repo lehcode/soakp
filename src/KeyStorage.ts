@@ -149,7 +149,17 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Get dtabase instance
+   */
   get database() {
     return this.backend;
+  }
+
+  /**
+   * Get token lifetime
+   */
+  get tokenLifetime() {
+    return this.config.lifetime;
   }
 }
