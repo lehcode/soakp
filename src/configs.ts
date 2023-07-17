@@ -14,7 +14,7 @@ export const storageConfig: StorageConfigInterface = {
   dbName: process.env.NODE_ENV === 'testing' ? 'testing_secrets.sqlite' : process.env.SQLITE_DB,
   tableName: process.env.NODE_ENV === 'testing' ? 'test_tokens' : process.env.SQLITE_TABLE,
   dataFileDir: path.resolve(process.env.DATA_DIR),
-  lifetime: process.env.NODE_ENV === 'testing' ? 60 : 86400
+  lifetime: process.env.NODE_ENV === 'testing' ? 600 : 604800
 };
 
 export const serverConfig: ServerConfigInterface = {
@@ -22,7 +22,7 @@ export const serverConfig: ServerConfigInterface = {
   sslPort: parseInt(process.env.SECURE_PORT, 10) || 3033,
   httpAuthUser: process.env.AUTH_USER as string,
   httpAuthPass: process.env.AUTH_PASS as string,
-  openAIConfig: {
+  openAI: {
     model: 'text-davinci-003',
     apiKey: undefined,
     apiOrgKey: undefined,
@@ -30,9 +30,10 @@ export const serverConfig: ServerConfigInterface = {
 };
 
 export const proxyConfig: ProxyConfigInterface = {
-  apiHost: 'https://api.openai.com/v1/',
+  apiHost: 'https://api.openai.com',
+  apiRoot: '/v1',
   apiBaseUrl: '/models',
-  openAI: {
+  chatbot: <OpenAIConfigInterface>{
     model: 'text-davinci-003',
     apiKey: undefined,
     apiOrgKey: undefined,
