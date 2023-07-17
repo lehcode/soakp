@@ -14,6 +14,11 @@ jobs:
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
       - image: node:16
+        environment:
+          NODE_ENV: testing
+          DATA_DIR: /var/lib/soakp-test
+          SQLITE_DB: soakp_secrets.sqlite
+          SQLITE_TABLE: tokens
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
