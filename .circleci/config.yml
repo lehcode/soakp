@@ -23,12 +23,17 @@ jobs:
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
       - checkout
+      - node/install-packages:
+          pkg-manager: yarn
       - run:
           name: "Install dependencies"
           command: "yarn install --frozen-lockfile"
       - run:
           name: "Run tests"
           command: "yarn test"
+      - run:
+          command: yarn build
+          name: Build app
       - slack/notify:
             event: fail 
             branch_pattern: (develop|master) 
