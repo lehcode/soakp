@@ -30,7 +30,7 @@ jobs:
           command: "yarn install --frozen-lockfile"
       - run:
           name: "Run tests"
-          command: "yarn test"
+          command: "yarn test-ci"
       - run:
           command: yarn build
           name: Build app
