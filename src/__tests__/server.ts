@@ -1,7 +1,7 @@
-import { ServerConfigInterface, SoakpServer } from '../SoakpServer';
+import { SoakpServer } from '../SoakpServer';
 import { createServer } from 'net';
-import { KeyStorage, StorageConfigInterface } from '../KeyStorage';
-import { storageConfig, serverConfig, proxyConfig } from '../configs';
+import { KeyStorage } from '../KeyStorage';
+import { storageConfig, serverConfig } from '../configs';
 
 jest.mock('../KeyStorage');
 
