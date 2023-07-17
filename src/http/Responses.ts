@@ -86,7 +86,7 @@ export class Responses {
    * @param msg
    */
   static success(res: express.Response, data: Record<string, any>, msg: string) {
-    res.status(StatusCode.SUCCESS).json({ status: Message.SUCCESS, message: msg, data: data });
+    res.status(StatusCode.SUCCESS).json({ status: StatusCode.SUCCESS, message: msg, data: data });
   }
 
   /**
@@ -138,14 +138,6 @@ export class Responses {
       message: Message.JWT_ACCEPTED,
       data: { jwt: token }
     });
-  }
-
-  /**
-   *
-   * @param res
-   */
-  static gatewayError(res: express.Response) {
-    return Responses.serverError(res);
   }
 
   /**
