@@ -4,6 +4,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.1.0
+  slack: circleci/slack@4.4.4
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
@@ -20,6 +21,16 @@ jobs:
       - run:
           name: "Install dependencies"
           command: "yarn install --frozen-lockfile"
+  notify:
+    docker:
+      - image: node:16
+    steps:
+      - slack/notify:
+            event: fail 
+            branch_pattern: (develop|master) 
+            channel: development 
+            ignore_errors: true 
+            tag_pattern: vd+\.\d+\.\d+
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
@@ -27,3 +38,4 @@ workflows:
   build-workflow:
     jobs:
       - build
+      - notify
