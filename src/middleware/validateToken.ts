@@ -6,24 +6,30 @@ import jwt from 'jsonwebtoken';
 
 const validateToken = (jwtHash: string, storage: KeyStorage) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(StatusCode.NOT_AUTHORIZED).json({ message: Message.INVALID_JWT });
+    }
+
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-
-      if (!token) {
-        return res.status(StatusCode.NOT_AUTHORIZED).json({ message: Message.INVALID_JWT });
-      }
-
       const decoded = (await jwt.verify(token, jwtHash)) as { key: string };
       const recentToken = await storage.getRecentToken();
+      const signed = storage.generateSignedJWT(req.user.apiKey, jwtHash);
 
-      if (recentToken && token === recentToken) {
-        console.log('Found existing token');
-        req.user = { token, apiKey: decoded.key };
+      if (recentToken) {
+        if (token === recentToken) {
+          console.log('Found existing token');
+        } else {
+          await storage.updateToken(token, signed);
+          console.log('Supplied token invalidated. Generating new one.');
+        }
       } else {
         await storage.saveToken(token);
         console.log('Saved new token');
-        req.user = { token, apiKey: decoded.key };
       }
+
+      req.user = { token, apiKey: decoded.key };
 
       next();
     } catch (error) {
@@ -32,4 +38,5 @@ const validateToken = (jwtHash: string, storage: KeyStorage) => {
     }
   };
 };
+
 export default validateToken;

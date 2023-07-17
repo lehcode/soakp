@@ -57,7 +57,7 @@ describe('SoakpServer', () => {
     // @ts-ignore
     jest.spyOn(server as any, 'isValidOpenAIKey').mockReturnValue(true);
     // @ts-ignore
-    jest.spyOn(server as any, 'getSignedJWT').mockReturnValue(validToken);
+    jest.spyOn(keyStorage as any, 'generateSignedJWT').mockReturnValue(validToken);
     jest.spyOn(keyStorage, 'getActiveTokens').mockResolvedValue([]);
 
     waitForPort(serverConfig.httpPort)
@@ -71,7 +71,7 @@ describe('SoakpServer', () => {
 
         // Assertions
         expect(server['isValidOpenAIKey']).toHaveBeenCalledWith(validOpenAiKey);
-        expect(server['getSignedJWT']).toHaveBeenCalledWith(validOpenAiKey);
+        expect(keyStorage['generateSignedJWT']).toHaveBeenCalledWith(validOpenAiKey);
         expect(res.send).toHaveBeenCalledWith(validToken);
       })
       .catch((error) => {
