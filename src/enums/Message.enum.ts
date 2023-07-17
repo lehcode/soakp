@@ -12,6 +12,7 @@ export enum Message {
   JWT_NOT_FOUND = 'JWT not found',
   JWT_NOT_SAVED = 'JWT not saved',
   JWT_UPDATED = 'JWT updated',
+  GATEWAY_ERROR = 'Gateway error',
   LOADED_JWT_TOKEN = 'Loaded JWT token',
   NOT_AUTHORIZED = 'Not authorized',
   NOT_FOUND = 'Not found',

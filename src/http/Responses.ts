@@ -101,6 +101,11 @@ export class Responses {
       });
   }
 
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenAdded(res: express.Response, token: string) {
     return res.status(StatusCode.SUCCESS).json({
       status: Message.SUCCESS,
@@ -109,6 +114,11 @@ export class Responses {
     });
   }
 
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenUpdated(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
@@ -117,11 +127,36 @@ export class Responses {
     });
   }
 
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenAccepted(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
       message: Message.JWT_ACCEPTED,
       data: { jwt: token }
     });
+  }
+
+  /**
+   *
+   * @param res
+   */
+  static gatewayError(res: express.Response) {
+    return Responses.serverError(res);
+  }
+
+  /**
+   *
+   * @param res
+   */
+  static gatewayError(res: express.Response) {
+    return res.status(StatusCode.BAD_GATEWAY)
+      .json({
+        status: Message.GATEWAY_ERROR,
+        message: Message.GATEWAY_ERROR
+      });
   }
 }

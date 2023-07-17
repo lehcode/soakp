@@ -22,10 +22,10 @@ export const serverConfig: ServerConfigInterface = {
   sslPort: parseInt(process.env.SECURE_PORT, 10) || 3033,
   httpAuthUser: process.env.AUTH_USER as string,
   httpAuthPass: process.env.AUTH_PASS as string,
-  openAI: {
-    model: 'text-davinci-003',
+  openAI: <OpenAIConfigInterface>{
+    model: process.env.OPENAI_MODEL as string,
     apiKey: undefined,
-    apiOrgKey: undefined,
+    apiOrgKey: process.env.OPENAI_ORG_ID as string,
   }
 };
 
@@ -34,12 +34,12 @@ export const proxyConfig: ProxyConfigInterface = {
   apiRoot: '/v1',
   apiBaseUrl: '/models',
   chatbot: <OpenAIConfigInterface>{
-    model: 'text-davinci-003',
+    model: process.env.OPENAI_MODEL as string,
     apiKey: undefined,
-    apiOrgKey: undefined,
+    apiOrgKey: process.env.OPENAI_ORG_ID as string,
     // engineId: 'davinci-codex'
-  },
-  prompt: 'Are you a chat bot?',
+    prompt: 'Are you a chat bot?'
+  }
 };
 
 export interface OpenAIConfigInterface {

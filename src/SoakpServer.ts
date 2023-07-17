@@ -45,7 +45,7 @@ export class SoakpServer {
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
     this.config = { ...configuration };
     this.keyStorage = storage;
-    this.config.openAI = proxyConfig.chatbot;
+    this.config.openAI = { ...proxyConfig.chatbot };
 
     console.log(this.config);
 
@@ -55,6 +55,11 @@ export class SoakpServer {
     this.proxy = new SoakpProxy(proxyConfig);
   }
 
+  /**
+   * Initialize Express App
+   *
+   * @private
+   */
   private initializeExpressApp() {
     this.app = express();
 
@@ -164,12 +169,18 @@ export class SoakpServer {
    * @private
    */
   private getSignedJWT(openAIKey: string) {
+    this.config.openAI.apiKey = openAIKey;
+
     return jwt.sign({ key: openAIKey }, this.jwtHash, {
       expiresIn: this.keyStorage.tokenLifetime,
       audience: 'user',
       issuer: 'soakp',
       subject: 'openai-api'
     });
+  }
+
+  private getApiKeyFromJwt() {
+
   }
 
   /**
@@ -287,11 +298,10 @@ export class SoakpServer {
    * @param res
    */
   async listOpenAIModels(req: express.Request, res: express.Response) {
-    const params: OpenAIConfigInterface = { apiKey: req.user.token };
-    this.proxy.initAI(params);
+    this.proxy.initAI(<OpenAIConfigInterface>{ apiKey: req.user.apiKey });
 
     try {
-      const response = await this.proxy.getModels(params);
+      const response = await this.proxy.getModels();
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success(
@@ -305,7 +315,7 @@ export class SoakpServer {
       }
     } catch (error) {
       console.error(error);
-      Responses.unknownError(res);
+      Responses.serverError(res);
     }
   }
 }

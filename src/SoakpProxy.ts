@@ -11,16 +11,12 @@ export interface ProxyConfigInterface {
   apiRoot?: string | undefined;
   apiBaseUrl?: string | undefined;
   chatbot: OpenAIConfigInterface;
-  prompt: string | Record<string, string>[];
 }
 
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
   private openAIConfig: OpenAIConfigInterface;
-  // private query: {
-  //
-  // };
 
   /**
    *
@@ -62,14 +58,8 @@ export class SoakpProxy {
 
   /**
    * Get list of OpenAI models with properties
-   *
-   * @param config
    */
-  async getModels(config: OpenAIConfigInterface) {
-    // const configuration: OpenAIConfigInterface = {
-    //   apiKey: config.apiKey
-    // };
-
+  async getModels() {
     return await this.openAI.listModels();
   }
 
