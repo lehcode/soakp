@@ -111,7 +111,7 @@ export default class SqliteStorage extends StorageStrategy {
           (
             id INTEGER PRIMARY KEY,
             token TEXT UNIQUE
-              CHECK(LENGTH(token) <= 255),
+              CHECK(LENGTH(token) <= 1024),
             created_at INTEGER NOT NULL,
             updated_at INTEGER NOT NULL,
             last_access INTEGER NOT NULL,
@@ -130,11 +130,21 @@ export default class SqliteStorage extends StorageStrategy {
     });
   }
 
+  /**
+   *
+   * @param dbName
+   * @param tableName
+   * @param dbFile
+   */
   static async getInstance(dbName: string, tableName: string, dbFile: string): Promise<SqliteStorage> {
     const db = await SqliteStorage.createDatabase(dbName, tableName, dbFile);
     return new SqliteStorage(db, dbName, tableName, dbFile);
   }
 
+  /**
+   *
+   * @param jwtToken
+   */
   async insert(jwtToken: string): Promise<StatusCode | Error> {
     const defaults: DbSchemaInterface = {
       id: null,
@@ -159,6 +169,11 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
+  /**
+   *
+   * @param row
+   * @private
+   */
   private prepareRow(row: DbSchemaInterface): DbSchemaInterface {
     row.createdAt = row.createdAt.toString();
     row.updatedAt = row.updatedAt.toString();
@@ -167,6 +182,11 @@ id, token, created_at, updated_at, last_access, archived
     return row;
   }
 
+  /**
+   *
+   * @param where
+   * @param values
+   */
   async update(where: string[], values: string[]): Promise<StatusCode | Error> {
     const vals = [...values].join(',');
     const query = `UPDATE '${this.tableName}' SET ${vals} WHERE ${where.join(' AND ')}`;
@@ -181,6 +201,10 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
+  /**
+   *
+   * @param token
+   */
   archive(token: string): Promise<StatusCode | Error> {
     return new Promise((resolve, reject) => {
       this.db.run(`UPDATE '${this.tableName}' SET archived ='1' WHERE token =? AND archived ='0'`, [token], (err) => {
@@ -215,6 +239,13 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
+  /**
+   *
+   * @param what
+   * @param where
+   * @param order
+   * @param sort
+   */
   async findOne(
     what = 'token',
     where: string[] = ['archived !=1 '],
@@ -235,6 +266,9 @@ id, token, created_at, updated_at, last_access, archived
     });
   }
 
+  /**
+   * Close database connetion
+   */
   public close() {
     this.db.close(() => {
       console.error(Message.UNKNOWN_ERROR);

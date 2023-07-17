@@ -3,6 +3,7 @@ export enum StatusCode {
   CREATED = 201,
   FORBIDDEN = 403,
   INTERNAL_ERROR = 500,
+  BAD_GATEWAY = 502,
   NO_CONTENT = 204,
   NOT_FOUND = 404,
   NOT_AUTHORIZED = 401,

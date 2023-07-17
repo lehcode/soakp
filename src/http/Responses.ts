@@ -86,7 +86,7 @@ export class Responses {
    * @param msg
    */
   static success(res: express.Response, data: Record<string, any>, msg: string) {
-    res.status(StatusCode.SUCCESS).json({ status: Message.SUCCESS, message: msg, data: data });
+    res.status(StatusCode.SUCCESS).json({ status: StatusCode.SUCCESS, message: msg, data: data });
   }
 
   /**
@@ -101,6 +101,11 @@ export class Responses {
       });
   }
 
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenAdded(res: express.Response, token: string) {
     return res.status(StatusCode.SUCCESS).json({
       status: Message.SUCCESS,
@@ -109,11 +114,41 @@ export class Responses {
     });
   }
 
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenUpdated(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
       message: Message.JWT_UPDATED,
       data: { jwt: token }
     });
+  }
+
+  /**
+   *
+   * @param res
+   * @param token
+   */
+  static tokenAccepted(res: express.Response, token: string) {
+    return res.status(StatusCode.ACCEPTED).json({
+      status: StatusCode.ACCEPTED,
+      message: Message.JWT_ACCEPTED,
+      data: { jwt: token }
+    });
+  }
+
+  /**
+   *
+   * @param res
+   */
+  static gatewayError(res: express.Response) {
+    return res.status(StatusCode.BAD_GATEWAY)
+      .json({
+        status: Message.GATEWAY_ERROR,
+        message: Message.GATEWAY_ERROR
+      });
   }
 }

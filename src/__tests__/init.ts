@@ -1,16 +1,20 @@
 import { SoakpServer } from '../SoakpServer';
-import serverConfig from '../configs';
+import { serverConfig } from '../configs';
 import { waitForPort } from './server';
+import { KeyStorage } from '../KeyStorage';
 
-let server: SoakpServer;
+jest.mock('../KeyStorage');
 
 describe('SoakpServer', () => {
+  let server: SoakpServer;
+  let keyStorage: KeyStorage;
+
   beforeEach(() => {
     // Mock the console.error and console.log methods
     console.error = jest.fn();
     console.log = jest.fn();
 
-    server = new SoakpServer(serverConfig);
+    server = new SoakpServer(serverConfig, keyStorage);
   });
 
   afterEach(() => {

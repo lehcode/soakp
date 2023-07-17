@@ -1,0 +1,39 @@
+version: "3.8"
+
+# Description: This service runs the soakp server using the specified
+# image and container configuration. It serves as the main component
+# for running the soakp server.
+services:
+  server:
+    env_file: ".env"
+    depends_on:
+      - certbot
+
+  # This service runs Certbot to obtain SSL certificates using DNS validation.
+  # It automates the process of obtaining SSL certificates for the server
+  certbot:
+    image: "certbot/dns-${CB_DNS:?}:v${CB_VERSION:?}"
+    entrypoint: certbot certonly -n -d ${SERVER_HOST:?} -d ${WILDCARD_DOMAIN} --dns-${CB_DNS:?} ${CB_DRY_RUN} ${CB_AGREE_TOS}
+    environment:
+      # The access key for the AWS account used for DNS validation
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      # The secret key for the AWS account used for DNS validation
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      # The path to the Linode credentials file. Default is "~/.linode"
+      LINODE_CREDENTIALS_FILE: ${LINODE_CREDENTIALS_FILE:-~/.linode}
+      # The token for the DigitalOcean DNS provider
+      DNS_DIGITALOCEAN_TOKEN: ${DNS_DIGITALOCEAN_TOKEN}
+    volumes:
+      # Mounts the Certbot configuration directory
+      - /usr/local/etc/letsencrypt:/etc/letsencrypt
+      # Mounts the Certbot library directory
+      - /usr/local/etc/certbot:/var/lib/letsencrypt
+      # Mounts the Certbot log directory
+      - /usr/local/log/letsencrypt:/var/log/letsencrypt
+
+networks:
+  soakp_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.222.0/24

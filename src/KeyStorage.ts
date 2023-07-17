@@ -46,17 +46,22 @@ export class KeyStorage {
     return keyStorageInstance;
   }
 
+  /**
+   * Save JWT token to persistent storage
+   *
+   * @param jwtToken
+   */
   async saveToken(jwtToken: string): Promise<StatusCode | boolean> {
     try {
       const error = await this.backend.insert(jwtToken);
 
       if (error instanceof Error) {
         console.error(error.message);
-        return false;
+        return StatusCode.INTERNAL_ERROR;
       } else {
         return StatusCode.CREATED;
       }
-    } catch (err: any) {
+    } catch (err) {
       throw err;
     }
   }
@@ -144,7 +149,17 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Get dtabase instance
+   */
   get database() {
     return this.backend;
+  }
+
+  /**
+   * Get token lifetime
+   */
+  get tokenLifetime() {
+    return this.config.lifetime;
   }
 }

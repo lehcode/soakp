@@ -1,25 +1,25 @@
 import { SoakpServer } from '../SoakpServer';
-import serverConfig from '../configs';
 import { createServer } from 'net';
-// import { KeyStorage } from '../KeyStorage';
+import { KeyStorage } from '../KeyStorage';
+import { storageConfig, serverConfig } from '../configs';
 
-// jest.mock('../KeyStorage');
+jest.mock('../KeyStorage');
 
-function wait(delay: number) {
+function wait(delay: number): Promise<unknown> {
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 describe('SoakpServer', () => {
   let server: SoakpServer;
-  // let keyStorage: KeyStorage;
+  let keyStorage: KeyStorage;
 
   beforeEach(() => {
     // Mock the console.error and console.log methods
     console.error = jest.fn();
     console.log = jest.fn();
 
-    server = new SoakpServer(serverConfig);
-    // keyStorage = new KeyStorage(serverConfig.storage);
+    keyStorage = new KeyStorage(storageConfig);
+    server = new SoakpServer(serverConfig, keyStorage);
   });
 
   afterEach(() => {
@@ -29,12 +29,10 @@ describe('SoakpServer', () => {
   it('should initialize server with specified config', () => {
     expect(server['app']).toBeDefined();
     // keyStorage is initialized in the start() method
-    expect(server['keyStorage']).toBeUndefined();
+    expect(server['keyStorage']).toBeDefined();
     expect(server['proxy']).toBeDefined();
-    expect(server['config'])
-      .toStrictEqual(serverConfig);
-    expect(console.log)
-      .toHaveBeenCalledWith(serverConfig);
+    expect(server['config']).toStrictEqual(serverConfig);
+    expect(console.log).toHaveBeenCalledWith(serverConfig);
   });
 
   it('should start the server with specified config', async () => {
@@ -53,10 +51,8 @@ describe('SoakpServer', () => {
         expect(server['keyStorage']).toBeDefined();
         expect(server['app']).toBeDefined();
         expect(server['proxy']).toBeDefined();
-        expect(server['config'])
-          .toStrictEqual(serverConfig);
-        expect(console.log)
-          .toHaveBeenCalledWith(serverConfig);
+        expect(server['config']).toStrictEqual(serverConfig);
+        expect(console.log).toHaveBeenCalledWith(serverConfig);
       })
       .catch((error) => {
         console.error('Error occurred:', error);
@@ -104,4 +100,3 @@ export async function waitForPort(port: number, timeout = 50, retryDelay = 10): 
     checkPort();
   });
 }
-

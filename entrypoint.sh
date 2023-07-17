@@ -18,12 +18,12 @@ if [[ ! -d "node_modules" ]]; then
 fi
 
 if [[ "${NODE_ENV}" == "development" ]]; then
-  yarn dev
+  yarn dev --watch
   exit $?
 fi
 
 if [[ "${NODE_ENV}" == "testing" ]]; then
-  yarn test
+  yarn test-ci
   exit $?
 fi
 

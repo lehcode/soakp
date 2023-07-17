@@ -6,8 +6,9 @@ name: Remote Deployment Dry Run
 
 on:
   push:
-    branches:
-      - develop
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:

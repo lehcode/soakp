@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  server:
+    env_file: ".env.test"
+    container_name: "soakp-a-test"
+    depends_on:
+      - myca
+
+  myca:
+    image: lehcode/ssl-myca:latest
+    container_name: myca
+    entrypoint: /init.sh
+    env_file: ".env.test"
+    build:
+      context: docker/myca/
+      args:
+        debug: ${DEBUG:-no}
+        key_len: ${KEY_LEN:-4096}
+        days: ${CERT_DAYS:-365}
+        ca_cn: ${MYCA_ORG_CN:?}
+        server_cn: ${SERVER_HOST:?}
+        host_user_uid: ${HOST_USER_UID:-1001}
+        key_pass: ${MYCA_KEY_PASS:?}
+        host_docker_gid: ${HOST_DOCKER_GID:?}
+    environment:
+      SSL_CERT_DIR: ${SSL_CERT_DIR:?}
+    volumes:
+      - ./docker/myca/generate/cert:${SSL_CERT_DIR:?}
+      - /usr/local/log/soakp:/var/log/soakp
+
+networks:
+  soakp_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.222.0/24

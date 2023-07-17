@@ -3,38 +3,33 @@
  * Copyright: (C)2023
  */
 import { Configuration, OpenAIApi } from 'openai';
-import { OpenAIRequestInterface } from './interfaces/OpenAI/OpenAIRequest.interface';
+import { OpenAIConfigInterface } from './configs';
 import { AxiosResponse } from 'axios';
 
-interface ProxyConfigInterface {
-  apiHost?: string;
-  apiBaseUrl?: string;
-  query: OpenAIRequestInterface;
+export interface ProxyConfigInterface {
+  apiHost?: string | undefined;
+  apiRoot?: string | undefined;
+  apiBaseUrl?: string | undefined;
+  chatbot: OpenAIConfigInterface;
 }
 
 export class SoakpProxy {
   private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
-  private query: OpenAIRequestInterface = {
-    apiKey: null,
-    apiOrgKey: process.env.OPENAI_API_ORG_ID,
-    prompt: 'Hello World, Buddy! :-)',
-    model: 'text-davinci-003'
-  };
 
   /**
    *
-   * @param configuration
+   * @param proxyConfig
    */
-  constructor(configuration: ProxyConfigInterface) {
-    this.config = { ...configuration };
+  constructor(proxyConfig: ProxyConfigInterface) {
+    this.config = proxyConfig;
   }
 
   /**
    *
    * @param params
    */
-  initAI(params: OpenAIRequestInterface) {
+  initAI(params: OpenAIConfigInterface) {
     const config = new Configuration({
       apiKey: params.apiKey || '',
       organization: params.apiOrgKey || ''
@@ -48,8 +43,8 @@ export class SoakpProxy {
    *
    * @param params
    */
-  async makeRequest(params: OpenAIRequestInterface): Promise<AxiosResponse<any, any>> {
-    const request: OpenAIRequestInterface = {
+  async makeRequest(params: OpenAIConfigInterface): Promise<AxiosResponse<any, any>> {
+    const request: OpenAIConfigInterface = {
       model: params.model,
       prompt: params.prompt,
       max_tokens: params.max_tokens,
@@ -61,10 +56,17 @@ export class SoakpProxy {
   }
 
   /**
-   *
-   * @param value
+   * Get list of OpenAI models with properties
    */
-  set queryParams(value: OpenAIRequestInterface) {
-    this.query = value;
+  async getModels() {
+    return await this.openAI.listModels();
   }
+
+  // /**
+  //  *
+  //  * @param config
+  //  */
+  // set queryParams(config: OpenAIConfigInterface) {
+  //   this.query = configuration;
+  // }
 }
