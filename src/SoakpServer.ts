@@ -11,7 +11,7 @@ import { createHash } from 'crypto';
 import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
 import { SoakpProxy } from './SoakpProxy';
-import { storageConfig, appConfig, proxyConfig, OpenAIConfigInterface } from './configs';
+import { appConfig, proxyConfig, OpenAIConfigInterface } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
@@ -25,7 +25,7 @@ export interface ServerConfigInterface {
   sslPort?: number;
   httpAuthUser?: string;
   httpAuthPass?: string;
-  openAIConfig?: OpenAIConfigInterface;
+  openAI?: OpenAIConfigInterface;
 }
 
 /**
@@ -39,13 +39,13 @@ export class SoakpServer {
 
   /**
    *
-   * @param config
+   * @param configuration
    * @param storage
    */
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
     this.config = { ...configuration };
     this.keyStorage = storage;
-    this.config.openAIConfig = proxyConfig.openAI;
+    this.config.openAI = proxyConfig.chatbot;
 
     console.log(this.config);
 
@@ -165,8 +165,8 @@ export class SoakpServer {
    */
   private getSignedJWT(openAIKey: string) {
     return jwt.sign({ key: openAIKey }, this.jwtHash, {
-      expiresIn: storageConfig.lifetime,
-      audience: 'openai',
+      expiresIn: this.keyStorage.tokenLifetime,
+      audience: 'user',
       issuer: 'soakp',
       subject: 'openai-api'
     });
