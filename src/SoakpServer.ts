@@ -11,13 +11,15 @@ import { createHash } from 'crypto';
 import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
 import { SoakpProxy } from './SoakpProxy';
-import { appConfig, proxyConfig, OpenAIConfigInterface } from './configs';
+import { appConfig } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
 import path from 'path';
 import fs from 'fs';
 import validateToken from './middleware/validateToken';
+import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
+import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
 
 
 export interface ServerConfigInterface {
@@ -45,14 +47,17 @@ export class SoakpServer {
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
     this.config = { ...configuration };
     this.keyStorage = storage;
-    this.config.openAI = { ...proxyConfig.chatbot };
 
     console.log(this.config);
 
     this.initializeExpressApp();
     this.initializeEndpoints();
 
-    this.proxy = new SoakpProxy(proxyConfig);
+    this.proxy = new SoakpProxy();
+    this.proxy.initAI(<OpenAIConfigInterface>{
+      apiKey: configuration.openAI.apiKey,
+      orgId: configuration.openAI.orgId
+    });
   }
 
   /**
@@ -85,6 +90,7 @@ export class SoakpServer {
       }
 
       this.app.get('/openai/models', validateToken(this.jwtHash, this.keyStorage), this.listOpenAIModels.bind(this));
+      // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
       this.app.post(
         '/openai/completions',
         validateToken(this.jwtHash, this.keyStorage),
@@ -171,39 +177,28 @@ export class SoakpServer {
    */
   private async makeOpenAIRequest(req: express.Request, res: express.Response) {
     try {
-      // Update parameters without reinitializing the OpenAI client
-      const params: OpenAIConfigInterface = {
-        apiKey: req.user.apiKey,
-        apiOrgKey: req.user.orgKey,
+      const params: OpenAICallInterface = {
         prompt: req.body.messages || '',
-        // engineId: req.body.engineId || 'text-davinci-003',
         model: req.body.model || 'text-davinci-003',
         temperature: req.body.temperature || 0.7,
         max_tokens: req.body.maxTokens || 100
       };
-      this.proxy.initAI(params);
+      const response = await this.proxy.apiCall(params, 'completion');
+      console.log(response);
 
-      try {
-        // Query OpenAI API with provided query and parameters
-        const response = await this.proxy.makeRequest(params);
-        console.log(response);
-
-        if (response.status === StatusCode.SUCCESS) {
-          Responses.success(
-            res,
-            {
-              response: response.data,
-              responseConfig: response.config.data
-            },
-            'Received OpenAI API response'
-          );
-        }
-      } catch (error) {
-        console.error(error);
-        Responses.unknownError(res);
+      if (response.status && response.status === StatusCode.SUCCESS) {
+        Responses.success(
+          res,
+          {
+            response: response.data,
+            responseConfig: response.config.data
+          },
+          'Received OpenAI API response'
+        );
       }
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      console.trace(error);
+      Responses.gatewayError(res);
     }
   }
 
@@ -278,8 +273,6 @@ export class SoakpServer {
    * @param res
    */
   async listOpenAIModels(req: express.Request, res: express.Response) {
-    this.proxy.initAI(<OpenAIConfigInterface>{ apiKey: req.user.apiKey });
-
     try {
       const response = await this.proxy.getModels();
 

@@ -1,8 +1,8 @@
 /**
- * This endpoint is used for generating text completions
- * Path: /v1/engines/{engine_id}/completions
+ * This endpoint vreates a model response for the given chat conversation.
+ * Path: /v1/chat/completions
  */
-export interface OpenAICompletionsInterface {
+export interface OpenAIChatCompletionsInterface {
   /**
    * The ID of the engine to use for the completion
    */

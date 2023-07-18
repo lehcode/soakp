@@ -11,9 +11,7 @@
       "module": "Node16",
       "declaration": true,
       "declarationMap": true,
-      "lib": ["esnext", "dom", "dom.iterable"],
-      "allowJs": true,
-      "typeRoots": ["./node_modules/@types", "./src/types"]
+      "allowJs": true
     }
   },
   "module": "node",
@@ -29,8 +27,9 @@
     "sourceMap": true,
     "inlineSourceMap": false,
     "noEmitOnError": true,
-    "lib": ["esnext"],
-    "strictNullChecks": false
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "strictNullChecks": false,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["**/*.ts"],
   "exclude": ["**/node_modules", "src/__tests__/**/*"],
