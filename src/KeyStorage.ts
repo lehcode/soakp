@@ -7,6 +7,10 @@ import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
 
+/**
+ * @export
+ * @interface DbSchemaInterface
+ */
 export interface DbSchemaInterface extends Object {
   id: null | number;
   token: string | null;
@@ -16,13 +20,21 @@ export interface DbSchemaInterface extends Object {
   archived: boolean | 0 | 1 | '0' | '1';
 }
 
+/**
+ * @export
+ * @interface StorageConfigInterface
+ */
 export interface StorageConfigInterface {
   tableName: string;
-  lifetime: number;
+  tokenLifetime: number;
   dbName?: string;
   dataFileDir?: string;
 }
 
+/**
+ * @export
+ * @class KeyStorage
+ */
 export class KeyStorage {
   private readonly config: StorageConfigInterface;
   private backend: SqliteStorage | null = null;
@@ -34,6 +46,13 @@ export class KeyStorage {
     this.config = { ...configuration };
   }
 
+  /**
+   * Retrieve database instance
+   *
+   * @returns {Promise<KeyStorage>}
+   * @throws {Error}
+   * @param {StorageConfigInterface} config
+   */
   static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
     const keyStorageInstance = new KeyStorage(config);
     const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
@@ -50,7 +69,7 @@ export class KeyStorage {
   /**
    * Save JWT token to persistent storage
    *
-   * @param jwtToken
+   * @param {string} jwtToken
    */
   async saveToken(jwtToken: string): Promise<StatusCode | boolean> {
     try {
@@ -67,6 +86,11 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Fetch JWT token from persistent storage
+   *
+   * @param {string} jwtToken
+   */
   async fetchToken(jwtToken: string): Promise<string> {
     try {
       const row = await this.backend?.findOne('token', [`token = '${jwtToken}'`, 'archived != 1']);
@@ -81,6 +105,11 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Check if JWT token exists in DB
+   *
+   * @param {string} jwtToken
+   */
   async jwtExists(jwtToken: string): Promise<string | boolean> {
     try {
       const row = await this.backend?.findOne('token', ['archived != 1', `token = '${jwtToken}'`]);
@@ -95,6 +124,11 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Archive JWT token
+   *
+   * @param {string} what
+   */
   async archive(what: string): Promise<StatusCode | boolean> {
     try {
       const result = await this.backend.archive(what);
@@ -110,6 +144,9 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Get acive JWT tokens
+   */
   async getActiveTokens(): Promise<DbSchemaInterface[] | Error> {
     try {
       return (await this.backend?.findAll('token')) ?? [];
@@ -118,6 +155,9 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Get all JWT tokens
+   */
   async getRecentToken(): Promise<string | false> {
     try {
       const result = await this.backend?.findOne();
@@ -132,6 +172,12 @@ export class KeyStorage {
     }
   }
 
+  /**
+   * Update JWT token with `newToken`
+   *
+   * @param {string} oldToken
+   * @param {string} newToken
+   */
   async updateToken(oldToken: string, newToken: string): Promise<StatusCode | false> {
     try {
       const result = await this.backend.update(
@@ -161,13 +207,14 @@ export class KeyStorage {
    * Get token lifetime
    */
   get tokenLifetime() {
-    return this.config.lifetime;
+    return this.config.tokenLifetime;
   }
 
   /**
+   * Generate JWT token
    *
-   * @param openAIKey
-   * @param jwtHash
+   * @param {string} openAIKey
+   * @param {string} jwtHash
    */
   generateSignedJWT(openAIKey: string, jwtHash: string) {
     return jwt.sign({ key: openAIKey }, jwtHash, {
