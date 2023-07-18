@@ -14,7 +14,7 @@ jest.mock('../backends/SQLite');
 // Create a configuration object
 const config: StorageConfigInterface = {
   tableName: 'test_table',
-  lifetime: 1000,
+  tokenLifetime: 1000,
   dbName: 'test_db',
   dataFileDir: './tmp',
 };

@@ -2,11 +2,12 @@
  * Author: Lehcode
  * Copyright: (C)Lehcode.com 2023
  */
-import { SoakpServer, ServerConfigInterface } from '../SoakpServer';
-import { KeyStorage, StorageConfigInterface } from '../KeyStorage';
-import { storageConfig, serverConfig, OpenAIConfigInterface } from '../configs';
+import { SoakpServer } from '../SoakpServer';
+import { KeyStorage } from '../KeyStorage';
+import { storageConfig, serverConfig } from '../configs';
 import { AxiosHeaders, AxiosResponseHeaders } from 'axios';
 import { waitForPort } from './server';
+import { OpenAICallInterface } from '../interfaces/OpenAI/OpenAICall.interface';
 
 jest.mock('../SoakpProxy');
 jest.mock('../http/Responses');
@@ -18,11 +19,8 @@ describe('SoakpServer', () => {
   const validOpenAiKey = 'sk-cGDjv8fdvyl4wT3BlbkFJAFhkldyJs0Olc9YvaeDA';
   const validToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJzay1IV0dvc0diYWltcmlYZDJFc2xXd1QzQmxia0ZKRnNnV2hsbFMzUGl3TWx0Nk9hbTEiLCJpYXQiOjE2ODY5NDQ5ODgsImV4cCI6MTY4NzAzMTM4OH0.heqkk7zXGQb_tcsamzxY4QvOug-VyX7A7ti2E_6zC90';
-  const queryParams: OpenAIConfigInterface = {
-    apiKey: 'sample-key',
-    apiOrgKey: 'sample-org-key',
+  const queryParams: OpenAICallInterface = {
     prompt: 'Hello',
-    // engineId: 'engine-001',
     model: 'text-davinci-003',
     temperature: 0.7,
     max_tokens: 100
@@ -97,7 +95,7 @@ describe('SoakpServer', () => {
           jest.spyOn(server['keyStorage'], 'getRecentToken').mockResolvedValue(validToken);
           jest.spyOn(server['keyStorage'], 'saveToken').mockResolvedValue(200);
           jest.spyOn(server['keyStorage'], 'updateToken').mockResolvedValue(200);
-          jest.spyOn(server['proxy'], 'makeRequest').mockResolvedValue({
+          jest.spyOn(server['proxy'], 'apiCall').mockResolvedValue({
             status: 200,
             data: 'response-data',
             config: { data: 'response-config', headers: headers }
@@ -113,7 +111,7 @@ describe('SoakpServer', () => {
           expect(server['keyStorage'].saveToken).not.toHaveBeenCalled();
           expect(server['keyStorage'].updateToken).not.toHaveBeenCalled();
           expect(server['proxy'].initAI).toHaveBeenCalledWith(queryParams);
-          expect(server['proxy'].makeRequest(queryParams)).toHaveBeenCalled();
+          expect(server['proxy'].apiCall(queryParams)).toHaveBeenCalled();
           expect(res.send).toHaveBeenCalledWith({
             response: 'response-data',
             responseConfig: 'response-config'
