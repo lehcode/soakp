@@ -2,19 +2,47 @@ import path from 'path';
 import 'dotenv/config';
 import { ServerConfigInterface } from './SoakpServer';
 import { StorageConfigInterface } from './KeyStorage';
-import { ProxyConfigInterface } from './SoakpProxy';
+import { ChatCompletionRequestMessage, CreateCompletionRequestPrompt, CreateCompletionRequestStop } from 'openai';
+import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
 
+/**
+ * Application configuration
+ */
 export const appConfig = {
+  /**
+   *  @type {RegExp}
+   *  @memberOf appConfig
+   */
   usernameRegex: /^[\w_]{3,16}$/,
+  /**
+   *  @type {RegExp}
+   *  @memberOf appConfig
+   */
   passwordRegex: /^[\w_]{8,32}$/,
+  /**
+   *  @type {RegExp}
+   *  @memberOf appConfig
+   */
   tokenRegex: /^[a-zA-Z0-9\/]+$/,
 };
 
+/**
+ * Storage configuration
+ */
 export const storageConfig: StorageConfigInterface = {
+  /**
+   * @type {string}
+   * @memberOf StorageConfigInterface
+   */
   dbName: process.env.NODE_ENV === 'testing' ? 'testing_secrets.sqlite' : process.env.SQLITE_DB,
   tableName: process.env.NODE_ENV === 'testing' ? 'test_tokens' : process.env.SQLITE_TABLE,
   dataFileDir: path.resolve(process.env.DATA_DIR),
-  lifetime: process.env.NODE_ENV === 'testing' ? 600 : 604800
+  tokenLifetime: process.env.NODE_ENV === 'testing' ? 600 : 604800
+};
+
+export const openAIConfig: OpenAIConfigInterface = {
+  apiKey: undefined,
+  orgId: process.env.OPENAI_ORG_ID as string,
 };
 
 export const serverConfig: ServerConfigInterface = {
@@ -22,52 +50,5 @@ export const serverConfig: ServerConfigInterface = {
   sslPort: parseInt(process.env.SECURE_PORT, 10) || 3033,
   httpAuthUser: process.env.AUTH_USER as string,
   httpAuthPass: process.env.AUTH_PASS as string,
-  openAI: <OpenAIConfigInterface>{
-    model: process.env.OPENAI_MODEL as string,
-    apiKey: undefined,
-    apiOrgKey: process.env.OPENAI_ORG_ID as string,
-    prompt: 'Are you a chat bot?'
-  }
+  openAI: openAIConfig
 };
-
-export const proxyConfig: ProxyConfigInterface = {
-  apiHost: 'https://api.openai.com',
-  apiRoot: '/v1',
-  apiBaseUrl: '/models',
-  chatbot: <OpenAIConfigInterface>{
-    model: process.env.OPENAI_MODEL as string,
-    apiKey: undefined,
-    apiOrgKey: process.env.OPENAI_ORG_ID as string,
-    // engineId: 'davinci-codex'
-    prompt: 'Are you a chat bot?'
-  }
-};
-
-export interface OpenAIConfigInterface {
-  /*
-   ID of the model to use
-   */
-  model?: string;
-  /*
-   The prompt(s) to generate completions for,
-   encoded as a string, array of strings, array of tokens, or array of token arrays.
-   */
-  prompt?: string | string[] | Record<string, any>[];
-  apiKey?: string | undefined;
-  apiOrgKey?: string | undefined;
-  // engineId:? string | undefined;
-  /*
-   What sampling temperature to use, between 0 and 2.
-   Higher values like 0.8 will make the output more random,
-   while lower values like 0.2 will make it more focused and deterministic
-   */
-  temperature?: number;
-  /*
-   The maximum number of tokens to generate in the completion
-   */
-  max_tokens?: number;
-  /*
-   The suffix that comes after a completion of inserted text.
-   */
-  suffix?: string;
-}

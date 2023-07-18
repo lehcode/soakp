@@ -3,26 +3,21 @@
  * Copyright: (C)2023
  */
 import { Configuration, OpenAIApi } from 'openai';
-import { OpenAIConfigInterface } from './configs';
-import { AxiosResponse } from 'axios';
+import { CreateCompletionRequest } from 'openai/api';
+import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
+import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
 
-export interface ProxyConfigInterface {
-  apiHost?: string | undefined;
-  apiRoot?: string | undefined;
-  apiBaseUrl?: string | undefined;
-  chatbot: OpenAIConfigInterface;
-}
-
+/**
+ * @class SoakpProxy
+ */
 export class SoakpProxy {
-  private config: ProxyConfigInterface;
   private openAI: OpenAIApi;
 
   /**
-   *
-   * @param proxyConfig
+   * @constructor
    */
-  constructor(proxyConfig: ProxyConfigInterface) {
-    this.config = proxyConfig;
+  constructor() {
+    //
   }
 
   /**
@@ -32,27 +27,31 @@ export class SoakpProxy {
   initAI(params: OpenAIConfigInterface) {
     const config = new Configuration({
       apiKey: params.apiKey || '',
-      organization: params.apiOrgKey || ''
+      organization: params.orgId || ''
     });
     this.openAI = new OpenAIApi(config);
 
-    console.log(`Initialized Soakp proxy with ${params.apiKey}`);
+    console.log(`Initialized Soakp proxy with API key '${params.apiKey}'`);
   }
 
   /**
    *
-   * @param params
+   * Make OpenAI API call
    */
-  async makeRequest(params: OpenAIConfigInterface): Promise<AxiosResponse<any, any>> {
-    const request: OpenAIConfigInterface = {
-      model: params.model,
-      prompt: params.prompt,
-      max_tokens: params.max_tokens,
-      temperature: params.temperature
-    };
+  async apiCall(params: OpenAICallInterface, type = 'completion') {
+    try {
+      let request: CreateCompletionRequest;
 
-    // @ts-ignore
-    return await this.openAI.createCompletion(request);
+      switch (type) {
+        default:
+        case 'completion':
+          request = params as CreateCompletionRequest;
+          return await this.openAI.createCompletion(request);
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   /**
@@ -61,12 +60,4 @@ export class SoakpProxy {
   async getModels() {
     return await this.openAI.listModels();
   }
-
-  // /**
-  //  *
-  //  * @param config
-  //  */
-  // set queryParams(config: OpenAIConfigInterface) {
-  //   this.query = configuration;
-  // }
 }
