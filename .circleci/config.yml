@@ -9,7 +9,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  test:
+  build:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
@@ -44,6 +44,12 @@ jobs:
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
+  version: 2
   build-workflow:
     jobs:
-      - test
+      - build:
+        filters:
+          branches:
+            only:
+              - develop
+              - master

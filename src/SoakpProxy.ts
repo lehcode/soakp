@@ -2,16 +2,23 @@
  * Author: Lehcode
  * Copyright: (C)2023
  */
-import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 import { CreateCompletionRequest } from 'openai/api';
 import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
 import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
+
+export enum ChatRole {
+  SYSTEM = 'system',
+  USER = 'user',
+  ASSISTANT = 'assistant',
+  FUNCTION = 'function'
+}
 
 /**
  * @class SoakpProxy
  */
 export class SoakpProxy {
-  private openAI: OpenAIApi;
+  private openai: OpenAIApi;
 
   /**
    * @constructor
@@ -22,42 +29,34 @@ export class SoakpProxy {
 
   /**
    *
-   * @param params
+   * @param config
    */
-  initAI(params: OpenAIConfigInterface) {
-    const config = new Configuration({
-      apiKey: params.apiKey || '',
-      organization: params.orgId || ''
+  initAI(config: Configuration) {
+    const configuration = new Configuration({
+      apiKey: config.apiKey || '',
+      organization: config.organization || null
     });
-    this.openAI = new OpenAIApi(config);
+    this.openai = new OpenAIApi(configuration);
 
-    console.log(`Initialized Soakp proxy with API key '${params.apiKey}'`);
+    console.log(`Initialized Soakp proxy with API key '${config.apiKey}'`);
   }
 
   /**
    *
    * Make OpenAI API call
    */
-  async apiCall(params: OpenAICallInterface, type = 'completion') {
+  async chatRequest(request: CreateChatCompletionRequest) {
     try {
-      let request: CreateCompletionRequest;
-
-      switch (type) {
-        default:
-        case 'completion':
-          request = params as CreateCompletionRequest;
-          return await this.openAI.createCompletion(request);
-      }
+      return await this.openai.createChatCompletion(request);
     } catch (error) {
-      console.log(error);
-      return null;
+      throw error;
     }
   }
 
   /**
    * Get list of OpenAI models with properties
    */
-  async getModels() {
-    return await this.openAI.listModels();
+  async listModels() {
+    return await this.openai.listModels();
   }
 }

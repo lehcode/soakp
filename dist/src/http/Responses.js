@@ -76,7 +76,7 @@ class Responses {
      * @param msg
      */
     static success(res, data, msg) {
-        res.status(StatusCode_enum_1.StatusCode.SUCCESS).json({ status: Message_enum_1.Message.SUCCESS, message: msg, data: data });
+        res.status(StatusCode_enum_1.StatusCode.SUCCESS).json({ status: StatusCode_enum_1.StatusCode.SUCCESS, message: msg, data: data });
     }
     /**
      *
@@ -89,6 +89,11 @@ class Responses {
             message: Message_enum_1.Message.INTERNAL_SERVER_ERROR
         });
     }
+    /**
+     *
+     * @param res
+     * @param token
+     */
     static tokenAdded(res, token) {
         return res.status(StatusCode_enum_1.StatusCode.SUCCESS).json({
             status: Message_enum_1.Message.SUCCESS,
@@ -96,11 +101,39 @@ class Responses {
             data: { jwt: token }
         });
     }
+    /**
+     *
+     * @param res
+     * @param token
+     */
     static tokenUpdated(res, token) {
         return res.status(StatusCode_enum_1.StatusCode.ACCEPTED).json({
             status: StatusCode_enum_1.StatusCode.ACCEPTED,
             message: Message_enum_1.Message.JWT_UPDATED,
             data: { jwt: token }
+        });
+    }
+    /**
+     *
+     * @param res
+     * @param token
+     */
+    static tokenAccepted(res, token) {
+        return res.status(StatusCode_enum_1.StatusCode.ACCEPTED).json({
+            status: StatusCode_enum_1.StatusCode.ACCEPTED,
+            message: Message_enum_1.Message.JWT_ACCEPTED,
+            data: { jwt: token }
+        });
+    }
+    /**
+     *
+     * @param res
+     */
+    static gatewayError(res) {
+        return res.status(StatusCode_enum_1.StatusCode.BAD_GATEWAY)
+            .json({
+            status: Message_enum_1.Message.GATEWAY_ERROR,
+            message: Message_enum_1.Message.GATEWAY_ERROR
         });
     }
 }

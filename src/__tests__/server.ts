@@ -30,7 +30,7 @@ describe('SoakpServer', () => {
     expect(server['app']).toBeDefined();
     // keyStorage is initialized in the start() method
     expect(server['keyStorage']).toBeDefined();
-    expect(server['proxy']).toBeDefined();
+    expect(server['proxy']).toBeUndefined();
     expect(server['config']).toStrictEqual(serverConfig);
     expect(console.log).toHaveBeenCalledWith(serverConfig);
   });
