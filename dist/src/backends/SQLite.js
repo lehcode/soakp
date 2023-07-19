@@ -65,7 +65,7 @@ class SqliteStorage extends StorageStrategy {
           (
             id INTEGER PRIMARY KEY,
             token TEXT UNIQUE
-              CHECK(LENGTH(token) <= 255),
+              CHECK(LENGTH(token) <= 1024),
             created_at INTEGER NOT NULL,
             updated_at INTEGER NOT NULL,
             last_access INTEGER NOT NULL,
@@ -83,12 +83,22 @@ class SqliteStorage extends StorageStrategy {
             });
         });
     }
+    /**
+     *
+     * @param dbName
+     * @param tableName
+     * @param dbFile
+     */
     static getInstance(dbName, tableName, dbFile) {
         return __awaiter(this, void 0, void 0, function* () {
             const db = yield SqliteStorage.createDatabase(dbName, tableName, dbFile);
             return new SqliteStorage(db, dbName, tableName, dbFile);
         });
     }
+    /**
+     *
+     * @param jwtToken
+     */
     insert(jwtToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const defaults = {
@@ -115,6 +125,11 @@ id, token, created_at, updated_at, last_access, archived
             });
         });
     }
+    /**
+     *
+     * @param row
+     * @private
+     */
     prepareRow(row) {
         row.createdAt = row.createdAt.toString();
         row.updatedAt = row.updatedAt.toString();
@@ -122,6 +137,11 @@ id, token, created_at, updated_at, last_access, archived
         row.archived = row.archived === true ? '1' : '0';
         return row;
     }
+    /**
+     *
+     * @param where
+     * @param values
+     */
     update(where, values) {
         return __awaiter(this, void 0, void 0, function* () {
             const vals = [...values].join(',');
@@ -138,6 +158,10 @@ id, token, created_at, updated_at, last_access, archived
             });
         });
     }
+    /**
+     *
+     * @param token
+     */
     archive(token) {
         return new Promise((resolve, reject) => {
             this.db.run(`UPDATE '${this.tableName}' SET archived ='1' WHERE token =? AND archived ='0'`, [token], (err) => {
@@ -170,6 +194,13 @@ id, token, created_at, updated_at, last_access, archived
             });
         });
     }
+    /**
+     *
+     * @param what
+     * @param where
+     * @param order
+     * @param sort
+     */
     findOne(what = 'token', where = ['archived !=1 '], order = 'last_access', sort = 'DESC') {
         return __awaiter(this, void 0, void 0, function* () {
             const qWhere = [...where].join(' AND ');
@@ -188,6 +219,9 @@ id, token, created_at, updated_at, last_access, archived
             });
         });
     }
+    /**
+     * Close database connetion
+     */
     close() {
         this.db.close(() => {
             console.error(Message_enum_1.Message.UNKNOWN_ERROR);

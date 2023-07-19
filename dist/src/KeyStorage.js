@@ -20,6 +20,11 @@ exports.KeyStorage = void 0;
 const path_1 = __importDefault(require("path"));
 const SQLite_1 = __importDefault(require("./backends/SQLite"));
 const StatusCode_enum_1 = require("./enums/StatusCode.enum");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+/**
+ * @export
+ * @class KeyStorage
+ */
 class KeyStorage {
     /**
      * @param configuration
@@ -28,6 +33,13 @@ class KeyStorage {
         this.backend = null;
         this.config = Object.assign({}, configuration);
     }
+    /**
+     * Retrieve database instance
+     *
+     * @returns {Promise<KeyStorage>}
+     * @throws {Error}
+     * @param {StorageConfigInterface} config
+     */
     static getInstance(config) {
         return __awaiter(this, void 0, void 0, function* () {
             const keyStorageInstance = new KeyStorage(config);
@@ -41,13 +53,18 @@ class KeyStorage {
             return keyStorageInstance;
         });
     }
+    /**
+     * Save JWT token to persistent storage
+     *
+     * @param {string} jwtToken
+     */
     saveToken(jwtToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const error = yield this.backend.insert(jwtToken);
                 if (error instanceof Error) {
                     console.error(error.message);
-                    return false;
+                    return StatusCode_enum_1.StatusCode.INTERNAL_ERROR;
                 }
                 else {
                     return StatusCode_enum_1.StatusCode.CREATED;
@@ -58,6 +75,11 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Fetch JWT token from persistent storage
+     *
+     * @param {string} jwtToken
+     */
     fetchToken(jwtToken) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -76,6 +98,11 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Check if JWT token exists in DB
+     *
+     * @param {string} jwtToken
+     */
     jwtExists(jwtToken) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -94,6 +121,11 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Archive JWT token
+     *
+     * @param {string} what
+     */
     archive(what) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -111,6 +143,9 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Get acive JWT tokens
+     */
     getActiveTokens() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -122,6 +157,9 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Get all JWT tokens
+     */
     getRecentToken() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -140,6 +178,12 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Update JWT token with `newToken`
+     *
+     * @param {string} oldToken
+     * @param {string} newToken
+     */
     updateToken(oldToken, newToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -157,8 +201,31 @@ class KeyStorage {
             }
         });
     }
+    /**
+     * Get database instance
+     */
     get database() {
         return this.backend;
+    }
+    /**
+     * Get token lifetime
+     */
+    get tokenLifetime() {
+        return this.config.tokenLifetime;
+    }
+    /**
+     * Generate JWT token
+     *
+     * @param {string} openAIKey
+     * @param {string} jwtHash
+     */
+    generateSignedJWT(openAIKey, jwtHash) {
+        return jsonwebtoken_1.default.sign({ key: openAIKey }, jwtHash, {
+            expiresIn: this.tokenLifetime,
+            audience: 'user',
+            issuer: 'soakp',
+            subject: 'openai-api'
+        });
     }
 }
 exports.KeyStorage = KeyStorage;
