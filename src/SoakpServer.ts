@@ -32,6 +32,7 @@ export interface ServerConfigInterface {
   openAI?: OpenAIConfigInterface;
 }
 
+
 /**
  * @class SoakpServer
  */
@@ -41,6 +42,7 @@ export class SoakpServer {
   proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
 
+  
   /**
    *
    * @param configuration
@@ -54,8 +56,6 @@ export class SoakpServer {
 
     this.initializeExpressApp();
     this.initializeEndpoints();
-
-    // this.proxy = new SoakpProxy();
   }
 
   /**
