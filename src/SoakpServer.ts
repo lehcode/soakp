@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import { StatusCode } from './enums/StatusCode.enum';
 import { Message } from './enums/Message.enum';
-import { SoakpProxy } from './SoakpProxy';
+import { ChatRole, SoakpProxy } from './SoakpProxy';
 import { appConfig } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
@@ -20,6 +20,8 @@ import fs from 'fs';
 import validateToken from './middleware/validateToken';
 import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
 import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
+import { Configuration, CreateChatCompletionRequest } from 'openai';
+import initAi from './middleware/initAi';
 
 
 export interface ServerConfigInterface {
@@ -36,7 +38,7 @@ export interface ServerConfigInterface {
 export class SoakpServer {
   private app: Express;
   private keyStorage: KeyStorage;
-  private proxy: SoakpProxy;
+  proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
 
   /**
@@ -53,11 +55,7 @@ export class SoakpServer {
     this.initializeExpressApp();
     this.initializeEndpoints();
 
-    this.proxy = new SoakpProxy();
-    this.proxy.initAI(<OpenAIConfigInterface>{
-      apiKey: configuration.openAI.apiKey,
-      orgId: configuration.openAI.orgId
-    });
+    // this.proxy = new SoakpProxy();
   }
 
   /**
@@ -89,13 +87,15 @@ export class SoakpServer {
         );
       }
 
-      this.app.get('/openai/models', validateToken(this.jwtHash, this.keyStorage), this.listOpenAIModels.bind(this));
+      this.app.get('/openai/models',
+                   validateToken(this.jwtHash, this.keyStorage),
+                   initAi(this),
+                   this.listOpenAIModels.bind(this));
+      this.app.post('/openai/completions',
+                    validateToken(this.jwtHash, this.keyStorage),
+                    initAi(this),
+                    this.makeChatCompletionRequest.bind(this));
       // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
-      this.app.post(
-        '/openai/completions',
-        validateToken(this.jwtHash, this.keyStorage),
-        this.makeOpenAIRequest.bind(this)
-      );
     } catch (err) {
       throw err;
     }
@@ -175,29 +175,25 @@ export class SoakpServer {
    * @param req
    * @param res
    */
-  private async makeOpenAIRequest(req: express.Request, res: express.Response) {
+  private async makeChatCompletionRequest(req: express.Request, res: express.Response) {
     try {
-      const params: OpenAICallInterface = {
-        prompt: req.body.messages || '',
+      const response = await this.proxy.chatRequest({
+        messages: req.body.messages || [
+          { 'role': ChatRole.SYSTEM, 'content': 'You are a helpful assistant.' },
+          { 'role': ChatRole.USER, 'content': 'Hello!' }
+        ],
         model: req.body.model || 'text-davinci-003',
         temperature: req.body.temperature || 0.7,
         max_tokens: req.body.maxTokens || 100
-      };
-      const response = await this.proxy.apiCall(params, 'completion');
-      console.log(response);
+      });
 
-      if (response.status && response.status === StatusCode.SUCCESS) {
-        Responses.success(
-          res,
-          {
-            response: response.data,
-            responseConfig: response.config.data
-          },
-          'Received OpenAI API response'
-        );
+      // console.log(response);
+
+      if (response.status === StatusCode.SUCCESS) {
+        Responses.success( res, { response: response.data, responseConfig: response.config.data }, 'Received response from OpenAI API');
       }
     } catch (error) {
-      console.trace(error);
+      console.debug(error);
       Responses.gatewayError(res);
     }
   }
@@ -207,7 +203,6 @@ export class SoakpServer {
    * @public
    */
   public async start() {
-    // this.keyStorage = await KeyStorage.getInstance(this.config.storage);
     this.app.listen(this.config.httpPort);
     this.initSSL(this.app);
   }
@@ -274,7 +269,7 @@ export class SoakpServer {
    */
   async listOpenAIModels(req: express.Request, res: express.Response) {
     try {
-      const response = await this.proxy.getModels();
+      const response = await this.proxy.listModels();
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success(
