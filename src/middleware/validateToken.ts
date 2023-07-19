@@ -3,6 +3,8 @@ import { Message } from '../enums/Message.enum';
 import { KeyStorage } from '../KeyStorage';
 import { StatusCode } from '../enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
+import { Configuration } from 'openai';
+import { SoakpProxy } from '../SoakpProxy';
 
 const validateToken = (jwtHash: string, storage: KeyStorage) => {
   return async (req: Request, res: Response, next: NextFunction) => {

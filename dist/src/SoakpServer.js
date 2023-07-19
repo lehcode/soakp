@@ -26,25 +26,35 @@ const crypto_1 = require("crypto");
 const StatusCode_enum_1 = require("./enums/StatusCode.enum");
 const Message_enum_1 = require("./enums/Message.enum");
 const SoakpProxy_1 = require("./SoakpProxy");
+const configs_1 = require("./configs");
 const Responses_1 = require("./http/Responses");
-const KeyStorage_1 = require("./KeyStorage");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const configs_1 = require("./configs");
+const validateToken_1 = __importDefault(require("./middleware/validateToken"));
+const initAi_1 = __importDefault(require("./middleware/initAi"));
+/**
+ * @class SoakpServer
+ */
 class SoakpServer {
-    constructor(config) {
-        this.config = Object.assign({}, config);
+    /**
+     *
+     * @param configuration
+     * @param storage
+     */
+    constructor(configuration, storage) {
+        this.config = Object.assign({}, configuration);
+        this.keyStorage = storage;
         console.log(this.config);
         this.initializeExpressApp();
         this.initializeEndpoints();
-        this.proxy = new SoakpProxy_1.SoakpProxy({
-            query: {
-                model: 'text-gpt3.5-turbo',
-                prompt: ['Say Hello!']
-            }
-        });
+        // this.proxy = new SoakpProxy();
     }
+    /**
+     * Initialize Express App
+     *
+     * @private
+     */
     initializeExpressApp() {
         this.app = (0, express_1.default)();
         // Configure middleware
@@ -62,12 +72,13 @@ class SoakpServer {
             if (this.basicAuthCredentialsValid()) {
                 this.app.post('/get-jwt', (0, express_basic_auth_1.default)({ users: { [process.env.AUTH_USER]: process.env.AUTH_PASS } }), this.handleGetJwt.bind(this));
             }
+            this.app.get('/openai/models', (0, validateToken_1.default)(this.jwtHash, this.keyStorage), (0, initAi_1.default)(this), this.listOpenAIModels.bind(this));
+            this.app.post('/openai/completions', (0, validateToken_1.default)(this.jwtHash, this.keyStorage), (0, initAi_1.default)(this), this.makeChatCompletionRequest.bind(this));
+            // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
         }
         catch (err) {
             throw err;
         }
-        this.app.post('/openai/completions', this.handleOpenAIQuery.bind(this));
-        this.app.post('/openai/models', this.handleOpenAIQuery.bind(this));
     }
     /**
      * Generate JWT secret
@@ -105,26 +116,30 @@ class SoakpServer {
             }
             try {
                 const existingTokens = yield this.keyStorage.getActiveTokens();
-                if (existingTokens instanceof Error) {
+                const signed = this.keyStorage.generateSignedJWT(openAIKey, this.jwtHash);
+                if (existingTokens instanceof Error || existingTokens.length === 0) {
                     // No saved JWTs found, generate and save a new one
                     console.log('No matching tokens found. Generating a new one.');
-                    const savedToken = yield this.generateAndSaveToken(openAIKey);
-                    Responses_1.Responses.tokenAdded(res, savedToken);
+                    yield this.keyStorage.saveToken(signed);
+                    Responses_1.Responses.tokenAdded(res, signed);
                 }
                 else {
                     existingTokens.map((row) => __awaiter(this, void 0, void 0, function* () {
                         try {
                             jsonwebtoken_1.default.verify(row.token, this.jwtHash);
+                            console.log(Message_enum_1.Message.JWT_ACCEPTED);
+                            Responses_1.Responses.tokenAccepted(res, signed);
+                            return;
                         }
                         catch (err) {
                             if (err.message === 'jwt expired') {
                                 console.log(`${Message_enum_1.Message.JWT_EXPIRED}. Replacing it...`);
-                                const updated = yield this.generateAndUpdateToken(row.token, openAIKey);
-                                console.log('Token refreshed');
-                                Responses_1.Responses.tokenUpdated(res, updated);
+                                yield this.keyStorage.updateToken(row.token, signed);
+                                console.log(Message_enum_1.Message.JWT_UPDATED);
+                                Responses_1.Responses.tokenUpdated(res, signed);
+                                return;
                             }
                         }
-                        console.log(Message_enum_1.Message.JWT_ACCEPTED);
                     }));
                 }
             }
@@ -134,103 +149,31 @@ class SoakpServer {
         });
     }
     /**
-     *
-     * @param openAIKey
-     * @param res
-     * @private
-     */
-    generateAndSaveToken(openAIKey) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const signed = this.getSignedJWT(openAIKey);
-            const saved = yield this.keyStorage.saveToken(signed);
-            if (saved === StatusCode_enum_1.StatusCode.CREATED) {
-                return signed;
-            }
-            else {
-                throw new Error(Message_enum_1.Message.JWT_NOT_SAVED);
-            }
-        });
-    }
-    /**
-     *
-     * @param oldToken
-     * @param openAIKey
-     * @param res
-     * @private
-     */
-    generateAndUpdateToken(oldToken, openAIKey) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const token = this.getSignedJWT(openAIKey);
-                const accepted = yield this.keyStorage.updateToken(oldToken, token);
-                if (accepted === StatusCode_enum_1.StatusCode.ACCEPTED) {
-                    return token;
-                }
-            }
-            catch (err) {
-                console.error(err);
-            }
-        });
-    }
-    /**
-     *
-     * @param openAIKey
-     * @private
-     */
-    getSignedJWT(openAIKey) {
-        return jsonwebtoken_1.default.sign({ key: openAIKey }, this.jwtHash, { expiresIn: this.config.storage.lifetime });
-    }
-    /**
      * Handle POST `/openai/query` request
      *
      * @param req
      * @param res
      */
-    handleOpenAIQuery(req, res) {
+    makeChatCompletionRequest(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = yield this.keyStorage.getRecentToken();
-                if (token !== false) {
-                    jsonwebtoken_1.default.verify(token, this.jwtHash, (err, decoded) => __awaiter(this, void 0, void 0, function* () {
-                        if (err) {
-                            Responses_1.Responses.notAuthorized(res, 'jwt');
-                            return;
-                        }
-                        // Update parameters without reinitializing the OpenAI client
-                        const params = {
-                            apiKey: decoded.key,
-                            apiOrgKey: process.env.OPENAI_ORG_ID,
-                            prompt: req.body.messages || '',
-                            engineId: req.body.engineId || 'text-davinci-003',
-                            model: req.body.model || 'text-davinci-003',
-                            temperature: req.body.temperature || 0.7,
-                            max_tokens: req.body.maxTokens || 100
-                        };
-                        this.proxy.queryParams = params;
-                        this.proxy.initAI(params);
-                        try {
-                            // Query OpenAI API with provided query and parameters
-                            const response = yield this.proxy.makeRequest(params);
-                            console.log(response);
-                            if (response.status === StatusCode_enum_1.StatusCode.SUCCESS) {
-                                Responses_1.Responses.success(res, {
-                                    response: response.data,
-                                    responseConfig: response.config.data
-                                }, 'Received OpenAI API response');
-                            }
-                        }
-                        catch (error) {
-                            console.error(error);
-                            Responses_1.Responses.unknownError(res);
-                        }
-                    }));
-                }
-                else {
-                    Responses_1.Responses.notAuthorized(res, 'jwt');
+                const response = yield this.proxy.chatRequest({
+                    messages: req.body.messages || [
+                        { 'role': SoakpProxy_1.ChatRole.SYSTEM, 'content': 'You are a helpful assistant.' },
+                        { 'role': SoakpProxy_1.ChatRole.USER, 'content': 'Hello!' }
+                    ],
+                    model: req.body.model || 'text-davinci-003',
+                    temperature: req.body.temperature || 0.7,
+                    max_tokens: req.body.maxTokens || 100
+                });
+                // console.log(response);
+                if (response.status === StatusCode_enum_1.StatusCode.SUCCESS) {
+                    Responses_1.Responses.success(res, { response: response.data, responseConfig: response.config.data }, 'Received response from OpenAI API');
                 }
             }
-            catch (err) {
-                throw err;
+            catch (error) {
+                console.debug(error);
+                Responses_1.Responses.gatewayError(res);
             }
         });
     }
@@ -240,7 +183,6 @@ class SoakpServer {
      */
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.keyStorage = yield KeyStorage_1.KeyStorage.getInstance(this.config.storage);
             this.app.listen(this.config.httpPort);
             this.initSSL(this.app);
         });
@@ -284,6 +226,29 @@ class SoakpServer {
         // @ts-ignore
         this.app = https_1.default.createServer({ key: privateKey, cert: certificate }, app);
         this.app.listen(this.config.sslPort);
+    }
+    /**
+     * Handle GET `/openai/models` request
+     *
+     * @param req
+     * @param res
+     */
+    listOpenAIModels(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.proxy.listModels();
+                if (response.status === StatusCode_enum_1.StatusCode.SUCCESS) {
+                    Responses_1.Responses.success(res, {
+                        response: response.data,
+                        responseConfig: response.config.data
+                    }, 'Received OpenAI API response');
+                }
+            }
+            catch (error) {
+                console.error(error);
+                Responses_1.Responses.serverError(res);
+            }
+        });
     }
 }
 exports.SoakpServer = SoakpServer;

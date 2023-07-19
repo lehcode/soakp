@@ -7,6 +7,7 @@ var StatusCode;
     StatusCode[StatusCode["CREATED"] = 201] = "CREATED";
     StatusCode[StatusCode["FORBIDDEN"] = 403] = "FORBIDDEN";
     StatusCode[StatusCode["INTERNAL_ERROR"] = 500] = "INTERNAL_ERROR";
+    StatusCode[StatusCode["BAD_GATEWAY"] = 502] = "BAD_GATEWAY";
     StatusCode[StatusCode["NO_CONTENT"] = 204] = "NO_CONTENT";
     StatusCode[StatusCode["NOT_FOUND"] = 404] = "NOT_FOUND";
     StatusCode[StatusCode["NOT_AUTHORIZED"] = 401] = "NOT_AUTHORIZED";
