@@ -2,7 +2,7 @@
 # GitHub Packages and NPM when a release is created.
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
-name: Remote Deployment Dry Run
+name: Remote Deployment Live
 
 on:
   release:
