@@ -42,7 +42,7 @@ export class SoakpServer {
   proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
 
-  
+
   /**
    *
    * @param configuration
