@@ -9,4 +9,4 @@ node_modules/
 yarn-error.log
 /.vscode/
 /coverage/**/*
-dist/
+/dist/**/*
