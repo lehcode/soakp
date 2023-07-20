@@ -3,6 +3,9 @@
  * Copyright: (C)2023
  */
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
+import { CreateCompletionRequest } from 'openai/api';
+import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
+import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
 
 export enum ChatRole {
   SYSTEM = 'system',
@@ -55,6 +58,21 @@ export class SoakpProxy {
    */
   async listModels() {
     return await this.openai.listModels();
+  }
+  
+  
+
+  /**
+   * Upload a file that contains document(s) to be used across various
+   * endpoints/features. Currently, the size of all the files uploaded by one
+   * organization can be up to 1 GB.
+   * Please contact us if you need to increase the storage limit.
+   *
+   * @param {String} file
+   * @param {String} purpose
+   */
+  async uploadFile(file: string, purpose: string) {
+    this.openai.createFile(file, purpose);
   }
 
   /**

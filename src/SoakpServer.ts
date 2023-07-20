@@ -18,7 +18,11 @@ import https from 'https';
 import path from 'path';
 import fs from 'fs';
 import validateToken from './middleware/validateToken';
+import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
+import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
+import { Configuration, CreateChatCompletionRequest } from 'openai';
 import initAi from './middleware/initAi';
+import uploadFile from './middleware/uploadFile';
 
 
 export interface ServerConfigInterface {
@@ -26,6 +30,7 @@ export interface ServerConfigInterface {
   sslPort?: number;
   httpAuthUser?: string;
   httpAuthPass?: string;
+  openAI?: OpenAIConfigInterface;
 }
 
 
@@ -34,7 +39,7 @@ export interface ServerConfigInterface {
  */
 export class SoakpServer {
   private app: Express;
-  private readonly keyStorage: KeyStorage;
+  private keyStorage: KeyStorage;
   proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
 
@@ -87,14 +92,16 @@ export class SoakpServer {
                    validateToken(this.jwtHash, this.keyStorage),
                    initAi(this),
                    this.listOpenAIModels.bind(this));
-      this.app.get('/openai/models/:modelId',
-                   validateToken(this.jwtHash, this.keyStorage),
-                   initAi(this),
-                   this.openaiModelDetails.bind(this));
       this.app.post('/openai/completions',
                     validateToken(this.jwtHash, this.keyStorage),
                     initAi(this),
                     this.makeChatCompletionRequest.bind(this));
+      // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
+      this.app.post('/openai/files',
+                    validateToken(this.jwtHash, this.keyStorage),
+                    initAi(this),
+                    uploadFile(),
+                    this.proxy.uploadFile.bind(this));
     } catch (err) {
       throw err;
     }
@@ -127,10 +134,10 @@ export class SoakpServer {
    * @private
    */
   private async handleGetJwt(req: express.Request, res: express.Response) {
-    let openaiKey: string;
+    let openAIKey: string;
 
     if (this.isValidOpenAIKey(req.body.key)) {
-      openaiKey = req.body.key;
+      openAIKey = req.body.key;
     } else {
       console.error(Message.INVALID_KEY);
       return;
@@ -138,7 +145,7 @@ export class SoakpServer {
 
     try {
       const existingTokens = await this.keyStorage.getActiveTokens();
-      const signed = this.keyStorage.generateSignedJWT(openaiKey, this.jwtHash);
+      const signed = this.keyStorage.generateSignedJWT(openAIKey, this.jwtHash);
 
       if (existingTokens instanceof Error || existingTokens.length === 0) {
         // No saved JWTs found, generate and save a new one
@@ -266,29 +273,9 @@ export class SoakpServer {
    * @param req
    * @param res
    */
-  private async listOpenAIModels(req: express.Request, res: express.Response) {
+  async listOpenAIModels(req: express.Request, res: express.Response) {
     try {
       const response = await this.proxy.listModels();
-
-      if (response.status === StatusCode.SUCCESS) {
-        Responses.success(
-          res,
-          {
-            response: response.data,
-            responseConfig: response.config.data
-          },
-          'Received OpenAI API response'
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      Responses.serverError(res);
-    }
-  }
-
-  private async openaiModelDetails(req: express.Request, res: express.Response) {
-    try {
-      const response = await this.proxy.getModel(req.params.modelId);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success(
