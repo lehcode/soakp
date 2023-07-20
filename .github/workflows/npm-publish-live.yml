@@ -32,7 +32,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: ${{ vars.USERNAME }}
       - run: yarn install --frozen-lockfile
-      - run: npm publish
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_GITHUB_PACKAGES }}
 
@@ -46,6 +46,6 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: yarn install --frozen-lockfile
-      - run: npm publish
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
