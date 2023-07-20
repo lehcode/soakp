@@ -8,7 +8,7 @@ export interface OpenAICallInterface {
    * @type {string}
    * @memberof OpenAICallInterface
    */
-  'model'?: string | 'text-davinci-003';
+  'model'?: string | 'gpt-3.5-turbo';
   /**
    * The prompt(s) to generate completions for,
    * encoded as a string, array of strings, array of tokens, or array of token arrays.

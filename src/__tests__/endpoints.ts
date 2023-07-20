@@ -22,8 +22,8 @@ describe('SoakpServer', () => {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJzay1IV0dvc0diYWltcmlYZDJFc2xXd1QzQmxia0ZKRnNnV2hsbFMzUGl3TWx0Nk9hbTEiLCJpYXQiOjE2ODY5NDQ5ODgsImV4cCI6MTY4NzAzMTM4OH0.heqkk7zXGQb_tcsamzxY4QvOug-VyX7A7ti2E_6zC90';
   const queryParams: CreateChatCompletionRequest = {
     messages: [
-      { 'role': ChatRole.SYSTEM, 'content': 'You are a testing assistant.' },
-      { 'role': ChatRole.USER, 'content': 'Say hello!' }
+      { 'role': ChatRole.SYSTEM, 'content': 'You are a helpful application tester.' },
+      { 'role': ChatRole.USER, 'content': 'Test hello!' }
     ],
     model: 'gpt-3.5-turbo',
     temperature: 0.7,
