@@ -8,6 +8,9 @@ declare global {
     interface Request {
       user: UserInterface;
       proxy: SoakpProxy;
+      files: {
+        uploaded: Promise<any>
+      }
     }
   }
 }
