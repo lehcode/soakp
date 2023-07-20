@@ -2,8 +2,12 @@ import path from 'path';
 import 'dotenv/config';
 import { ServerConfigInterface } from './SoakpServer';
 import { StorageConfigInterface } from './KeyStorage';
-import { ChatCompletionRequestMessage, CreateCompletionRequestPrompt, CreateCompletionRequestStop } from 'openai';
-import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
+import {
+  ChatCompletionRequestMessage,
+  Configuration,
+  CreateCompletionRequestPrompt,
+  CreateCompletionRequestStop
+} from 'openai';
 
 /**
  * Application configuration
@@ -40,15 +44,14 @@ export const storageConfig: StorageConfigInterface = {
   tokenLifetime: process.env.NODE_ENV === 'testing' ? 600 : 604800
 };
 
-export const openAIConfig: OpenAIConfigInterface = {
+export const openAIConfig = {
   apiKey: undefined,
-  orgId: process.env.OPENAI_ORG_ID as string,
-};
+  organization: process.env.OPENAI_ORG_ID as string,
+} as Configuration;
 
 export const serverConfig: ServerConfigInterface = {
   httpPort: 3003,
   sslPort: parseInt(process.env.SECURE_PORT, 10) || 3033,
   httpAuthUser: process.env.AUTH_USER as string,
   httpAuthPass: process.env.AUTH_PASS as string,
-  openAI: openAIConfig
 };

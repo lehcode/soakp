@@ -3,9 +3,6 @@
  * Copyright: (C)2023
  */
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
-import { CreateCompletionRequest } from 'openai/api';
-import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
-import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
 
 export enum ChatRole {
   SYSTEM = 'system',
@@ -58,5 +55,14 @@ export class SoakpProxy {
    */
   async listModels() {
     return await this.openai.listModels();
+  }
+
+  /**
+   * Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
+   *
+   * @param {String} id
+   */
+  async getModel(id: string) {
+    return await this.openai.retrieveModel(id);
   }
 }
