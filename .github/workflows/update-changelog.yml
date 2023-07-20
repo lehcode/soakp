@@ -1,0 +1,35 @@
+name: Update Changelog
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # fetch the entire history
+
+    - name: Generate changelog
+      run: |
+        # get the latest tag
+        LATEST_TAG=$(git describe --tags --abbrev=0)
+
+        # generate the changelog since the latest tag
+        CHANGELOG=$(git log --pretty=format:"- %s" $LATEST_TAG..HEAD)
+
+        # prepend the changelog to the existing file
+        echo -e "## Changes since $LATEST_TAG\n$CHANGELOG\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
+
+    - name: Commit and push changelog
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add CHANGELOG.md
+        git commit -m "Update CHANGELOG.md"
+        git push
