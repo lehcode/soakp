@@ -34,7 +34,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.RO_GITHUB }}
+          NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_GITHUB_PACKAGES }}
 
   publish-npm:
     needs: build
