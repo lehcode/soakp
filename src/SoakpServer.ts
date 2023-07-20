@@ -182,7 +182,7 @@ export class SoakpServer {
           { 'role': ChatRole.SYSTEM, 'content': 'You are a helpful assistant.' },
           { 'role': ChatRole.USER, 'content': 'Hello!' }
         ],
-        model: req.body.model || 'text-davinci-003',
+        model: req.body.model || 'gpt-3.5-turbo',
         temperature: req.body.temperature || 0.7,
         max_tokens: req.body.maxTokens || 100
       });

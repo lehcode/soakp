@@ -32,7 +32,7 @@
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/node_modules", "src/__tests__/**/*"],
+  "exclude": ["**/node_modules", "**/__tests__/**/*"],
   "watchOptions": {
     "watchFile": "useFsEvents",
     "watchDirectory": "useFsEvents",
