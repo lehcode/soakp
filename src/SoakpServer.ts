@@ -22,6 +22,7 @@ import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interfac
 import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
 import { Configuration, CreateChatCompletionRequest } from 'openai';
 import initAi from './middleware/initAi';
+import uploadFile from './middleware/uploadFile';
 
 
 export interface ServerConfigInterface {
@@ -96,6 +97,11 @@ export class SoakpServer {
                     initAi(this),
                     this.makeChatCompletionRequest.bind(this));
       // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
+      this.app.post('/openai/files',
+                    validateToken(this.jwtHash, this.keyStorage),
+                    initAi(this),
+                    uploadFile(),
+                    this.proxy.uploadFile.bind(this));
     } catch (err) {
       throw err;
     }

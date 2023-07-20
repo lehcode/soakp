@@ -59,4 +59,17 @@ export class SoakpProxy {
   async listModels() {
     return await this.openai.listModels();
   }
+
+  /**
+   * Upload a file that contains document(s) to be used across various
+   * endpoints/features. Currently, the size of all the files uploaded by one
+   * organization can be up to 1 GB.
+   * Please contact us if you need to increase the storage limit.
+   *
+   * @param {String} file
+   * @param {String} purpose
+   */
+  async uploadFile(file: string, purpose: string) {
+    this.openai.createFile(file, purpose);
+  }
 }
