@@ -2,7 +2,7 @@
  * Author: Lehcode
  * Copyright: (C) Lehcode.com 2023
  */
-import express, { Express } from 'express';
+import express, { Express, Request } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
@@ -91,11 +91,11 @@ export class SoakpServer {
                    validateToken(this.jwtHash, this.keyStorage),
                    initAi(this),
                    this.listOpenAIModels.bind(this));
+      this.app.get('/openai/models/:model', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
       this.app.post('/openai/completions',
                     validateToken(this.jwtHash, this.keyStorage),
                     initAi(this),
                     this.makeChatCompletionRequest.bind(this));
-      // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
     } catch (err) {
       throw err;
     }
@@ -285,5 +285,9 @@ export class SoakpServer {
       console.error(error);
       Responses.serverError(res);
     }
+  }
+
+  private openAIModelDetails(req: express.Request, res: express.Response) {
+    res.status(StatusCode.NOT_FOUND).send('Not implemented');
   }
 }
