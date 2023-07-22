@@ -9,24 +9,7 @@ const uploadFile = () => {
   const storage = multer.memoryStorage();
   const upload = multer({
     storage,
-    limits: {
-      files: 1,
-      fileSize: 5 * 1024 * 1024
-    },
-    fileFilter: (req, file, cb) => {
-      // if (path.extname(file.originalname) !== '.jsonl') {
-      //   if (req.body.convert === true) {
-      //     // Code to handle conversion if convert field is true
-      //     debugger;
-      //   } else {
-      //     // @ts-ignore
-      //     //return Responses.error(res, 'Only .jsonl files are allowed', StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
-      //     cb(new Error('Only `.jsonl` files are supported'));
-      //   }
-      // }
-
-      cb(null, true);
-    }
+    limits: { files: 1, fileSize: 5 * 1024 * 1024 }
   }).single('file');
 
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -42,9 +25,7 @@ const uploadFile = () => {
         }
 
         // File was uploaded successfully
-        req.userFiles = {
-          uploaded: req.file
-        };
+        req.documentFile = req.file;
 
         next();
       });
