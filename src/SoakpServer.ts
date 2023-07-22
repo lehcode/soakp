@@ -4,12 +4,11 @@
  */
 import express, { Express } from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import { StatusCode } from './enums/StatusCode.enum';
-import { Message } from './enums/Message.enum';
+import { StatusMessage } from './enums/StatusMessage.enum';
 import { ChatRole, SoakpProxy } from './SoakpProxy';
 import { appConfig } from './configs';
 import { Responses } from './http/Responses';
@@ -18,12 +17,9 @@ import https from 'https';
 import path from 'path';
 import fs from 'fs';
 import validateToken from './middleware/validateToken';
-import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
-import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
-import { Configuration, CreateChatCompletionRequest } from 'openai';
+import { OpenAIConfigInterface } from './interfaces/OpenAIConfig.interface';
 import initAi from './middleware/initAi';
 import uploadFile from './middleware/uploadFile';
-
 
 export interface ServerConfigInterface {
   httpPort?: number;
@@ -69,8 +65,8 @@ export class SoakpServer {
 
     // Configure middleware
     this.app.use(cors());
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   /**
@@ -82,7 +78,7 @@ export class SoakpServer {
     try {
       if (this.basicAuthCredentialsValid()) {
         this.app.post(
-          '/get-jwt',
+          '/jwt/generate',
           basicAuth({ users: { [process.env.AUTH_USER as string]: process.env.AUTH_PASS as string }}),
           this.handleGetJwt.bind(this)
         );
@@ -101,7 +97,7 @@ export class SoakpServer {
                     validateToken(this.jwtHash, this.keyStorage),
                     initAi(this),
                     uploadFile(),
-                    this.proxy.uploadFile.bind(this));
+                    this.sendFile.bind(this));
     } catch (err) {
       throw err;
     }
@@ -139,7 +135,7 @@ export class SoakpServer {
     if (this.isValidOpenAIKey(req.body.key)) {
       openAIKey = req.body.key;
     } else {
-      console.error(Message.INVALID_KEY);
+      console.error(StatusMessage.INVALID_KEY);
       return;
     }
 
@@ -156,14 +152,14 @@ export class SoakpServer {
         existingTokens.map(async (row: DbSchemaInterface) => {
           try {
             jwt.verify(row.token, this.jwtHash);
-            console.log(Message.JWT_ACCEPTED);
+            console.log(StatusMessage.JWT_ACCEPTED);
             Responses.tokenAccepted(res, signed);
             return;
           } catch (err: any) {
             if (err.message === 'jwt expired') {
-              console.log(`${Message.JWT_EXPIRED}. Replacing it...`);
+              console.log(`${StatusMessage.JWT_EXPIRED}. Replacing it...`);
               await this.keyStorage.updateToken(row.token, signed);
-              console.log(Message.JWT_UPDATED);
+              console.log(StatusMessage.JWT_UPDATED);
               Responses.tokenUpdated(res, signed);
               return;
             }
@@ -284,12 +280,67 @@ export class SoakpServer {
             response: response.data,
             responseConfig: response.config.data
           },
-          'Received OpenAI API response'
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
         );
       }
     } catch (error) {
       console.error(error);
       Responses.serverError(res);
+    }
+  }
+
+  /**
+   * Send uploaded file to OpenAI API
+   *
+   * @param req
+   * @param res
+   */
+  async sendFile(req: express.Request, res: express.Response) {
+    try {
+      if (!req.documentFile) {
+        return Responses.error(res,'File not uploaded.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
+      }
+
+      const title = String(req.body.title);
+      if (req.body.title === '') {
+        return Responses.error(res,'Invalid document title', StatusCode.BAD_REQUEST, StatusMessage.BAD_REQUEST);
+      }
+
+      req.body.convert = req.body.convert === 'true' || false;
+
+      const docName = String(req.body.title);
+      const uploadedFile = req.documentFile;
+
+      if (path.extname(uploadedFile.originalname) !== '.jsonl') {
+        if (req.body.convert === true) {
+          // Code to handle conversion if `convert` input field exists and is `true`
+          switch (uploadedFile.mimetype) {
+            case 'text/plain':
+            case 'text/markdown':
+              this.proxy.txt2jsonl(uploadedFile, docName);
+            default:
+              return Responses.error(res, 'Please provide properly formatted .jsonl file.', StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
+          }
+        } else {
+          return Responses.error(res, 'Please provide properly formatted .jsonl file.', StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
+        }
+      }
+
+      const response = await this.proxy.uploadFile(req.documentFile as File, 'answers');
+
+      if (response.status === StatusCode.SUCCESS) {
+        return Responses.success(
+          res,
+          {
+            response: response.data,
+            responseConfig: response.config.data
+          },
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      return Responses.serverError(res);
     }
   }
 }
