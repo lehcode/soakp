@@ -8,7 +8,7 @@ import { storageConfig, serverConfig } from '../configs';
 import { AxiosHeaders, AxiosResponseHeaders } from 'axios';
 import { waitForPort } from './server';
 import { CreateChatCompletionRequest } from 'openai';
-import { ChatRole } from '../SoakpProxy';
+import { ChatRole } from '../enums/ChatRole.enum';
 
 jest.mock('../SoakpProxy');
 jest.mock('../http/Responses');

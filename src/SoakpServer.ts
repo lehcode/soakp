@@ -9,7 +9,8 @@ import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import { StatusCode } from './enums/StatusCode.enum';
 import { StatusMessage } from './enums/StatusMessage.enum';
-import { ChatRole, SoakpProxy } from './SoakpProxy';
+import { ChatRole } from './enums/ChatRole.enum';
+import { SoakpProxy } from './SoakpProxy';
 import { appConfig } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
@@ -302,7 +303,7 @@ export class SoakpServer {
       }
 
       const title = String(req.body.title);
-      if (req.body.title === '') {
+      if (title === '') {
         return Responses.error(res,'Invalid document title', StatusCode.BAD_REQUEST, StatusMessage.BAD_REQUEST);
       }
 

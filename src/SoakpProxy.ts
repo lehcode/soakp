@@ -6,15 +6,8 @@ import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 import * as readline from 'readline';
 import fs from 'fs';
 import path from 'path';
-import * as jsonlines from 'jsonlines';
+import jsonlines from 'jsonlines';
 import { Stream } from 'stream';
-
-export enum ChatRole {
-  SYSTEM = 'system',
-  USER = 'user',
-  ASSISTANT = 'assistant',
-  FUNCTION = 'function'
-}
 
 /**
  * @class SoakpProxy
