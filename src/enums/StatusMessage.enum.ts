@@ -1,4 +1,4 @@
-export enum Message {
+export enum StatusMessage {
   CREATED = 'Created',
   FOUND = 'Found',
   INTERNAL_SERVER_ERROR = 'Internal server error',
@@ -16,7 +16,10 @@ export enum Message {
   LOADED_JWT_TOKEN = 'Loaded JWT token',
   NOT_AUTHORIZED = 'Not authorized',
   NOT_FOUND = 'Not found',
+  RECEIVED_OPENAI_API_RESPONSE='Received OpenAI API response',
   SUCCESS = 'Success',
   UNKNOWN_ERROR = 'Unknown error',
+  UPLOAD_ERROR = 'Upload error',
+  WRONG_FILE_TYPE = 'Wrong file type',
   WRONG_REQUEST = 'Wrong Request'
 }
