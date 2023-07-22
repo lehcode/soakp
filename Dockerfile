@@ -33,10 +33,6 @@ ENV SERVER_ROOT="/srv/soakp"
 
 WORKDIR ${SERVER_ROOT}
 
-COPY package.json .
-COPY yarn.lock .
-COPY tsconfig.json .
-COPY *.ts .
 COPY entrypoint.sh /init.sh
 
 RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
@@ -66,6 +62,11 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
   && chown -R ${host_user_name}:docker "${SERVER_ROOT}" "/home/${host_user_name}"
+
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+COPY *.ts .
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build
