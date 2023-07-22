@@ -17,19 +17,17 @@ const validateToken = (jwtHash: string, storage: KeyStorage) => {
     try {
       const decodedToken = (await jwt.verify(token, jwtHash)) as { key: string };
       const recentToken = await storage.getRecentToken();
-      let newToken;
+      let newToken = storage.generateSignedJWT(decodedToken.key, jwtHash);
 
       if (recentToken) {
         if (token === recentToken) {
           console.log('Found existing token');
           newToken = recentToken;
         } else {
-          newToken = storage.generateSignedJWT(decodedToken.key, jwtHash);
           await storage.updateToken(recentToken, newToken);
           console.log('Supplied token invalidated. Generating new one.');
         }
       } else {
-        newToken = storage.generateSignedJWT(decodedToken.key, jwtHash);
         await storage.saveToken(newToken);
         console.log('Saved new token');
       }
