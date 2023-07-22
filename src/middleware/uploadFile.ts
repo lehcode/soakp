@@ -1,6 +1,5 @@
 import multer from 'multer';
 import { NextFunction, Request, Response } from 'express';
-import path from 'path';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Responses } from '../http/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
