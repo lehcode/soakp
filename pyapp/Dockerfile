@@ -22,9 +22,6 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-#EXPOSE 5000
-
 # Run app.py when the container launches
 # `myapp` is the name of the Python module that contains your Flask application,
 # and app is the name of the Flask instance in that module.
