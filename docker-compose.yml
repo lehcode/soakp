@@ -90,9 +90,26 @@ services:
     user: ${HOST_USER_NAME:?}:docker
     tty: true
 
+  python:
+    container_name: soakp-python
+    hostname: pyapi
+    build:
+      context: ./pyapp
+      args:
+        python_version_tag: ${USE_PYTHON_VERSION:-latest}
+        debug: ${DEBUG:-no}
+    environment:
+      PYTHON_API_PORT: ${PYTHON_API_PORT:-5000}
+      ENV_TYPE: ${PYTHON_ENV:-development}
+    volumes:
+      - ./pyapp:/srv/soakp/python
+    ports:
+      - "${PYTHON_API_PORT:-5000}:${PYTHON_API_PORT:-5000}"
+
 networks:
   soakp_network:
     ipam:
       driver: default
       config:
         - subnet: 172.16.222.0/24
+
