@@ -11,3 +11,4 @@ yarn-error.log
 /coverage/**/*
 /dist/**/*
 /pyapp/sample.md
+pyapp/__pycache__/
