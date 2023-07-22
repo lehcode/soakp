@@ -1760,6 +1760,13 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
   integrity sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==
 
+"@types/jsonlines@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@types/jsonlines/-/jsonlines-0.1.2.tgz#dc2b0bc9097df1b23075f0ace7db9f135b68cb1c"
+  integrity sha512-GMW2HkDcXHFLRaJurgM5oxFeiL5wNQHyTACMgRGewzC1gxfGWVrDaW9UwSNcMcWPbv+JFQcx3YKBQJbOa0NOHg==
+  dependencies:
+    "@types/node" "*"
+
 "@types/jsonwebtoken@^9.0.2":
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-9.0.2.tgz#9eeb56c76dd555039be2a3972218de5bd3b8d83e"
@@ -4027,6 +4034,11 @@ json5@^2.2.2, json5@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
+
+jsonlines@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/jsonlines/-/jsonlines-0.1.1.tgz#4fcd246dc5d0e38691907c44ab002f782d1d94cc"
+  integrity sha512-ekDrAGso79Cvf+dtm+mL8OBI2bmAOt3gssYs833De/C9NmIpWDWyUO4zPgB5x2/OhY366dkhgfPMYfwZF7yOZA==
 
 jsonwebtoken@^9.0.0:
   version "9.0.0"
