@@ -25,7 +25,7 @@
   "scripts": {
     "build": "NODE_ENV='production' NODE_OPTIONS='--no-warnings' tsc --outDir ./dist/",
     "lint": "eslint './**/*.{ts}' --fix --quiet",
-    "dev": "NODE_OPTIONS='--trace-warnings' NODE_ENV=development npx ts-node server.ts",
+    "dev": "NODE_OPTIONS='--trace-warnings --inspect -r ts-node/register' NODE_ENV=development node server.ts",
     "serve": "node -r ts-node/register server.ts",
     "test": "NODE_ENV='testing' jest --verbose",
     "test-ci": "jest --ci"
