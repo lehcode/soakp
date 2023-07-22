@@ -37,6 +37,7 @@ export interface StorageConfigInterface {
  */
 export class KeyStorage {
   private readonly config: StorageConfigInterface;
+  private static instance: KeyStorage | null = null;
   private backend: SqliteStorage | null = null;
 
   /**
@@ -54,16 +55,17 @@ export class KeyStorage {
    * @param {StorageConfigInterface} config
    */
   static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
-    const keyStorageInstance = new KeyStorage(config);
-    const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
-
     try {
-      keyStorageInstance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+      if (!this.instance) {
+        this.instance = new KeyStorage(config);
+        const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
+        this.instance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+      }
     } catch (err) {
       throw err;
     }
 
-    return keyStorageInstance;
+    return this.instance;
   }
 
   /**
