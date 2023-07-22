@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Message } from '../enums/Message.enum';
+import { StatusMessage } from '../enums/StatusMessage.enum';
 import { KeyStorage } from '../KeyStorage';
 import { StatusCode } from '../enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
@@ -11,7 +11,7 @@ const validateToken = (jwtHash: string, storage: KeyStorage) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      return res.status(StatusCode.NOT_AUTHORIZED).json({ message: Message.INVALID_JWT });
+      return res.status(StatusCode.NOT_AUTHORIZED).json({ message: StatusMessage.INVALID_JWT });
     }
 
     try {
@@ -39,7 +39,7 @@ const validateToken = (jwtHash: string, storage: KeyStorage) => {
       next();
     } catch (error) {
       console.error(error);
-      return res.status(StatusCode.INTERNAL_ERROR).json({ message: Message.INTERNAL_SERVER_ERROR });
+      return res.status(StatusCode.INTERNAL_ERROR).json({ message: StatusMessage.INTERNAL_SERVER_ERROR });
     }
   };
 };
