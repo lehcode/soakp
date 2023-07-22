@@ -1,10 +1,10 @@
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Message } from '../enums/Message.enum';
+import { StatusMessage } from '../enums/StatusMessage.enum';
 import express from 'express';
 
 export interface ResponseInterface {
   status: undefined | StatusCode;
-  message: undefined | Message;
+  message: undefined | StatusMessage;
   data: undefined | null | [];
 }
 
@@ -15,8 +15,8 @@ export class Responses {
    */
   static jwtNotSaved(res: express.Response) {
     return res.status(StatusCode.INTERNAL_ERROR).json({
-      status: Message.INTERNAL_SERVER_ERROR,
-      message: Message.JWT_NOT_SAVED
+      status: StatusMessage.INTERNAL_SERVER_ERROR,
+      message: StatusMessage.JWT_NOT_SAVED
     });
   }
 
@@ -37,8 +37,8 @@ export class Responses {
     return res
       .status(StatusCode.SUCCESS)
       .json({
-        status: Message.SUCCESS,
-        message: Message.LOADED_JWT_TOKEN,
+        status: StatusMessage.SUCCESS,
+        message: StatusMessage.LOADED_JWT_TOKEN,
         data: token
       });
   }
@@ -49,8 +49,8 @@ export class Responses {
    */
   static invalidJwt(res: express.Response) {
     return res.status(StatusCode.BAD_REQUEST).json({
-      status: Message.WRONG_REQUEST,
-      message: Message.INVALID_JWT
+      status: StatusMessage.WRONG_REQUEST,
+      message: StatusMessage.INVALID_JWT
     });
   }
 
@@ -63,18 +63,18 @@ export class Responses {
     switch (what) {
       case 'key':
         return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: Message.NOT_AUTHORIZED,
-          message: Message.INVALID_KEY
+          status: StatusMessage.NOT_AUTHORIZED,
+          message: StatusMessage.INVALID_KEY
         });
       case 'jwt':
         return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: Message.NOT_AUTHORIZED,
-          message: Message.INVALID_JWT
+          status: StatusMessage.NOT_AUTHORIZED,
+          message: StatusMessage.INVALID_JWT
         });
       default:
         return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: Message.INTERNAL_SERVER_ERROR,
-          message: Message.UNKNOWN_ERROR
+          status: StatusMessage.INTERNAL_SERVER_ERROR,
+          message: StatusMessage.UNKNOWN_ERROR
         });
     }
   }
@@ -96,8 +96,8 @@ export class Responses {
   static serverError(res: express.Response) {
     return res.status(StatusCode.INTERNAL_ERROR)
       .json({
-        status: Message.INTERNAL_SERVER_ERROR,
-        message: Message.INTERNAL_SERVER_ERROR
+        status: StatusMessage.INTERNAL_SERVER_ERROR,
+        message: StatusMessage.INTERNAL_SERVER_ERROR
       });
   }
 
@@ -108,8 +108,8 @@ export class Responses {
    */
   static tokenAdded(res: express.Response, token: string) {
     return res.status(StatusCode.SUCCESS).json({
-      status: Message.SUCCESS,
-      message: Message.JWT_ADDED,
+      status: StatusMessage.SUCCESS,
+      message: StatusMessage.JWT_ADDED,
       data: { jwt: token }
     });
   }
@@ -122,7 +122,7 @@ export class Responses {
   static tokenUpdated(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
-      message: Message.JWT_UPDATED,
+      message: StatusMessage.JWT_UPDATED,
       data: { jwt: token }
     });
   }
@@ -135,7 +135,7 @@ export class Responses {
   static tokenAccepted(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
-      message: Message.JWT_ACCEPTED,
+      message: StatusMessage.JWT_ACCEPTED,
       data: { jwt: token }
     });
   }
@@ -147,8 +147,23 @@ export class Responses {
   static gatewayError(res: express.Response) {
     return res.status(StatusCode.BAD_GATEWAY)
       .json({
-        status: Message.GATEWAY_ERROR,
-        message: Message.GATEWAY_ERROR
+        status: StatusMessage.GATEWAY_ERROR,
+        message: StatusMessage.GATEWAY_ERROR
+      });
+  }
+
+  /**
+   *
+   * @param res
+   * @param msg
+   * @param statusCode
+   * @param statusMessage
+   */
+  static error(res: express.Response, msg: string, statusCode?: StatusCode, statusMessage?: StatusMessage) {
+    return res.status(statusCode || StatusCode.INTERNAL_ERROR)
+      .json({
+        status: statusMessage || StatusMessage.UNKNOWN_ERROR,
+        message: msg || StatusMessage.UNKNOWN_ERROR,
       });
   }
 }
