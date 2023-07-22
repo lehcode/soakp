@@ -1,4 +1,5 @@
 export enum StatusMessage {
+  BAD_REQUEST = 'Bad Request',
   CREATED = 'Created',
   FOUND = 'Found',
   INTERNAL_SERVER_ERROR = 'Internal server error',
