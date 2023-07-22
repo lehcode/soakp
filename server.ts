@@ -4,7 +4,7 @@
  */
 import { SoakpServer } from './src/SoakpServer';
 import { serverConfig, storageConfig } from './src/configs';
-import { Message } from './src/enums/Message.enum';
+import { StatusMessage } from './src/enums/StatusMessage.enum';
 import { KeyStorage } from './src/KeyStorage';
 
 const startServer = async () => {
@@ -20,7 +20,7 @@ Please provide support here: https://opencollective.com/soakp`);
     } else if (typeof error === 'string') {
       throw new Error(error);
     } else {
-      throw new Error(Message.UNKNOWN_ERROR);
+      throw new Error(StatusMessage.UNKNOWN_ERROR);
     }
   }
 };
