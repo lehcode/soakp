@@ -10,3 +10,4 @@ yarn-error.log
 /.vscode/
 /coverage/**/*
 /dist/**/*
+/pyapp/sample.md
