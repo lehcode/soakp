@@ -5,14 +5,13 @@ import { Responses } from '../http/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 
 const uploadFile = () => {
-  const storage = multer.memoryStorage();
-  const upload = multer({
-    storage,
-    limits: { files: 1, fileSize: 5 * 1024 * 1024 }
-  }).single('file');
-
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const storage = multer.memoryStorage();
+      const upload = multer({
+        storage,
+        limits: { files: 1, fileSize: 5 * 1024 * 1024 }
+      }).single('document_file');
       multer().none();
       upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -22,9 +21,6 @@ const uploadFile = () => {
           console.error(err);
           return Responses.error(res, err.message, StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
         }
-
-        // File was uploaded successfully
-        req.documentFile = req.file;
 
         next();
       });
