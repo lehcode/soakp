@@ -135,6 +135,38 @@ export class SoakpProxy {
   }
 
   /**
+   * Parse JSON file to JSON object
+   *
+   * @param jsonl
+   */
+  async parseJSONL(jsonl: string): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        // const jsonlParser = jsonlines.parse();
+        const dataObj: any[] = [];
+
+        // Split the jsonl string into lines
+        const lines = jsonl.split('\n');
+
+        lines.forEach(line => {
+          // Parse each line to a JavaScript object and add it to the dataObj array
+          try {
+            const data = JSON.parse(line);
+            dataObj.push(data);
+          } catch (err) {
+            console.log('Invalid JSON line:', line);
+          }
+        });
+
+        resolve(dataObj);
+      } catch (err) {
+        console.log(`Error parsing JSONL: ${err}`);
+        reject(err);
+      }
+    });
+  }
+
+  /**
    * Delete file from OpenAI storage
    *
    * @param fileId
@@ -156,10 +188,17 @@ export class SoakpProxy {
    * Get single file information by ID
    *
    * @param fileId
-   *
-   * TODO: Add input validation
    */
   async getFileInfo(fileId: string) {
     return await this.openai.retrieveFile(fileId);
+  }
+
+  /**
+   * Download file by it's ID from OpenAI storage
+   *
+   * @param fileId
+   */
+  async getFileData(fileId: string) {
+    return await this.openai.downloadFile(fileId);
   }
 }

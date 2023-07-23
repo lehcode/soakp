@@ -10,6 +10,7 @@ import validateToken from '../middleware/validateToken';
 import getProxyInstance from '../middleware/getProxyInstance';
 import uploadFile from '../middleware/uploadFile';
 import extractFileId from '../middleware/extractFileId';
+import jsonlines from 'jsonlines';
 
 export class OpenaiFilesApi {
   /**
@@ -50,7 +51,7 @@ export class OpenaiFilesApi {
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                         getProxyInstance(ctx),
                         extractFileId(),
-                        this.getFile.bind(ctx));
+                        this.getFileData.bind(ctx));
   }
 
   /**
@@ -198,6 +199,37 @@ export class OpenaiFilesApi {
         return Responses.success(
           res,
           { response: response.data, responseConfig: response.config.data },
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+        );
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      }
+    }
+  }
+
+  /**
+   * Get content of single previously uploaded JSONL file from the OpenAI storage
+   *
+   * @param req
+   * @param res
+   *
+   * TODO: Add input validation
+   */
+  async getFileData(req: express.Request, res: express.Response) {
+    const fileId = String(req.openaiFileId);
+
+    try {
+      // @ts-ignore
+      const response = await this.proxy.getFileData(fileId);
+
+      if (response.status === StatusCode.SUCCESS) {
+        const parsed = await this.proxy.parseJSONL(response.data);
+
+        return Responses.success(
+          res,
+          { response: parsed, responseConfig: response.config.data },
           StatusMessage.RECEIVED_OPENAI_API_RESPONSE
         );
       }
