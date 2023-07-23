@@ -132,4 +132,13 @@ export class SoakpProxy {
   async deleteFile(fileId: string) {
     return await this.openai.deleteFile(fileId);
   }
+
+  /**
+   * Single model prperties
+   *
+   * @param modelId
+   */
+  async getModel(modelId: string) {
+    return await this.openai.retrieveModel(modelId);
+  }
 }
