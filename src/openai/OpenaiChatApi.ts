@@ -4,7 +4,7 @@ import { StatusCode } from '../enums/StatusCode.enum';
 import { Responses } from '../http/Responses';
 import { SoakpServer } from '../SoakpServer';
 import validateToken from '../middleware/validateToken';
-import initAi from '../middleware/initAi';
+import getProxyInstance from '../middleware/getProxyInstance';
 
 /**
  * @class OpenaiChatApi
@@ -25,7 +25,7 @@ export class OpenaiChatApi {
 
     this.appService.post('/openai/completions',
                          validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                         initAi(ctx),
+                         getProxyInstance(ctx),
                          this.makeChatCompletionRequest.bind(ctx));
   }
 

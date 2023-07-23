@@ -144,11 +144,22 @@ export class SoakpProxy {
   }
 
   /**
-   * Single model prperties
+   * Get single model information by ID
    *
    * @param modelId
    */
   async getModel(modelId: string) {
     return await this.openai.retrieveModel(modelId);
+  }
+
+  /**
+   * Get single file information by ID
+   *
+   * @param fileId
+   *
+   * TODO: Add input validation
+   */
+  async getFileInfo(fileId: string) {
+    return await this.openai.retrieveFile(fileId);
   }
 }
