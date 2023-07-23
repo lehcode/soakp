@@ -3,7 +3,7 @@ import { StatusCode } from '../enums/StatusCode.enum';
 import { Responses } from '../http/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import validateToken from '../middleware/validateToken';
-import initAi from '../middleware/initAi';
+import getProxyInstance from '../middleware/getProxyInstance';
 import { SoakpServer } from '../SoakpServer';
 
 /**
@@ -28,11 +28,11 @@ export class OpenaiModelsApi {
 
     this.appService.get('/openai/models',
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                        initAi(ctx),
+                        getProxyInstance(ctx),
                         this.getModels.bind(ctx));
     this.appService.get('/openai/models/:model_id',
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                        initAi(ctx),
+                        getProxyInstance(ctx),
                         this.getModel.bind(ctx));
   }
   /**

@@ -11,6 +11,7 @@ declare global {
       file: Record<string, any>;
       // Whether to convert uploaded file to JSONL format
       convert: boolean;
+      openaiFileId: string;
     }
   }
 }

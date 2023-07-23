@@ -6,7 +6,7 @@ import { StatusCode } from '../enums/StatusCode.enum';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import { openaiConfig } from '../configs';
 
-const initAi = (server: SoakpServer) => {
+const getProxyInstance = (server: SoakpServer) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!server.proxy) {
@@ -26,4 +26,4 @@ const initAi = (server: SoakpServer) => {
   };
 };
 
-export default initAi;
+export default getProxyInstance;
