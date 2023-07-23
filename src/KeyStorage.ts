@@ -226,4 +226,19 @@ export class KeyStorage {
       subject: 'openai-api'
     });
   }
+
+  /**
+   * Delete JWT
+   *
+   * @param token
+   */
+  deleteToken(token: string) {
+    try {
+      const result = this.backend.delete(token);
+    } catch (err: any) {
+      if (err instanceof Error) {
+        throw err;
+      }
+    }
+  }
 }

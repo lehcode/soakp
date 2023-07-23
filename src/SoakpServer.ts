@@ -22,6 +22,7 @@ import uploadFile from './middleware/uploadFile';
 import { OpenaiChatApi } from './openai/OpenaiChatApi';
 import { OpenaiModelsApi } from './openai/OpenaiModelsApi';
 import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
+import { StatusCode } from './enums/StatusCode.enum';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -107,6 +108,14 @@ export class SoakpServer {
                     initAi(this),
                     uploadFile(),
                     this.files.sendFile.bind(this));
+      this.app.get('/openai/files',
+                   validateToken(this.jwtHash, this.keyStorage),
+                   initAi(this),
+                   this.files.listFiles.bind(this));
+      this.app.delete('/openai/files/:file_id',
+                      validateToken(this.jwtHash, this.keyStorage),
+                      initAi(this),
+                      this.files.deleteFile.bind(this));
     } catch (err) {
       throw err;
     }
@@ -118,8 +127,7 @@ export class SoakpServer {
    * @private
    */
   private get secret(): string {
-    const secret = process.env.JWT_SECRET as string;
-    return secret.trim();
+    return String(process.env.JWT_SECRET).trim();
   }
 
   /**
@@ -127,7 +135,8 @@ export class SoakpServer {
    * @private
    */
   private get jwtHash(): string {
-    return createHash('sha256').update(this.secret)
+    return createHash('sha256')
+      .update(this.secret)
       .digest('hex');
   }
 
@@ -166,8 +175,10 @@ export class SoakpServer {
             return;
           } catch (err: any) {
             if (err.message === 'jwt expired') {
-              console.log(`${StatusMessage.JWT_EXPIRED}. Replacing it...`);
-              await this.keyStorage.updateToken(row.token, signed);
+              console.log(`${StatusMessage.JWT_EXPIRED}. Deleting it...`);
+              await this.keyStorage.deleteToken(row.token);
+              // console.log(`${StatusMessage.JWT_EXPIRED}. Replacing it...`);
+              // await this.keyStorage.updateToken(row.token, signed);
               console.log(StatusMessage.JWT_UPDATED);
               Responses.tokenUpdated(res, signed);
               return;
@@ -196,8 +207,7 @@ export class SoakpServer {
    * @private
    */
   private isValidOpenAIKey(key: string) {
-    const regex = /^(sk|pk|org)-\w+$/;
-    return regex.test(key);
+    return /^(sk|pk|org)-\w+$/.test(key);
   }
 
   /**
@@ -211,12 +221,12 @@ export class SoakpServer {
     }
 
     // Check username
-    if (!appConfig.usernameRegex.test(process.env.AUTH_USER as string)) {
+    if (!appConfig.usernameRegex.test(String(process.env.AUTH_USER))) {
       throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
     }
 
     // Check password
-    if (!appConfig.passwordRegex.test(process.env.AUTH_PASS as string)) {
+    if (!appConfig.passwordRegex.test(String(process.env.AUTH_PASS))) {
       throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
     }
 
@@ -229,12 +239,12 @@ export class SoakpServer {
    */
   private initSSL(app: express.Application) {
     const privateKey = fs.readFileSync(
-      path.join(process.env.SSL_CERT_DIR as string, `${process.env.SERVER_HOST as string}-key.pem`),
+      path.join(String(process.env.SSL_CERT_DIR), `${String(process.env.SERVER_HOST)}-key.pem`),
       'utf8'
     );
 
     const certificate = fs.readFileSync(
-      path.join(process.env.SSL_CERT_DIR as string, `${process.env.SERVER_HOST as string}-crt.pem`),
+      path.join(String(process.env.SSL_CERT_DIR), `${String(process.env.SERVER_HOST)}-crt.pem`),
       'utf8'
     );
 
