@@ -7,11 +7,9 @@ import cors from 'cors';
 import basicAuth from 'express-basic-auth';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
-import { StatusCode } from './enums/StatusCode.enum';
 import { StatusMessage } from './enums/StatusMessage.enum';
-import { ChatRole } from './enums/ChatRole.enum';
 import { SoakpProxy } from './SoakpProxy';
-import { appConfig, serverConfig } from './configs';
+import { appConfig } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
@@ -21,7 +19,9 @@ import validateToken from './middleware/validateToken';
 import { OpenAIConfigInterface } from './interfaces/OpenAIConfig.interface';
 import initAi from './middleware/initAi';
 import uploadFile from './middleware/uploadFile';
-import { File } from 'buffer';
+import { OpenaiChatApi } from './openai/OpenaiChatApi';
+import { OpenaiModelsApi } from './openai/OpenaiModelsApi';
+import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -41,6 +41,9 @@ export class SoakpServer {
   private keyStorage: KeyStorage;
   proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
+  private readonly chat: OpenaiChatApi;
+  private readonly models: OpenaiModelsApi;
+  private readonly files: OpenaiFilesApi;
 
 
   /**
@@ -51,6 +54,9 @@ export class SoakpServer {
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
     this.config = { ...configuration };
     this.keyStorage = storage;
+    this.chat = new OpenaiChatApi();
+    this.models = new OpenaiModelsApi();
+    this.files = new OpenaiFilesApi();
 
     console.log(this.config);
 
@@ -90,17 +96,17 @@ export class SoakpServer {
       this.app.get('/openai/models',
                    validateToken(this.jwtHash, this.keyStorage),
                    initAi(this),
-                   this.listOpenAIModels.bind(this));
+                   this.models.getModels.bind(this));
       this.app.post('/openai/completions',
                     validateToken(this.jwtHash, this.keyStorage),
                     initAi(this),
-                    this.makeChatCompletionRequest.bind(this));
+                    this.chat.makeChatCompletionRequest.bind(this));
       // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
       this.app.post('/openai/files',
                     validateToken(this.jwtHash, this.keyStorage),
                     initAi(this),
                     uploadFile(),
-                    this.sendFile.bind(this));
+                    this.files.sendFile.bind(this));
     } catch (err) {
       throw err;
     }
@@ -175,35 +181,6 @@ export class SoakpServer {
   }
 
   /**
-   * Handle POST `/openai/query` request
-   *
-   * @param req
-   * @param res
-   */
-  private async makeChatCompletionRequest(req: express.Request, res: express.Response) {
-    try {
-      const response = await this.proxy.chatRequest({
-        messages: req.body.messages || [
-          { 'role': ChatRole.SYSTEM, 'content': 'You are a helpful assistant.' },
-          { 'role': ChatRole.USER, 'content': 'Hello!' }
-        ],
-        model: req.body.model || 'gpt-3.5-turbo',
-        temperature: req.body.temperature || 0.7,
-        max_tokens: req.body.maxTokens || 100
-      });
-
-      // console.log(response);
-
-      if (response.status === StatusCode.SUCCESS) {
-        Responses.success( res, { response: response.data, responseConfig: response.config.data }, 'Received response from OpenAI API');
-      }
-    } catch (error) {
-      console.debug(error);
-      Responses.gatewayError(res);
-    }
-  }
-
-  /**
    * Start the server
    * @public
    */
@@ -264,105 +241,5 @@ export class SoakpServer {
     // @ts-ignore
     this.app = https.createServer({ key: privateKey, cert: certificate }, app);
     this.app.listen(this.config.sslPort);
-  }
-
-  /**
-   * Handle GET `/openai/models` request
-   *
-   * @param req
-   * @param res
-   */
-  async listOpenAIModels(req: express.Request, res: express.Response) {
-    try {
-      const response = await this.proxy.listModels();
-
-      if (response.status === StatusCode.SUCCESS) {
-        Responses.success(
-          res,
-          {
-            response: response.data,
-            responseConfig: response.config.data
-          },
-          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      Responses.serverError(res);
-    }
-  }
-
-  /**
-   * Send uploaded file to OpenAI API
-   *
-   * @param req
-   * @param res
-   */
-  async sendFile(req: express.Request, res: express.Response) {
-    try {
-      if (!req.file || !(req.file instanceof Object)) {
-        return Responses.error(res,'File not uploaded.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
-      }
-
-      const title = String(req.body.title);
-      if (title === '') {
-        return Responses.error(res,'Invalid document title', StatusCode.BAD_REQUEST, StatusMessage.BAD_REQUEST);
-      }
-
-      req.body.convert = req.body.convert === 'true' || false;
-
-      const docName = String(req.body.title);
-      const purpose = 'fine-tune';
-      // const contentType = 'application/jsonl';
-      let response;
-
-      if (path.extname(req.file.originalname) === '.jsonl') {
-        const file = `${serverConfig.dataDir}/jsonl/${req.file.filename}.jsonl`;
-        await fs.promises.writeFile(file, req.file.buffer);
-        response = await this.proxy.uploadFile(file, purpose);
-      } else {
-        if (req.body.convert === true) {
-          // Code to handle conversion if `convert` input field exists and is `true`
-          switch (req.file.mimetype) {
-            case 'text/plain':
-            case 'text/markdown':
-              const jsonlFile = await this.proxy.txt2jsonl(req.file, docName);
-              response = await this.proxy.uploadFile(
-                fs.createReadStream(jsonlFile),
-                purpose
-              );
-              break;
-            default:
-              return Responses.error(
-                res,
-                'This file cannot be converted to JSONL by SOAKP',
-                StatusCode.UNSUPPORTED_MEDIA_TYPE,
-                StatusMessage.WRONG_FILE_TYPE
-              );
-          }
-        } else {
-          return Responses.error(
-            res,
-            'Please provide properly formatted JSONL file.',
-            StatusCode.UNSUPPORTED_MEDIA_TYPE,
-            StatusMessage.WRONG_FILE_TYPE
-          );
-        }
-      }
-
-      if (response.status === StatusCode.SUCCESS) {
-        return Responses.success(
-          res,
-          {
-            response: response.data,
-            responseConfig: response.config.data
-          },
-          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      return Responses.serverError(res);
-    }
   }
 }
