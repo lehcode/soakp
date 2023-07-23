@@ -7,8 +7,9 @@ import { serverConfig } from '../configs';
 import fs from 'fs';
 import { SoakpServer } from '../SoakpServer';
 import validateToken from '../middleware/validateToken';
-import initAi from '../middleware/initAi';
+import getProxyInstance from '../middleware/getProxyInstance';
 import uploadFile from '../middleware/uploadFile';
+import extractFileId from '../middleware/extractFileId';
 
 export class OpenaiFilesApi {
   /**
@@ -29,17 +30,27 @@ export class OpenaiFilesApi {
 
     this.appService.post('/openai/files',
                          validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                         initAi(ctx),
+                         getProxyInstance(ctx),
                          uploadFile(),
                          this.sendFile.bind(ctx));
     this.appService.get('/openai/files',
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                        initAi(ctx),
+                        getProxyInstance(ctx),
                         this.listFiles.bind(ctx));
     this.appService.delete('/openai/files/:file_id',
                            validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
-                           initAi(ctx),
+                           getProxyInstance(ctx),
                            this.deleteFile.bind(ctx));
+    this.appService.get('/openai/files/:file_id',
+                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        getProxyInstance(ctx),
+                        extractFileId(),
+                        this.getFile.bind(ctx));
+    this.appService.get('/openai/files/:file_id/content',
+                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        getProxyInstance(ctx),
+                        extractFileId(),
+                        this.getFile.bind(ctx));
   }
 
   /**
@@ -164,6 +175,36 @@ export class OpenaiFilesApi {
 
       // console.log(err);
       return Responses.error(res, err.message, StatusCode.INTERNAL_ERROR, StatusMessage.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Get information about single previously uploaded JSONL file from the OpenAI storage
+   *
+   * @param req
+   * @param res
+   *
+   * TODO: Add input validation
+   */
+  async getFile(req: express.Request, res: express.Response) {
+    const fileId = String(req.openaiFileId);
+    let response;
+
+    try {
+      // @ts-ignore
+      response = await this.proxy.getFileInfo(fileId);
+
+      if (response.status === StatusCode.SUCCESS) {
+        return Responses.success(
+          res,
+          { response: response.data, responseConfig: response.config.data },
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+        );
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      }
     }
   }
 
