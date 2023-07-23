@@ -4,6 +4,7 @@ import { Configuration } from 'openai';
 import { SoakpServer } from '../SoakpServer';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { StatusMessage } from '../enums/StatusMessage.enum';
+import { openaiConfig } from '../configs';
 
 const initAi = (server: SoakpServer) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -14,13 +15,13 @@ const initAi = (server: SoakpServer) => {
 
       server.proxy.initOpenai({
         apiKey: server.getUser().apiKey,
-        organization: server.getUser().orgId
+        organization: openaiConfig.orgId
       } as Configuration);
 
       next();
     } catch (error) {
-      console.error(error);
-      return res.status(StatusCode.INTERNAL_ERROR).json({ message: StatusMessage.INTERNAL_SERVER_ERROR });
+      // console.error(error);
+      next(error);
     }
   };
 };
