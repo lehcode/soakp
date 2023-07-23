@@ -22,10 +22,6 @@ export const mockInitializeExpressApp = jest.fn(() => {
   console.log('mockInitializeExpressApp');
 });
 
-export const mockInitializeEndpoints = jest.fn(() => {
-  console.log('mockInitializeEndpoints');
-});
-
 const mock = jest.fn().mockImplementation(() => {
   const originalModule = jest.requireActual('../../SoakpServer');
 
@@ -34,7 +30,6 @@ const mock = jest.fn().mockImplementation(() => {
     ...originalModule,
     basicAuthCredentialsValid: mockBasicAuthCredentialsValid,
     initializeExpressApp: mockInitializeExpressApp,
-    initializeEndpoints: mockInitializeEndpoints
   };
 });
 

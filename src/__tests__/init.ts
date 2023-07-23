@@ -22,9 +22,9 @@ describe('SoakpServer', () => {
   });
 
   it('should initialize the server with the specified config', () => {
-    expect(server['app']).toBeDefined();
+    expect(server['appService']).toBeDefined();
     // keyStorage is initialized in the start() method
-    expect(server['keyStorage']).toBeUndefined();
+    expect(server['keyStorageService']).toBeUndefined();
     expect(server['proxy']).toBeDefined();
     expect(server['config']).toStrictEqual(serverConfig);
     expect(console.log).toHaveBeenCalledWith(serverConfig);
@@ -44,8 +44,8 @@ describe('SoakpServer', () => {
 
         // Verify that the start method was called with the correct arguments
         expect(server.start).toHaveBeenCalled();
-        expect(server['keyStorage']).toBeDefined();
-        expect(server['app']).toBeDefined();
+        expect(server['keyStorageService']).toBeDefined();
+        expect(server['appService']).toBeDefined();
         expect(server['initSSL']).toHaveBeenCalled();
         expect(server['proxy']).toBeDefined();
         expect(server['config']).toStrictEqual(serverConfig);
