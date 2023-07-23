@@ -16,6 +16,11 @@ import { StatusCode } from './enums/StatusCode.enum';
  * @class SoakpProxy
  */
 export class SoakpProxy {
+  /**
+   * OpenAI API
+   *
+   * @private
+   */
   private openai: OpenAIApi;
 
   /**
@@ -36,7 +41,12 @@ export class SoakpProxy {
     });
     this.openai = new OpenAIApi(configuration);
 
-    console.log(`Initialized Soakp proxy with API key '${config.apiKey}'`);
+    if (process.env.NODE_ENV === 'production') {
+      console.log(`${StatusMessage.INITIALIZED_SOAKP_PROXY_WITH_API_KEY} '[scrubbed]'`);
+    } else {
+      // const sub = config.apiKey.substring(0, Math.round(config.apiKey.length/2));
+      console.log(`${StatusMessage.INITIALIZED_SOAKP_PROXY_WITH_API_KEY} '[scrubbed]'`);
+    }
   }
 
   /**
