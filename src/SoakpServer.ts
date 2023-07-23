@@ -11,7 +11,7 @@ import { StatusCode } from './enums/StatusCode.enum';
 import { StatusMessage } from './enums/StatusMessage.enum';
 import { ChatRole } from './enums/ChatRole.enum';
 import { SoakpProxy } from './SoakpProxy';
-import { appConfig } from './configs';
+import { appConfig, serverConfig } from './configs';
 import { Responses } from './http/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
@@ -21,13 +21,15 @@ import validateToken from './middleware/validateToken';
 import { OpenAIConfigInterface } from './interfaces/OpenAIConfig.interface';
 import initAi from './middleware/initAi';
 import uploadFile from './middleware/uploadFile';
+import { File } from 'buffer';
 
 export interface ServerConfigInterface {
-  httpPort?: number;
-  sslPort?: number;
-  httpAuthUser?: string;
-  httpAuthPass?: string;
-  openAI?: OpenAIConfigInterface;
+  httpPort: number;
+  sslPort: number;
+  httpAuthUser: string;
+  httpAuthPass: string;
+  dataDir: string;
+  openAI: OpenAIConfigInterface;
 }
 
 
@@ -298,7 +300,7 @@ export class SoakpServer {
    */
   async sendFile(req: express.Request, res: express.Response) {
     try {
-      if (!req.documentFile) {
+      if (!req.file || !(req.file instanceof Object)) {
         return Responses.error(res,'File not uploaded.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
       }
 
@@ -310,24 +312,43 @@ export class SoakpServer {
       req.body.convert = req.body.convert === 'true' || false;
 
       const docName = String(req.body.title);
-      const uploadedFile = req.documentFile;
+      const purpose = 'fine-tune';
+      // const contentType = 'application/jsonl';
+      let response;
 
-      if (path.extname(uploadedFile.originalname) !== '.jsonl') {
+      if (path.extname(req.file.originalname) === '.jsonl') {
+        const file = `${serverConfig.dataDir}/jsonl/${req.file.filename}.jsonl`;
+        await fs.promises.writeFile(file, req.file.buffer);
+        response = await this.proxy.uploadFile(file, purpose);
+      } else {
         if (req.body.convert === true) {
           // Code to handle conversion if `convert` input field exists and is `true`
-          switch (uploadedFile.mimetype) {
+          switch (req.file.mimetype) {
             case 'text/plain':
             case 'text/markdown':
-              this.proxy.txt2jsonl(uploadedFile, docName);
+              const jsonlFile = await this.proxy.txt2jsonl(req.file, docName);
+              response = await this.proxy.uploadFile(
+                fs.createReadStream(jsonlFile),
+                purpose
+              );
+              break;
             default:
-              return Responses.error(res, 'Please provide properly formatted .jsonl file.', StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
+              return Responses.error(
+                res,
+                'This file cannot be converted to JSONL by SOAKP',
+                StatusCode.UNSUPPORTED_MEDIA_TYPE,
+                StatusMessage.WRONG_FILE_TYPE
+              );
           }
         } else {
-          return Responses.error(res, 'Please provide properly formatted .jsonl file.', StatusCode.UNSUPPORTED_MEDIA_TYPE, StatusMessage.WRONG_FILE_TYPE);
+          return Responses.error(
+            res,
+            'Please provide properly formatted JSONL file.',
+            StatusCode.UNSUPPORTED_MEDIA_TYPE,
+            StatusMessage.WRONG_FILE_TYPE
+          );
         }
       }
-
-      const response = await this.proxy.uploadFile(req.documentFile as File, 'answers');
 
       if (response.status === StatusCode.SUCCESS) {
         return Responses.success(

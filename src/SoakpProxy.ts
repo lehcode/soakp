@@ -4,10 +4,12 @@
  */
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 import * as readline from 'readline';
-import fs from 'fs';
+import fs, { promises } from 'fs';
 import path from 'path';
 import jsonlines from 'jsonlines';
 import { Stream } from 'stream';
+import { serverConfig } from './configs';
+import { StatusMessage } from './enums/StatusMessage.enum';
 
 /**
  * @class SoakpProxy
@@ -67,32 +69,59 @@ export class SoakpProxy {
    * @param file
    * @param purpose
    */
-  async uploadFile(file: File, purpose?: string) {
+  async uploadFile(file: any, purpose?: string) {
     return await this.openai.createFile(file, purpose);
   }
 
-  async txt2jsonl(txtFile: any, title: string) {
-    const buffer = Buffer.from(txtFile.buffer.data);
-    const basename = path.basename(txtFile.originalname);
-    const readableStream = new Stream.Readable();
-    readableStream.push(buffer);
-    readableStream.push(null);
-    const readStream = readline.createInterface({
-      input: readableStream,
-      output: process.stdout,
-      terminal: false
-    });
-    const writeStream = fs.createWriteStream(`${basename}.jsonl`);
-    const jsonlStringify = jsonlines.stringify();
+  /**
+   *
+   * @param txtFile
+   * @param title
+   */
+  async txt2jsonl(txtFile: Record<string, any>, title: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        const buffer = Buffer.from(txtFile.buffer);
+        const basename = path.basename(txtFile.originalname);
+        const readableStream = new Stream.Readable();
+        readableStream.push(buffer);
+        readableStream.push(null);
 
-    readStream.on('line', (line) => {
-      // convert the line to a JSON object
-      jsonlStringify.write({ prompt: `${line}\\n\\n###\\n\\n`, completion: ` ${title} END` });
-    });
+        const jsonlFilePath = path.resolve(`${serverConfig.dataDir}/jsonl/${basename}.jsonl`);
+        const writeStream = fs.createWriteStream(jsonlFilePath);
+        const stringify = jsonlines.stringify();
 
-    readStream.on('close', () => {
-      writeStream.end();
-      console.log('Done converting buffer to .jsonl');
+        const readStream = readline.createInterface({
+          input: readableStream,
+          output: process.stdout,
+          terminal: false
+        });
+
+        stringify.pipe(process.stdout);
+        stringify.pipe(writeStream);
+
+        readStream.on('line', (line) => {
+          if (line !== '') {
+            // Convert the line to a JSON object
+            stringify.write({ prompt: `${line}\\n\\n###\\n\\n`, completion: ` ${title} END` });
+          }
+        });
+
+        readStream.on('close', () => {
+          // Signal the end of the stringify stream
+          stringify.end();
+        });
+
+        writeStream.on('finish', () => {
+          console.log('Done converting buffer to .jsonl');
+
+          fs.readFile(jsonlFilePath, 'utf8', (err, data) => {
+            resolve(jsonlFilePath);
+          });
+        });
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
