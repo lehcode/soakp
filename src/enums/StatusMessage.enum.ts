@@ -6,6 +6,7 @@ export enum StatusMessage {
   INVALID_KEY = 'Incorrect key supplied',
   INVALID_KEY_STORAGE = 'Invalid key storage',
   INVALID_OPENAI_KEY = 'OpenAI API key validation failed',
+  INITIALIZED_SOAKP_PROXY_WITH_API_KEY = 'Initialized SOAKP proxy with API key',
   INVALID_JWT = 'JWT validation failed',
   JWT_ACCEPTED = 'JWT accepted',
   JWT_ADDED = 'JWT added',
