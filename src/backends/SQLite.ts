@@ -298,10 +298,6 @@ id, token, created_at, updated_at, last_access, archived
           resolve(StatusCode.SUCCESS);
         }
       });
-      // this.db.run(sql, (err, row: DbSchemaInterface) => {
-      //   if (err) reject(err);
-      //   else resolve(row);
-      // });
     });
   }
 
