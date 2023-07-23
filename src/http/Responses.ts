@@ -8,77 +8,10 @@ export interface ResponseInterface {
   data: undefined | null | [];
 }
 
+/**
+ * Pre-defined HTTP responses and templates
+ */
 export class Responses {
-  /**
-   *
-   * @param res
-   */
-  static jwtNotSaved(res: express.Response) {
-    return res.status(StatusCode.INTERNAL_ERROR).json({
-      status: StatusMessage.INTERNAL_SERVER_ERROR,
-      message: StatusMessage.JWT_NOT_SAVED
-    });
-  }
-
-  /**
-   *
-   * @param res
-   */
-  static unknownError(res: express.Response) {
-    return Responses.serverError(res);
-  }
-
-  /**
-   *
-   * @param res
-   * @param token
-   */
-  static loadedToken(res: express.Response, token: string) {
-    return res
-      .status(StatusCode.SUCCESS)
-      .json({
-        status: StatusMessage.SUCCESS,
-        message: StatusMessage.LOADED_JWT_TOKEN,
-        data: token
-      });
-  }
-
-  /**
-   *
-   * @param res
-   */
-  static invalidJwt(res: express.Response) {
-    return res.status(StatusCode.BAD_REQUEST).json({
-      status: StatusMessage.WRONG_REQUEST,
-      message: StatusMessage.INVALID_JWT
-    });
-  }
-
-  /**
-   *
-   * @param res
-   * @param what
-   */
-  static notAuthorized(res: express.Response, what?: 'key' | 'jwt') {
-    switch (what) {
-      case 'key':
-        return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: StatusMessage.NOT_AUTHORIZED,
-          message: StatusMessage.INVALID_KEY
-        });
-      case 'jwt':
-        return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: StatusMessage.NOT_AUTHORIZED,
-          message: StatusMessage.INVALID_JWT
-        });
-      default:
-        return res.status(StatusCode.NOT_AUTHORIZED).json({
-          status: StatusMessage.INTERNAL_SERVER_ERROR,
-          message: StatusMessage.UNKNOWN_ERROR
-        });
-    }
-  }
-
   /**
    *
    * @param res
@@ -110,19 +43,6 @@ export class Responses {
     return res.status(StatusCode.SUCCESS).json({
       status: StatusMessage.SUCCESS,
       message: StatusMessage.JWT_ADDED,
-      data: { jwt: token }
-    });
-  }
-
-  /**
-   *
-   * @param res
-   * @param token
-   */
-  static tokenUpdated(res: express.Response, token: string) {
-    return res.status(StatusCode.ACCEPTED).json({
-      status: StatusCode.ACCEPTED,
-      message: StatusMessage.JWT_UPDATED,
       data: { jwt: token }
     });
   }
@@ -164,6 +84,20 @@ export class Responses {
       .json({
         status: statusMessage || StatusMessage.UNKNOWN_ERROR,
         message: msg || StatusMessage.UNKNOWN_ERROR,
+      });
+  }
+
+  /**
+   * Unknown server error
+   *
+   * @param res
+   * @param msg
+   */
+  static unknownServerError(res: express.Response, msg?: string) {
+    return res.status(StatusCode.INTERNAL_ERROR)
+      .json({
+        status: StatusMessage.INTERNAL_SERVER_ERROR,
+        message: msg || StatusMessage.INTERNAL_SERVER_ERROR,
       });
   }
 }
