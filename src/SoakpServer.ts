@@ -23,6 +23,7 @@ import { OpenaiChatApi } from './openai/OpenaiChatApi';
 import { OpenaiModelsApi } from './openai/OpenaiModelsApi';
 import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
 import { StatusCode } from './enums/StatusCode.enum';
+import { UserInterface } from './interfaces/User.interface';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -40,11 +41,12 @@ export interface ServerConfigInterface {
 export class SoakpServer {
   private app: Express;
   private keyStorage: KeyStorage;
-  proxy: SoakpProxy;
   private readonly config: ServerConfigInterface;
   private readonly chat: OpenaiChatApi;
   private readonly models: OpenaiModelsApi;
   private readonly files: OpenaiFilesApi;
+  private user: UserInterface;
+  proxy: SoakpProxy;
 
 
   /**
@@ -58,6 +60,8 @@ export class SoakpServer {
     this.chat = new OpenaiChatApi();
     this.models = new OpenaiModelsApi();
     this.files = new OpenaiFilesApi();
+    this.user = { token: undefined, apiKey: undefined, orgId: undefined };
+    this.proxy = new SoakpProxy();
 
     console.log(this.config);
 
@@ -89,31 +93,34 @@ export class SoakpServer {
       if (this.basicAuthCredentialsValid()) {
         this.app.post(
           '/jwt/generate',
-          basicAuth({ users: { [process.env.AUTH_USER as string]: process.env.AUTH_PASS as string }}),
+          basicAuth({ users: { [this.config.httpAuthUser]: this.config.httpAuthPass }}),
           this.handleGetJwt.bind(this)
         );
       }
 
       this.app.get('/openai/models',
-                   validateToken(this.jwtHash, this.keyStorage),
+                   validateToken(this.jwtHash, this.keyStorage, this.user),
                    initAi(this),
                    this.models.getModels.bind(this));
+      this.app.get('/openai/models/model/{model}',
+                   validateToken(this.jwtHash, this.keyStorage, this.user),
+                   initAi(this),
+                   this.models.getModel.bind(this));
       this.app.post('/openai/completions',
-                    validateToken(this.jwtHash, this.keyStorage),
+                    validateToken(this.jwtHash, this.keyStorage, this.user),
                     initAi(this),
                     this.chat.makeChatCompletionRequest.bind(this));
-      // this.app.get('/openai/models/model/{model}', validateToken(this.jwtHash, this.keyStorage), this.openAIModelDetails.bind(this));
       this.app.post('/openai/files',
-                    validateToken(this.jwtHash, this.keyStorage),
+                    validateToken(this.jwtHash, this.keyStorage, this.user),
                     initAi(this),
                     uploadFile(),
                     this.files.sendFile.bind(this));
       this.app.get('/openai/files',
-                   validateToken(this.jwtHash, this.keyStorage),
+                   validateToken(this.jwtHash, this.keyStorage, this.user),
                    initAi(this),
                    this.files.listFiles.bind(this));
       this.app.delete('/openai/files/:file_id',
-                      validateToken(this.jwtHash, this.keyStorage),
+                      validateToken(this.jwtHash, this.keyStorage, this.user),
                       initAi(this),
                       this.files.deleteFile.bind(this));
     } catch (err) {
@@ -148,43 +155,46 @@ export class SoakpServer {
    * @private
    */
   private async handleGetJwt(req: express.Request, res: express.Response) {
-    let openAIKey: string;
-
     if (this.isValidOpenAIKey(req.body.key)) {
-      openAIKey = req.body.key;
+      this.user = <UserInterface>{
+        token: undefined,
+        apiKey: req.body.key,
+        orgId: req.body.orgId
+      };
     } else {
-      console.error(StatusMessage.INVALID_KEY);
-      return;
+      return Responses.error(res, StatusMessage.INVALID_OPENAI_KEY, StatusCode.NOT_AUTHORIZED, StatusMessage.NOT_AUTHORIZED);
     }
 
     try {
       const existingTokens = await this.keyStorage.getActiveTokens();
-      const signed = this.keyStorage.generateSignedJWT(openAIKey, this.jwtHash);
+      let signed: string;
 
-      if (existingTokens instanceof Error || existingTokens.length === 0) {
+      if (((existingTokens instanceof Array) && existingTokens.length === 0) || (existingTokens instanceof Error)) {
         // No saved JWTs found, generate and save a new one
         console.log('No matching tokens found. Generating a new one.');
+        signed = this.keyStorage.generateSignedJWT(this.user.apiKey, this.jwtHash);
         await this.keyStorage.saveToken(signed);
-        Responses.tokenAdded(res, signed);
+
+        return Responses.tokenAdded(res, signed);
       } else {
-        existingTokens.map(async (row: DbSchemaInterface) => {
+        existingTokens.filter(async (row: DbSchemaInterface) => {
           try {
             jwt.verify(row.token, this.jwtHash);
             console.log(StatusMessage.JWT_ACCEPTED);
-            Responses.tokenAccepted(res, signed);
-            return;
+
+            return true;
           } catch (err: any) {
             if (err.message === 'jwt expired') {
-              console.log(`${StatusMessage.JWT_EXPIRED}. Deleting it...`);
-              await this.keyStorage.deleteToken(row.token);
-              // console.log(`${StatusMessage.JWT_EXPIRED}. Replacing it...`);
-              // await this.keyStorage.updateToken(row.token, signed);
-              console.log(StatusMessage.JWT_UPDATED);
-              Responses.tokenUpdated(res, signed);
-              return;
+              console.log(`${StatusMessage.JWT_EXPIRED}: '${row.token.substring(0, 64)}...'`);
             }
+
+            return false;
           }
         });
+
+        if (existingTokens.length) {
+          return Responses.tokenAccepted(res, existingTokens.pop().token);
+        }
       }
     } catch (err: any) {
       console.error(err.message);
@@ -216,17 +226,20 @@ export class SoakpServer {
    * @private
    */
   private basicAuthCredentialsValid(): boolean {
-    if (!process.env.AUTH_USER || !process.env.AUTH_PASS) {
+    const user = String(process.env.AUTH_USER);
+    const pass = String(process.env.AUTH_PASS);
+
+    if (!user || !pass) {
       throw new Error('Missing required environment variables AUTH_USER and/or AUTH_PASS');
     }
 
     // Check username
-    if (!appConfig.usernameRegex.test(String(process.env.AUTH_USER))) {
+    if (!appConfig.usernameRegex.test(user)) {
       throw new Error('Username provided for Basic HTTP Authorization cannot be validated');
     }
 
     // Check password
-    if (!appConfig.passwordRegex.test(String(process.env.AUTH_PASS))) {
+    if (!appConfig.passwordRegex.test(pass)) {
       throw new Error('Password provided for Basic HTTP Authorization cannot be validated');
     }
 
@@ -251,5 +264,21 @@ export class SoakpServer {
     // @ts-ignore
     this.app = https.createServer({ key: privateKey, cert: certificate }, app);
     this.app.listen(this.config.sslPort);
+  }
+
+  /**
+   * User properties setter
+   *
+   * @param value
+   */
+  setUser(value: UserInterface) {
+    this.user = value;
+  }
+
+  /**
+   * User properties getter
+   */
+  getUser(): UserInterface {
+    return this.user;
   }
 }

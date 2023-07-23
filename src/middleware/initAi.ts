@@ -8,19 +8,20 @@ import { StatusMessage } from '../enums/StatusMessage.enum';
 const initAi = (server: SoakpServer) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const proxy = new SoakpProxy();
-      proxy.initAI({
-        apiKey: req.user.apiKey,
-        organization: req.user.orgId || null
+      if (!server.proxy) {
+        server.proxy = new SoakpProxy();
+      }
+
+      server.proxy.initAI({
+        apiKey: server.getUser().apiKey,
+        organization: server.getUser().orgId
       } as Configuration);
 
-      server.proxy = proxy;
+      next();
     } catch (error) {
       console.error(error);
       return res.status(StatusCode.INTERNAL_ERROR).json({ message: StatusMessage.INTERNAL_SERVER_ERROR });
     }
-
-    next();
   };
 };
 
