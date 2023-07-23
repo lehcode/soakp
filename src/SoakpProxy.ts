@@ -10,7 +10,6 @@ import jsonlines from 'jsonlines';
 import { Stream } from 'stream';
 import { serverConfig } from './configs';
 import { StatusMessage } from './enums/StatusMessage.enum';
-import { StatusCode } from './enums/StatusCode.enum';
 
 /**
  * @class SoakpProxy
@@ -124,11 +123,12 @@ export class SoakpProxy {
         writeStream.on('finish', () => {
           console.log('Done converting buffer to .jsonl');
 
-          fs.readFile(jsonlFilePath, 'utf8', (err, data) => {
+          new Promise(async () => {
+            await fs.promises.readFile(jsonlFilePath, 'utf8');
             resolve(jsonlFilePath);
           });
         });
-      } catch (err) {
+      } catch (err: any) {
         reject(err);
       }
     });
