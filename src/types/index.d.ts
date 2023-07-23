@@ -1,7 +1,5 @@
 import { UserInterface } from '../interfaces/User.interface';
 import { SoakpProxy } from '../SoakpProxy';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { ParsedQs } from 'qs';
 
 export {};
 
@@ -10,8 +8,7 @@ declare global {
     interface Request {
       user: UserInterface;
       proxy: SoakpProxy;
-      // userFiles: Record<string | Buffer, any>[];
-      documentFile: RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>;
+      file: Record<string, any>;
       // Whether to convert uploaded file to JSONL format
       convert: boolean;
     }
