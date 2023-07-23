@@ -3,7 +3,7 @@
  * Copyright: (C)2023
  */
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Database } from 'sqlite3';
+import { Database, Statement } from 'sqlite3';
 import { promises as fs } from 'fs';
 import { DbSchemaInterface } from '../KeyStorage';
 import path from 'path';
@@ -66,6 +66,13 @@ abstract class StorageStrategy {
    * @return {Promise<number | Error>}
    */
   abstract archive(what: string): Promise<number | Error>;
+
+  /**
+   * @abstract
+   * @param where
+   * @return {Promise<number | Error>}
+   */
+  abstract delete(where: string): Promise<number | Error>;
 }
 
 /**
@@ -280,21 +287,30 @@ id, token, created_at, updated_at, last_access, archived
   /**
    * Delete token from DB
    *
-   * @param token
+   * @param where
    */
-  public deleteToken(token: string) {
-    try {
-      return new Promise((resolve, reject) => {
-        this.db.run(`DELETE FROM \'${this.tableName}\' WHERE \'token\' =?`, (err, row: DbSchemaInterface) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        });
+  async delete(where: string): Promise<number | Error> {
+    return new Promise((resolve, reject) => {
+      this.db.prepare(`DELETE FROM \'${this.tableName}\' WHERE ${where}`).run((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(StatusCode.SUCCESS);
+        }
       });
-    } catch (err: any) {
+      // this.db.run(sql, (err, row: DbSchemaInterface) => {
+      //   if (err) reject(err);
+      //   else resolve(row);
+      // });
+    });
+  }
 
-    }
+  /**
+   * Delete token from database
+   *
+   * @param tokenId
+   */
+  public deleteToken(tokenId: string) {
+    return this.delete(`token =${tokenId}`);
   }
 }

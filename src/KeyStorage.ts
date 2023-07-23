@@ -6,6 +6,8 @@ import path from 'path';
 import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
+import { UserInterface } from './interfaces/User.interface';
+import { error } from 'winston';
 
 /**
  * @export
@@ -232,12 +234,14 @@ export class KeyStorage {
    *
    * @param token
    */
-  deleteToken(token: string) {
+  deleteJwt(token: string) {
     try {
-      const result = this.backend.delete(token);
+      this.backend.deleteToken(token);
     } catch (err: any) {
       if (err instanceof Error) {
         throw err;
+      } else {
+        console.error(err);
       }
     }
   }
