@@ -34,4 +34,31 @@ export class OpenaiModelsApi {
       Responses.serverError(res);
     }
   }
+
+  /**
+   * Handle GET `/openai/models/:model_id` request
+   *
+   * @param req
+   * @param res
+   */
+  async getModel(req: express.Request, res: express.Response) {
+    try {
+      // @ts-ignore
+      const response = await this.proxy.getModel(req.params.model_id);
+
+      if (response.status === StatusCode.SUCCESS) {
+        Responses.success(
+          res,
+          {
+            response: response.data,
+            responseConfig: response.config.data
+          },
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      Responses.serverError(res);
+    }
+  }
 }

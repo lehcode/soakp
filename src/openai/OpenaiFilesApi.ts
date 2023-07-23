@@ -125,7 +125,7 @@ export class OpenaiFilesApi {
       if (err.message === 'Request failed with status code 404') {
         return Responses.error(
           res,
-          err.message,
+          'File not found.',
           StatusCode.NOT_FOUND,
           StatusMessage.NOT_FOUND,
         );
