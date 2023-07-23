@@ -12,7 +12,7 @@ const initAi = (server: SoakpServer) => {
         server.proxy = new SoakpProxy();
       }
 
-      server.proxy.initAI({
+      server.proxy.initOpenai({
         apiKey: server.getUser().apiKey,
         organization: server.getUser().orgId
       } as Configuration);

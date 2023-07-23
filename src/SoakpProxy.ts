@@ -29,7 +29,7 @@ export class SoakpProxy {
    *
    * @param config
    */
-  initAI(config: Configuration) {
+  initOpenai(config: Configuration) {
     const configuration = new Configuration({
       apiKey: config.apiKey || '',
       organization: config.organization || null
