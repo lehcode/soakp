@@ -5,10 +5,41 @@ import { StatusMessage } from '../enums/StatusMessage.enum';
 import path from 'path';
 import { serverConfig } from '../configs';
 import fs from 'fs';
+import { SoakpServer } from '../SoakpServer';
+import validateToken from '../middleware/validateToken';
+import initAi from '../middleware/initAi';
+import uploadFile from '../middleware/uploadFile';
 
 export class OpenaiFilesApi {
-  constructor() {
-    //
+  /**
+   * Express application
+   *
+   * @private
+   */
+  private appService: express.Application;
+
+  /**
+   * OpenaiFilesApi
+   *
+   * @constructor
+   * @param ctx
+   */
+  constructor(ctx: SoakpServer) {
+    this.appService = ctx.getApp();
+
+    this.appService.post('/openai/files',
+                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                         initAi(ctx),
+                         uploadFile(),
+                         this.sendFile.bind(ctx));
+    this.appService.get('/openai/files',
+                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        initAi(ctx),
+                        this.listFiles.bind(ctx));
+    this.appService.delete('/openai/files/:file_id',
+                           validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                           initAi(ctx),
+                           this.deleteFile.bind(ctx));
   }
 
   /**
@@ -103,12 +134,12 @@ export class OpenaiFilesApi {
    *
    * @param req
    * @param res
+   *
+   * TODO: Add input validation
    */
   async deleteFile(req: express.Request, res: express.Response) {
     const fileId = String(req.params.file_id);
     let response;
-
-    // TODO: Add input validation
 
     try {
       // @ts-ignore
@@ -131,8 +162,8 @@ export class OpenaiFilesApi {
         );
       }
 
-      console.log(err);
-      return Responses.serverError(res);
+      // console.log(err);
+      return Responses.error(res, err.message, StatusCode.INTERNAL_ERROR, StatusMessage.INTERNAL_SERVER_ERROR);
     }
   }
 

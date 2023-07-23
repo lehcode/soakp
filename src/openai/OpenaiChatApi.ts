@@ -2,10 +2,31 @@ import express from 'express';
 import { ChatRole } from '../enums/ChatRole.enum';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Responses } from '../http/Responses';
+import { SoakpServer } from '../SoakpServer';
+import validateToken from '../middleware/validateToken';
+import initAi from '../middleware/initAi';
 
+/**
+ * @class OpenaiChatApi
+ */
 export class OpenaiChatApi {
-  constructor() {
-    //
+  /**
+   * Express application
+   *
+   * @private
+   */
+  private appService: express.Application;
+
+  /**
+   * @constructor
+   */
+  constructor(ctx: SoakpServer) {
+    this.appService = ctx.getApp();
+
+    this.appService.post('/openai/completions',
+                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                         initAi(ctx),
+                         this.makeChatCompletionRequest.bind(ctx));
   }
 
   /**
