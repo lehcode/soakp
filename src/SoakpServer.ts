@@ -39,8 +39,8 @@ export interface ServerConfigInterface {
  * @class SoakpServer
  */
 export class SoakpServer {
-  private app: Express;
-  private keyStorage: KeyStorage;
+  private appService: Express;
+  private readonly keyStorageService: KeyStorage;
   private readonly config: ServerConfigInterface;
   private readonly chat: OpenaiChatApi;
   private readonly models: OpenaiModelsApi;
@@ -56,17 +56,31 @@ export class SoakpServer {
    */
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
     this.config = { ...configuration };
-    this.keyStorage = storage;
-    this.chat = new OpenaiChatApi();
-    this.models = new OpenaiModelsApi();
-    this.files = new OpenaiFilesApi();
+    this.keyStorageService = storage;
     this.user = { token: undefined, apiKey: undefined, orgId: undefined };
     this.proxy = new SoakpProxy();
 
+    this.initializeExpressApp();
+
+    this.chat = new OpenaiChatApi(this);
+    this.models = new OpenaiModelsApi(this);
+    this.files = new OpenaiFilesApi(this);
+
     console.log(this.config);
 
-    this.initializeExpressApp();
-    this.initializeEndpoints();
+    try {
+      if (this.basicAuthCredentialsValid()) {
+        this.appService.post(
+          '/jwt/generate',
+          basicAuth({ users: { [this.config.httpAuthUser]: this.config.httpAuthPass }}),
+          this.generateJwt.bind(this)
+        );
+      }
+    } catch (err: any) {
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      }
+    }
   }
 
   /**
@@ -75,57 +89,12 @@ export class SoakpServer {
    * @private
    */
   private initializeExpressApp() {
-    this.app = express();
+    this.appService = express();
 
     // Configure middleware
-    this.app.use(cors());
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
-  }
-
-  /**
-   * Initialize API endpoints
-   *
-   * @private
-   */
-  private initializeEndpoints() {
-    try {
-      if (this.basicAuthCredentialsValid()) {
-        this.app.post(
-          '/jwt/generate',
-          basicAuth({ users: { [this.config.httpAuthUser]: this.config.httpAuthPass }}),
-          this.handleGetJwt.bind(this)
-        );
-      }
-
-      this.app.get('/openai/models',
-                   validateToken(this.jwtHash, this.keyStorage, this.user),
-                   initAi(this),
-                   this.models.getModels.bind(this));
-      this.app.get('/openai/models/model/{model}',
-                   validateToken(this.jwtHash, this.keyStorage, this.user),
-                   initAi(this),
-                   this.models.getModel.bind(this));
-      this.app.post('/openai/completions',
-                    validateToken(this.jwtHash, this.keyStorage, this.user),
-                    initAi(this),
-                    this.chat.makeChatCompletionRequest.bind(this));
-      this.app.post('/openai/files',
-                    validateToken(this.jwtHash, this.keyStorage, this.user),
-                    initAi(this),
-                    uploadFile(),
-                    this.files.sendFile.bind(this));
-      this.app.get('/openai/files',
-                   validateToken(this.jwtHash, this.keyStorage, this.user),
-                   initAi(this),
-                   this.files.listFiles.bind(this));
-      this.app.delete('/openai/files/:file_id',
-                      validateToken(this.jwtHash, this.keyStorage, this.user),
-                      initAi(this),
-                      this.files.deleteFile.bind(this));
-    } catch (err) {
-      throw err;
-    }
+    this.appService.use(cors());
+    this.appService.use(express.json());
+    this.appService.use(express.urlencoded({ extended: true }));
   }
 
   /**
@@ -138,23 +107,25 @@ export class SoakpServer {
   }
 
   /**
+   * Sign JWT with encoded secret key
    *
    * @private
    */
-  private get jwtHash(): string {
+  get jwtHash(): string {
     return createHash('sha256')
       .update(this.secret)
       .digest('hex');
   }
 
   /**
-   * Handle GET `/get-jwt` request
+   * Handle GET `/get-jwt` request.
+   * Generate JWT token for user-provided OpenAI API key.
    *
    * @param req
    * @param res
    * @private
    */
-  private async handleGetJwt(req: express.Request, res: express.Response) {
+  private async generateJwt(req: express.Request, res: express.Response) {
     if (this.isValidOpenAIKey(req.body.key)) {
       this.user = <UserInterface>{
         token: undefined,
@@ -166,14 +137,14 @@ export class SoakpServer {
     }
 
     try {
-      const existingTokens = await this.keyStorage.getActiveTokens();
+      const existingTokens = await this.keyStorageService.getActiveTokens();
       let signed: string;
 
       if (((existingTokens instanceof Array) && existingTokens.length === 0) || (existingTokens instanceof Error)) {
         // No saved JWTs found, generate and save a new one
         console.log('No matching tokens found. Generating a new one.');
-        signed = this.keyStorage.generateSignedJWT(this.user.apiKey, this.jwtHash);
-        await this.keyStorage.saveToken(signed);
+        signed = this.keyStorageService.generateSignedJWT(this.user.apiKey, this.jwtHash);
+        await this.keyStorageService.saveToken(signed);
 
         return Responses.tokenAdded(res, signed);
       } else {
@@ -197,7 +168,7 @@ export class SoakpServer {
         }
       }
     } catch (err: any) {
-      console.error(err.message);
+      return Responses.unknownServerError(res, err.message);
     }
   }
 
@@ -206,8 +177,8 @@ export class SoakpServer {
    * @public
    */
   public async start() {
-    this.app.listen(this.config.httpPort);
-    this.initSSL(this.app);
+    this.appService.listen(this.config.httpPort);
+    this.initSSL(this.appService);
   }
 
   /**
@@ -262,8 +233,8 @@ export class SoakpServer {
     );
 
     // @ts-ignore
-    this.app = https.createServer({ key: privateKey, cert: certificate }, app);
-    this.app.listen(this.config.sslPort);
+    this.appService = https.createServer({ key: privateKey, cert: certificate }, app);
+    this.appService.listen(this.config.sslPort);
   }
 
   /**
@@ -276,9 +247,23 @@ export class SoakpServer {
   }
 
   /**
-   * User properties getter
+   * Expose user properties
    */
   getUser(): UserInterface {
     return this.user;
+  }
+
+  /**
+   * Expose key storage
+   */
+  getKeyStorage() {
+    return this.keyStorageService;
+  }
+
+  /**
+   * Expose ExpressJS application
+   */
+  getApp() {
+    return this.appService;
   }
 }
