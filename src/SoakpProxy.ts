@@ -10,6 +10,7 @@ import jsonlines from 'jsonlines';
 import { Stream } from 'stream';
 import { serverConfig } from './configs';
 import { StatusMessage } from './enums/StatusMessage.enum';
+import { StatusCode } from './enums/StatusCode.enum';
 
 /**
  * @class SoakpProxy
@@ -121,5 +122,14 @@ export class SoakpProxy {
         reject(err);
       }
     });
+  }
+
+  /**
+   * Delete file from OpenAI storage
+   *
+   * @param fileId
+   */
+  async deleteFile(fileId: string) {
+    return await this.openai.deleteFile(fileId);
   }
 }

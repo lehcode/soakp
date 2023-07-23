@@ -228,6 +228,7 @@ id, token, created_at, updated_at, last_access, archived
     let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
     if (order) sql += ` ORDER BY ${order} ${sort}`;
     if (limit) sql += ` LIMIT ${limit}`;
+
     return new Promise((resolve, reject) => {
       this.db.all(sql, (err, rows: DbSchemaInterface[]) => {
         if (err) {
@@ -255,6 +256,7 @@ id, token, created_at, updated_at, last_access, archived
     const qWhere = [...where].join(' AND ');
     let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
     if (order) sql += ` ORDER BY ${order} ${sort} LIMIT 1`;
+
     return new Promise((resolve, reject) => {
       this.db.get(sql, (err, row: DbSchemaInterface) => {
         if (err) {
@@ -273,5 +275,26 @@ id, token, created_at, updated_at, last_access, archived
     this.db.close(() => {
       console.error(StatusMessage.UNKNOWN_ERROR);
     });
+  }
+
+  /**
+   * Delete token from DB
+   *
+   * @param token
+   */
+  public deleteToken(token: string) {
+    try {
+      return new Promise((resolve, reject) => {
+        this.db.run(`DELETE FROM \'${this.tableName}\' WHERE \'token\' =?`, (err, row: DbSchemaInterface) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        });
+      });
+    } catch (err: any) {
+
+    }
   }
 }
