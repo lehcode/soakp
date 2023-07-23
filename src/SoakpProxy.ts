@@ -10,6 +10,7 @@ import jsonlines from 'jsonlines';
 import { Stream } from 'stream';
 import { serverConfig } from './configs';
 import { StatusMessage } from './enums/StatusMessage.enum';
+import { StatusCode } from './enums/StatusCode.enum';
 
 /**
  * @class SoakpProxy
@@ -56,8 +57,6 @@ export class SoakpProxy {
   async listModels() {
     return await this.openai.listModels();
   }
-  
-  
 
   /**
    * Upload a file that contains document(s) to be used across various
@@ -126,11 +125,11 @@ export class SoakpProxy {
   }
 
   /**
-   * Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
+   * Delete file from OpenAI storage
    *
-   * @param {String} id
+   * @param fileId
    */
-  async getModel(id: string) {
-    return await this.openai.retrieveModel(id);
+  async deleteFile(fileId: string) {
+    return await this.openai.deleteFile(fileId);
   }
 }
