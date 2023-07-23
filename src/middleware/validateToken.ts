@@ -15,7 +15,10 @@ const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface
 
     try {
       const existingTokens = await storage.getActiveTokens();
-      const signed = storage.generateSignedJWT(req.body.key, jwtHash);
+      // @ts-ignore
+      user.apiKey = jwt.verify(token, jwtHash).key;
+      const signed = storage.generateSignedJWT(user.apiKey, jwtHash);
+
       const expiredTokenCleanup = async (token: string) => {
         await storage.deleteJwt(token);
         user.token = undefined;
@@ -32,11 +35,23 @@ const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface
         existingTokens.map(async (row: DbSchemaInterface) => {
           try {
             jwt.verify(row.token, jwtHash);
-            console.log(`Verified JWT '${row.token.substring(0, 64)}...'`);
+
+            if (process.env.NODE_ENV === 'production') {
+              console.log('Verified JWT \'[scrubbed]\'');
+            } else {
+              console.log(`Verified JWT '${row.token.substring(0, row.token.length/2)}[scrubbed]'`);
+            }
+
             user.token = row.token;
           } catch (err: any) {
             if ((err instanceof Error) && err.message === 'jwt expired') {
-              console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '${row.token.substring(0, 64)}...'`);
+              if (process.env.NODE_ENV === 'production') {
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '[scrubbed]'`);
+              } else {
+                const sub = row.token.substring(0, row.token.length/2);
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '${sub}[scrubbed]'`);
+              }
+
               await storage.updateToken(row.token, signed);
               console.log(StatusMessage.JWT_UPDATED);
               await expiredTokenCleanup(row.token);
@@ -47,7 +62,9 @@ const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface
 
       next();
     } catch (err: any) {
-      next(err.message);
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      };
     }
   };
 };
