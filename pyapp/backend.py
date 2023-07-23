@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/gen/jsonl', methods=['POST'])
 def run_script():
-    subprocess.run(["python", "your_script.py"])
+    subprocess.run(["python", "script.py"])
     return 'Script executed'
 
 @app.route('/jsonl/convert', methods=['POST'])
@@ -14,7 +14,9 @@ def upload_and_convert():
     data = file.read()
     # Now 'data' contains the data from the Buffer object sent by the Node.js server
     # You can process the data as needed
-    return 'File received.'
+    #return 'File received.'
+    subprocess.run(["python", "txt2jsonl.py", file])
+    return 'Script executed'
 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5000)
