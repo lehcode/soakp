@@ -9,6 +9,7 @@ export enum StatusMessage {
   INVALID_JWT = 'JWT validation failed',
   JWT_ACCEPTED = 'JWT accepted',
   JWT_ADDED = 'JWT added',
+  JWT_DELETED = 'JWT deleted',
   JWT_EXPIRED = 'JWT expired',
   JWT_NOT_FOUND = 'JWT not found',
   JWT_NOT_SAVED = 'JWT not saved',
