@@ -201,4 +201,71 @@ export class SoakpProxy {
   async getFileData(fileId: string) {
     return await this.openai.downloadFile(fileId);
   }
+
+  /**
+   * Create model fine-tune job
+   *
+   * @param fileId
+   */
+  async createFineTune(fileId: string) {
+    return await this.openai.createFineTune({
+      /**
+       * The ID of an uploaded file that contains training data.
+       *
+       * @type {string}
+       */
+      training_file: fileId,
+      /**
+       * The name of the base model to fine-tune.
+       * You can select one of "ada", "babbage","curie", "davinci",
+       * or a fine-tuned model created after 2022-04-21.
+       *
+       * @type {string}
+       */
+      model: 'davinci'
+    });
+  }
+
+  /**
+   * List your organization's fine-tuning jobs
+   */
+  async listFineTunes() {
+    return await this.openai.listFineTunes();
+  }
+
+  /**
+   * Retrieve fine-tune. Gets full info about the fine-tune job by its ID.
+   *
+   * @param fineTuneJobId
+   */
+  async getFineTuneJob(fineTuneJobId: string) {
+    return await this.openai.retrieveFineTune(fineTuneJobId);
+  }
+
+  /**
+   * List fine-tune events. Get fine-grained status updates for a fine-tune job.
+   *
+   * @param jobId
+   */
+  async getFineTuneJobEvents(jobId: string) {
+    return await this.openai.listFineTuneEvents(jobId);
+  }
+
+  /**
+   * Delete fine-tune model. Delete a fine-tuned model. You must have the Owner role in your organization.
+   *
+   * @param modelId
+   */
+  async deleteFineTuneModel(modelId: string) {
+    return await this.openai.deleteModel(modelId);
+  }
+
+  /**
+   * Cancel fine-tune. Immediately cancel a fine-tune job.
+   *
+   * @param jobId
+   */
+  async cancelFineTuneJob(jobId: string) {
+    return await this.openai.cancelFineTune(jobId);
+  }
 }
