@@ -3,21 +3,23 @@
  * Copyright: (C)2023
  */
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
-import { CreateCompletionRequest } from 'openai/api';
-import { OpenAIConfigInterface } from './interfaces/OpenAI/OpenAIConfig.interface';
-import { OpenAICallInterface } from './interfaces/OpenAI/OpenAICall.interface';
-
-export enum ChatRole {
-  SYSTEM = 'system',
-  USER = 'user',
-  ASSISTANT = 'assistant',
-  FUNCTION = 'function'
-}
+import * as readline from 'readline';
+import fs, { promises } from 'fs';
+import path from 'path';
+import jsonlines from 'jsonlines';
+import { Stream } from 'stream';
+import { serverConfig } from './configs';
+import { StatusMessage } from './enums/StatusMessage.enum';
 
 /**
  * @class SoakpProxy
  */
 export class SoakpProxy {
+  /**
+   * OpenAI API
+   *
+   * @private
+   */
   private openai: OpenAIApi;
 
   /**
@@ -31,14 +33,19 @@ export class SoakpProxy {
    *
    * @param config
    */
-  initAI(config: Configuration) {
+  initOpenai(config: Configuration) {
     const configuration = new Configuration({
       apiKey: config.apiKey || '',
       organization: config.organization || null
     });
     this.openai = new OpenAIApi(configuration);
 
-    console.log(`Initialized Soakp proxy with API key '${config.apiKey}'`);
+    if (process.env.NODE_ENV === 'production') {
+      console.log(`${StatusMessage.INITIALIZED_SOAKP_PROXY_WITH_API_KEY} '[scrubbed]'`);
+    } else {
+      // const sub = config.apiKey.substring(0, Math.round(config.apiKey.length/2));
+      console.log(`${StatusMessage.INITIALIZED_SOAKP_PROXY_WITH_API_KEY} '[scrubbed]'`);
+    }
   }
 
   /**
@@ -58,5 +65,140 @@ export class SoakpProxy {
    */
   async listModels() {
     return await this.openai.listModels();
+  }
+
+  /**
+   * Upload a file that contains document(s) to be used across various
+   * endpoints/features. Currently, the size of all the files uploaded by one
+   * organization can be up to 1 GB.
+   * Please contact us if you need to increase the storage limit.
+   * Purpose can be 'answers' or 'fine-tune'
+   *
+   * @param file
+   * @param purpose
+   */
+  async uploadFile(file: any, purpose?: string) {
+    return await this.openai.createFile(file, purpose);
+  }
+
+  /**
+   *
+   * @param txtFile
+   * @param title
+   */
+  async txt2jsonl(txtFile: Record<string, any>, title: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        const buffer = Buffer.from(txtFile.buffer);
+        const basename = path.basename(txtFile.originalname);
+        const readableStream = new Stream.Readable();
+        readableStream.push(buffer);
+        readableStream.push(null);
+
+        const jsonlFilePath = path.resolve(`${serverConfig.dataDir}/jsonl/${basename}.jsonl`);
+        const writeStream = fs.createWriteStream(jsonlFilePath);
+        const stringify = jsonlines.stringify();
+
+        const readStream = readline.createInterface({
+          input: readableStream,
+          output: process.stdout,
+          terminal: false
+        });
+
+        stringify.pipe(process.stdout);
+        stringify.pipe(writeStream);
+
+        readStream.on('line', (line) => {
+          if (line !== '') {
+            // Convert the line to a JSON object
+            stringify.write({ prompt: `${line}\\n\\n###\\n\\n`, completion: ` ${title} END` });
+          }
+        });
+
+        readStream.on('close', () => {
+          // Signal the end of the stringify stream
+          stringify.end();
+        });
+
+        writeStream.on('finish', () => {
+          console.log('Done converting buffer to .jsonl');
+
+          new Promise(async () => {
+            await fs.promises.readFile(jsonlFilePath, 'utf8');
+            resolve(jsonlFilePath);
+          });
+        });
+      } catch (err: any) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * Parse JSON file to JSON object
+   *
+   * @param jsonl
+   */
+  async parseJSONL(jsonl: string): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        // const jsonlParser = jsonlines.parse();
+        const dataObj: any[] = [];
+
+        // Split the jsonl string into lines
+        const lines = jsonl.split('\n');
+
+        lines.forEach(line => {
+          // Parse each line to a JavaScript object and add it to the dataObj array
+          try {
+            const data = JSON.parse(line);
+            dataObj.push(data);
+          } catch (err) {
+            console.log('Invalid JSON line:', line);
+          }
+        });
+
+        resolve(dataObj);
+      } catch (err) {
+        console.log(`Error parsing JSONL: ${err}`);
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * Delete file from OpenAI storage
+   *
+   * @param fileId
+   */
+  async deleteFile(fileId: string) {
+    return await this.openai.deleteFile(fileId);
+  }
+
+  /**
+   * Get single model information by ID
+   *
+   * @param modelId
+   */
+  async getModel(modelId: string) {
+    return await this.openai.retrieveModel(modelId);
+  }
+
+  /**
+   * Get single file information by ID
+   *
+   * @param fileId
+   */
+  async getFileInfo(fileId: string) {
+    return await this.openai.retrieveFile(fileId);
+  }
+
+  /**
+   * Download file by it's ID from OpenAI storage
+   *
+   * @param fileId
+   */
+  async getFileData(fileId: string) {
+    return await this.openai.downloadFile(fileId);
   }
 }

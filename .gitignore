@@ -9,3 +9,7 @@ node_modules/
 yarn-error.log
 /.vscode/
 /coverage/**/*
+/dist/**/*
+/pyapp/sample.md
+/pyapp/__pycache__/
+/tmp/**/*

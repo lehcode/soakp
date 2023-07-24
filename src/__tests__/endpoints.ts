@@ -8,7 +8,7 @@ import { storageConfig, serverConfig } from '../configs';
 import { AxiosHeaders, AxiosResponseHeaders } from 'axios';
 import { waitForPort } from './server';
 import { CreateChatCompletionRequest } from 'openai';
-import { ChatRole } from '../SoakpProxy';
+import { ChatRole } from '../enums/ChatRole.enum';
 
 jest.mock('../SoakpProxy');
 jest.mock('../http/Responses');
@@ -88,7 +88,7 @@ describe('SoakpServer', () => {
       const res = { send: jest.fn() };
       const headers: AxiosResponseHeaders = new AxiosHeaders();
 
-      expect(server['keyStorage']).not.toBeUndefined();
+      expect(server['keyStorageService']).not.toBeUndefined();
 
       waitForPort(serverConfig.httpPort, 1000, 100)
         .then(async () => {
@@ -96,25 +96,25 @@ describe('SoakpServer', () => {
           await server.start();
 
           // Mock the private methods
-          jest.spyOn(server['keyStorage'], 'getRecentToken').mockResolvedValue(validToken);
-          jest.spyOn(server['keyStorage'], 'saveToken').mockResolvedValue(200);
-          jest.spyOn(server['keyStorage'], 'updateToken').mockResolvedValue(200);
+          jest.spyOn(server['keyStorageService'], 'getRecentToken').mockResolvedValue(validToken);
+          jest.spyOn(server['keyStorageService'], 'saveToken').mockResolvedValue(200);
+          jest.spyOn(server['keyStorageService'], 'updateToken').mockResolvedValue(200);
           jest.spyOn(server['proxy'], 'chatRequest').mockResolvedValue({
             status: 200,
             data: 'response-data',
             config: { data: 'response-config', headers: headers }
           } as any);
-          jest.spyOn(server['proxy'], 'initAI').mockImplementation();
+          jest.spyOn(server['proxy'], 'initOpenai').mockImplementation();
 
           // Call the private method to test
           // @ts-ignore
           await server['handleOpenAIQuery'](req as any, res as any);
 
           // Assertions
-          expect(server['keyStorage'].getRecentToken).toHaveBeenCalled();
-          expect(server['keyStorage'].saveToken).not.toHaveBeenCalled();
-          expect(server['keyStorage'].updateToken).not.toHaveBeenCalled();
-          expect(server['proxy'].initAI).toHaveBeenCalledWith(queryParams);
+          expect(server['keyStorageService'].getRecentToken).toHaveBeenCalled();
+          expect(server['keyStorageService'].saveToken).not.toHaveBeenCalled();
+          expect(server['keyStorageService'].updateToken).not.toHaveBeenCalled();
+          expect(server['proxy'].initOpenai).toHaveBeenCalledWith(queryParams);
           expect(server['proxy'].chatRequest(queryParams)).toHaveBeenCalled();
           expect(res.send).toHaveBeenCalledWith({
             response: 'response-data',

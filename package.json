@@ -25,16 +25,17 @@
   "scripts": {
     "build": "NODE_ENV='production' NODE_OPTIONS='--no-warnings' tsc --outDir ./dist/",
     "lint": "eslint './**/*.{ts}' --fix --quiet",
-    "dev": "NODE_OPTIONS='--trace-warnings' NODE_ENV=development npx ts-node server.ts",
+    "dev": "NODE_OPTIONS='--trace-warnings --inspect -r ts-node/register' NODE_ENV=development node server.ts",
     "serve": "node -r ts-node/register server.ts",
-    "test": "NODE_ENV='testing' jest --watchAll --verbose",
-    "test-ci": "jest --ci"
+    "test": "NODE_ENV='testing' jest --ci --verbose",
+    "test-ci": "jest --ci --verbose"
   },
   "files": [
     "**/*.ts",
     "/src/**/*.ts"
   ],
   "dependencies": {
+    "@types/jsonlines": "^0.1.2",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -43,7 +44,9 @@
     "express-basic-auth": "^1.2.1",
     "express-winston": "^4.2.0",
     "form-data": "^4.0.0",
+    "jsonlines": "^0.1.1",
     "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
     "openai": "^3.3.0",
     "sqlite3": "^5.1.6",
     "stringify": "^5.2.0",
@@ -59,6 +62,7 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/multer": "^1.4.7",
     "@types/node": "^20.2.5",
     "@typescript-eslint/eslint-plugin": "^5.59.8",
     "@typescript-eslint/parser": "^5.59.8",

@@ -6,6 +6,8 @@ import path from 'path';
 import SqliteStorage from './backends/SQLite';
 import { StatusCode } from './enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
+import { UserInterface } from './interfaces/User.interface';
+import { error } from 'winston';
 
 /**
  * @export
@@ -37,6 +39,7 @@ export interface StorageConfigInterface {
  */
 export class KeyStorage {
   private readonly config: StorageConfigInterface;
+  private static instance: KeyStorage | null = null;
   private backend: SqliteStorage | null = null;
 
   /**
@@ -54,16 +57,17 @@ export class KeyStorage {
    * @param {StorageConfigInterface} config
    */
   static async getInstance(config: StorageConfigInterface): Promise<KeyStorage> {
-    const keyStorageInstance = new KeyStorage(config);
-    const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
-
     try {
-      keyStorageInstance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+      if (!this.instance) {
+        this.instance = new KeyStorage(config);
+        const sqliteFile = path.resolve(config?.dataFileDir, `./${config.dbName}`);
+        this.instance.backend = await SqliteStorage.getInstance(config.dbName, config.tableName, sqliteFile);
+      }
     } catch (err) {
       throw err;
     }
 
-    return keyStorageInstance;
+    return this.instance;
   }
 
   /**
@@ -223,5 +227,22 @@ export class KeyStorage {
       issuer: 'soakp',
       subject: 'openai-api'
     });
+  }
+
+  /**
+   * Delete JWT
+   *
+   * @param token
+   */
+  deleteJwt(token: string) {
+    try {
+      this.backend.deleteToken(token);
+    } catch (err: any) {
+      if (err instanceof Error) {
+        throw err;
+      } else {
+        console.error(err);
+      }
+    }
   }
 }

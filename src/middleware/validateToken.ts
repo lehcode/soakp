@@ -1,45 +1,70 @@
 import { Request, Response, NextFunction } from 'express';
-import { Message } from '../enums/Message.enum';
-import { KeyStorage } from '../KeyStorage';
+import { StatusMessage } from '../enums/StatusMessage.enum';
+import { DbSchemaInterface, KeyStorage } from '../KeyStorage';
 import { StatusCode } from '../enums/StatusCode.enum';
 import jwt from 'jsonwebtoken';
-import { Configuration } from 'openai';
-import { SoakpProxy } from '../SoakpProxy';
+import { UserInterface } from '../interfaces/User.interface';
 
-const validateToken = (jwtHash: string, storage: KeyStorage) => {
+const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      return res.status(StatusCode.NOT_AUTHORIZED).json({ message: Message.INVALID_JWT });
+      return res.status(StatusCode.NOT_AUTHORIZED).json({ message: StatusMessage.INVALID_JWT });
     }
 
     try {
-      const decodedToken = (await jwt.verify(token, jwtHash)) as { key: string };
-      const recentToken = await storage.getRecentToken();
-      let newToken;
+      const existingTokens = await storage.getActiveTokens();
+      // @ts-ignore
+      user.apiKey = jwt.verify(token, jwtHash).key;
+      const signed = storage.generateSignedJWT(user.apiKey, jwtHash);
 
-      if (recentToken) {
-        if (token === recentToken) {
-          console.log('Found existing token');
-          newToken = recentToken;
-        } else {
-          newToken = storage.generateSignedJWT(decodedToken.key, jwtHash);
-          await storage.updateToken(recentToken, newToken);
-          console.log('Supplied token invalidated. Generating new one.');
-        }
+      const expiredTokenCleanup = async (token: string) => {
+        await storage.deleteJwt(token);
+        user.token = undefined;
+        console.log(`Deleted JWT '${token.substring(0, 64)}...'`);
+      };
+
+      if (existingTokens instanceof Error || existingTokens.length === 0) {
+        // No saved JWTs found, generate and save a new one
+        console.log('No matching tokens found. Generating a new one.');
+        await storage.saveToken(signed);
+        // Responses.tokenAdded(res, signed);
+        user.token = signed;
       } else {
-        newToken = storage.generateSignedJWT(decodedToken.key, jwtHash);
-        await storage.saveToken(newToken);
-        console.log('Saved new token');
+        existingTokens.map(async (row: DbSchemaInterface) => {
+          try {
+            jwt.verify(row.token, jwtHash);
+
+            if (process.env.NODE_ENV === 'production') {
+              console.log('Verified JWT \'[scrubbed]\'');
+            } else {
+              console.log(`Verified JWT '${row.token.substring(0, row.token.length/2)}[scrubbed]'`);
+            }
+
+            user.token = row.token;
+          } catch (err: any) {
+            if ((err instanceof Error) && err.message === 'jwt expired') {
+              if (process.env.NODE_ENV === 'production') {
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '[scrubbed]'`);
+              } else {
+                const sub = row.token.substring(0, row.token.length/2);
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '${sub}[scrubbed]'`);
+              }
+
+              await storage.updateToken(row.token, signed);
+              console.log(StatusMessage.JWT_UPDATED);
+              await expiredTokenCleanup(row.token);
+            }
+          }
+        });
       }
 
-      req.user = { token: newToken, apiKey: decodedToken.key };
-
       next();
-    } catch (error) {
-      console.error(error);
-      return res.status(StatusCode.INTERNAL_ERROR).json({ message: Message.INTERNAL_SERVER_ERROR });
+    } catch (err: any) {
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      };
     }
   };
 };
