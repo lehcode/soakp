@@ -1,6 +1,6 @@
 {
   "name": "@lehcode/soakp",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Secure OpenAI Key Proxy (SOAKP) facilitates secure usage of the OpenAI API key through a proxy-like application.",
   "repository": {
     "type": "git",
