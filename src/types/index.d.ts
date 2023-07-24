@@ -8,6 +8,10 @@ declare global {
     interface Request {
       user: UserInterface;
       proxy: SoakpProxy;
+      file: Record<string, any>;
+      // Whether to convert uploaded file to JSONL format
+      convert: boolean;
+      openaiFileId: string;
     }
   }
 }

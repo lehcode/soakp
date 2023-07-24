@@ -3,11 +3,11 @@
  * Copyright: (C)2023
  */
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Database } from 'sqlite3';
+import { Database, Statement } from 'sqlite3';
 import { promises as fs } from 'fs';
 import { DbSchemaInterface } from '../KeyStorage';
 import path from 'path';
-import { Message } from '../enums/Message.enum';
+import { StatusMessage } from '../enums/StatusMessage.enum';
 
 /**
  * Database connection management class prototype.
@@ -66,6 +66,13 @@ abstract class StorageStrategy {
    * @return {Promise<number | Error>}
    */
   abstract archive(what: string): Promise<number | Error>;
+
+  /**
+   * @abstract
+   * @param where
+   * @return {Promise<number | Error>}
+   */
+  abstract delete(where: string): Promise<number | Error>;
 }
 
 /**
@@ -228,6 +235,7 @@ id, token, created_at, updated_at, last_access, archived
     let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
     if (order) sql += ` ORDER BY ${order} ${sort}`;
     if (limit) sql += ` LIMIT ${limit}`;
+
     return new Promise((resolve, reject) => {
       this.db.all(sql, (err, rows: DbSchemaInterface[]) => {
         if (err) {
@@ -255,6 +263,7 @@ id, token, created_at, updated_at, last_access, archived
     const qWhere = [...where].join(' AND ');
     let sql = `SELECT ${what} FROM ${this.tableName} WHERE ${qWhere}`;
     if (order) sql += ` ORDER BY ${order} ${sort} LIMIT 1`;
+
     return new Promise((resolve, reject) => {
       this.db.get(sql, (err, row: DbSchemaInterface) => {
         if (err) {
@@ -271,7 +280,33 @@ id, token, created_at, updated_at, last_access, archived
    */
   public close() {
     this.db.close(() => {
-      console.error(Message.UNKNOWN_ERROR);
+      console.error(StatusMessage.UNKNOWN_ERROR);
     });
+  }
+
+  /**
+   * Delete token from DB
+   *
+   * @param where
+   */
+  async delete(where: string): Promise<number | Error> {
+    return new Promise((resolve, reject) => {
+      this.db.prepare(`DELETE FROM \'${this.tableName}\' WHERE ${where}`).run((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(StatusCode.SUCCESS);
+        }
+      });
+    });
+  }
+
+  /**
+   * Delete token from database
+   *
+   * @param tokenId
+   */
+  public deleteToken(tokenId: string) {
+    return this.delete(`token =${tokenId}`);
   }
 }

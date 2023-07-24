@@ -17,6 +17,7 @@ ARG host_user_gid
 ARG host_user_name
 ARG host_docker_gid
 ARG ssl_cert_dir
+ARG data_dir
 
 ENV DEBUG=${debug}
 ENV NODE_ENV=${node_env}
@@ -30,13 +31,10 @@ ENV HOST_USER_NAME=${host_user_name}
 ENV HOST_DOCKER_GID=${host_docker_gid}
 ENV SSL_CERT_DIR=${ssl_cert_dir}
 ENV SERVER_ROOT="/srv/soakp"
+ENV DATA_DIR=${data_dir}
 
 WORKDIR ${SERVER_ROOT}
 
-COPY package.json .
-COPY yarn.lock .
-COPY tsconfig.json .
-COPY *.ts .
 COPY entrypoint.sh /init.sh
 
 RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
@@ -65,7 +63,13 @@ RUN if [ "${debug}" != "yes" ]; then set -e; else set -ex; fi \
   && npm cache clean --force \
   && htpasswd -cb .htpasswd ${auth_user} ${auth_pass} \
   && chmod a+x /init.sh \
-  && chown -R ${host_user_name}:docker "${SERVER_ROOT}" "/home/${host_user_name}"
+  && mkdir -p ${data_dir}/jsonl \
+  && chown -R ${host_user_name}:docker "${SERVER_ROOT}" "/home/${host_user_name}" "${data_dir}"
+
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+COPY *.ts .
 
 # Stage 1: Build the Node.js application
 # FROM node:14-alpine AS build

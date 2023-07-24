@@ -1,13 +1,16 @@
-export enum Message {
+export enum StatusMessage {
+  BAD_REQUEST = 'Bad Request',
   CREATED = 'Created',
   FOUND = 'Found',
   INTERNAL_SERVER_ERROR = 'Internal server error',
   INVALID_KEY = 'Incorrect key supplied',
   INVALID_KEY_STORAGE = 'Invalid key storage',
   INVALID_OPENAI_KEY = 'OpenAI API key validation failed',
+  INITIALIZED_SOAKP_PROXY_WITH_API_KEY = 'Initialized SOAKP proxy with API key',
   INVALID_JWT = 'JWT validation failed',
   JWT_ACCEPTED = 'JWT accepted',
   JWT_ADDED = 'JWT added',
+  JWT_DELETED = 'JWT deleted',
   JWT_EXPIRED = 'JWT expired',
   JWT_NOT_FOUND = 'JWT not found',
   JWT_NOT_SAVED = 'JWT not saved',
@@ -16,7 +19,10 @@ export enum Message {
   LOADED_JWT_TOKEN = 'Loaded JWT token',
   NOT_AUTHORIZED = 'Not authorized',
   NOT_FOUND = 'Not found',
+  RECEIVED_OPENAI_API_RESPONSE='Received OpenAI API response',
   SUCCESS = 'Success',
   UNKNOWN_ERROR = 'Unknown error',
+  UPLOAD_ERROR = 'Upload error',
+  WRONG_FILE_TYPE = 'Wrong file type',
   WRONG_REQUEST = 'Wrong Request'
 }
