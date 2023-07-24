@@ -2,8 +2,10 @@ import { SoakpServer } from '../SoakpServer';
 import { serverConfig } from '../configs';
 import { waitForPort } from './server';
 import { KeyStorage } from '../KeyStorage';
+import { OpenaiFilesApi } from '../openai/OpenaiFilesApi';
 
 jest.mock('../KeyStorage');
+jest.mock('../openai/OpenaiFilesApi');
 
 describe('SoakpServer', () => {
   let server: SoakpServer;
@@ -15,6 +17,7 @@ describe('SoakpServer', () => {
     console.log = jest.fn();
 
     server = new SoakpServer(serverConfig, keyStorage);
+    // const bound = myMock2.bind(b);
   });
 
   afterEach(() => {

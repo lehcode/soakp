@@ -11,6 +11,7 @@ import getProxyInstance from '../middleware/getProxyInstance';
 import uploadFile from '../middleware/uploadFile';
 import extractFileId from '../middleware/extractFileId';
 import jsonlines from 'jsonlines';
+import { SoakpProxy } from '../SoakpProxy';
 
 export class OpenaiFilesApi {
   /**
@@ -20,6 +21,8 @@ export class OpenaiFilesApi {
    */
   private appService: express.Application;
 
+  private proxy: SoakpProxy;
+
   /**
    * OpenaiFilesApi
    *
@@ -28,6 +31,7 @@ export class OpenaiFilesApi {
    */
   constructor(ctx: SoakpServer) {
     this.appService = ctx.getApp();
+    this.proxy = ctx.proxy;
 
     this.appService.post('/openai/files',
                          validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
