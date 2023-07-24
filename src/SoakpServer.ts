@@ -21,6 +21,7 @@ import { OpenaiModelsApi } from './openai/OpenaiModelsApi';
 import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
 import { StatusCode } from './enums/StatusCode.enum';
 import { UserInterface } from './interfaces/User.interface';
+import { OpenaiFinetunesApi } from './openai/OpenaiFinetunesApi';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -44,6 +45,7 @@ export class SoakpServer {
   private readonly files: OpenaiFilesApi;
   private user: UserInterface;
   proxy: SoakpProxy;
+  private readonly finetunes: OpenaiFinetunesApi;
 
 
   /**
@@ -62,6 +64,7 @@ export class SoakpServer {
     this.chat = new OpenaiChatApi(this);
     this.models = new OpenaiModelsApi(this);
     this.files = new OpenaiFilesApi(this);
+    this.finetunes = new OpenaiFinetunesApi(this);
 
     console.log(this.config);
 

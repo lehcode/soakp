@@ -21,6 +21,11 @@ export class OpenaiFilesApi {
    */
   private appService: express.Application;
 
+  /**
+   * Proxy instance
+   *
+   * @private
+   */
   private proxy: SoakpProxy;
 
   /**
@@ -77,7 +82,7 @@ export class OpenaiFilesApi {
 
       req.body.convert = req.body.convert === 'true' || false;
 
-      const docName = String(req.body.title);
+      const docName = String(req.body.document_title);
       const purpose = 'fine-tune';
       const ext = path.extname(req.file.originalname);
       let response;

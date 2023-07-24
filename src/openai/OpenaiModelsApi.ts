@@ -34,6 +34,10 @@ export class OpenaiModelsApi {
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                         getProxyInstance(ctx),
                         this.getModel.bind(ctx));
+    this.appService.delete('/openai/models/:model_id',
+                           validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                           getProxyInstance(ctx),
+                           this.deleteFineTuneModel.bind(ctx));
   }
   /**
    * Handle GET `/openai/models` request
@@ -71,6 +75,30 @@ export class OpenaiModelsApi {
       const modelId = String(req.params.model_id);
       // @ts-ignore
       const response = await this.proxy.getModel(modelId);
+
+      if (response.status === StatusCode.SUCCESS) {
+        return Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return Responses.unknownServerError(res, error.message);
+      } else {
+        return Responses.unknownServerError(res, StatusMessage.UNKNOWN_ERROR);
+      }
+    }
+  }
+
+  /**
+   * Delete fine-tune model. Delete a fine-tuned model. You must have the Owner role in your organization.
+   *
+   * @param req
+   * @param res
+   */
+  async deleteFineTuneModel(req: express.Request, res: express.Response) {
+    try {
+      const modelId = String(req.params.model_id);
+      // @ts-ignore
+      const response = await this.proxy.deleteFineTuneModel(modelId);
 
       if (response.status === StatusCode.SUCCESS) {
         return Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
