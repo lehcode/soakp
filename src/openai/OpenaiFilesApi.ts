@@ -1,5 +1,5 @@
 import express from 'express';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import path from 'path';

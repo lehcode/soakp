@@ -10,7 +10,7 @@ import { createHash } from 'crypto';
 import { StatusMessage } from './enums/StatusMessage.enum';
 import { SoakpProxy } from './SoakpProxy';
 import { appConfig } from './configs';
-import { Responses } from './http/Responses';
+import { Responses } from './lib/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
 import path from 'path';
