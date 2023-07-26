@@ -1,7 +1,7 @@
 import multer from 'multer';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 
 const uploadFiles = () => {
