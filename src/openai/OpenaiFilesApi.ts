@@ -8,7 +8,7 @@ import fs from 'fs';
 import { SoakpServer } from '../SoakpServer';
 import validateToken from '../middleware/validateToken';
 import getProxyInstance from '../middleware/getProxyInstance';
-import uploadFile from '../middleware/uploadFile';
+import uploadFiles from '../middleware/uploadFiles';
 import extractFileId from '../middleware/extractFileId';
 import jsonlines from 'jsonlines';
 import { SoakpProxy } from '../SoakpProxy';
@@ -41,8 +41,8 @@ export class OpenaiFilesApi {
     this.appService.post('/openai/files',
                          validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                          getProxyInstance(ctx),
-                         uploadFile(),
-                         this.sendFile.bind(ctx));
+                         uploadFiles(),
+                         this.sendFiles.bind(ctx));
     this.appService.get('/openai/files',
                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                         getProxyInstance(ctx),
@@ -69,12 +69,8 @@ export class OpenaiFilesApi {
    * @param req
    * @param res
    */
-  async sendFile(req: express.Request, res: express.Response) {
+  protected async sendFile(req: express.Request, res: express.Response) {
     try {
-      if (!req.file || !(req.file instanceof Object)) {
-        return Responses.error(res,'File not uploaded.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
-      }
-
       const title = String(req.body.title);
       if (title === '') {
         return Responses.error(res,'Invalid document title', StatusCode.BAD_REQUEST, StatusMessage.BAD_REQUEST);
@@ -127,12 +123,36 @@ export class OpenaiFilesApi {
   }
 
   /**
+   * Process uploaded files. Create JSONL file from uploaded files and upload it to OpenAI API.
+   *
+   * @param req
+   * @param res
+   */
+  protected async sendFiles(req: express.Request, res: express.Response) {
+    try {
+      if (!req.files || !(req.files instanceof Array)) {
+        if (!req.file || !(req.file instanceof Object)) {
+          return Responses.error(res,'File(s) not specified.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
+        } else {
+          this.sendFile(req, res);
+        }
+      } else {
+        //
+      }
+    } catch (err: any) {
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      }
+    }
+  }
+
+  /**
    * A list of files that belong to the user's organization
    *
    * @param req
    * @param res
    */
-  async listFiles(req: express.Request, res: express.Response) {
+  protected async listFiles(req: express.Request, res: express.Response) {
     try {
       // @ts-ignore
       const response = await this.proxy.openai.listFiles();
@@ -158,7 +178,7 @@ export class OpenaiFilesApi {
    *
    * TODO: Add input validation
    */
-  async deleteFile(req: express.Request, res: express.Response) {
+  protected async deleteFile(req: express.Request, res: express.Response) {
     const fileId = String(req.params.file_id);
     let response;
 
@@ -196,7 +216,7 @@ export class OpenaiFilesApi {
    *
    * TODO: Add input validation
    */
-  async getFile(req: express.Request, res: express.Response) {
+  protected async getFile(req: express.Request, res: express.Response) {
     const fileId = String(req.openaiFileId);
     let response;
 
@@ -226,7 +246,7 @@ export class OpenaiFilesApi {
    *
    * TODO: Add input validation
    */
-  async getFileData(req: express.Request, res: express.Response) {
+  protected async getFileData(req: express.Request, res: express.Response) {
     const fileId = String(req.openaiFileId);
 
     try {
@@ -248,5 +268,4 @@ export class OpenaiFilesApi {
       }
     }
   }
-
 }
