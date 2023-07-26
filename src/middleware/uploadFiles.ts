@@ -1,7 +1,7 @@
 import multer from 'multer';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../lib/Responses';
+import { Responses } from '../http/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 
 const uploadFiles = () => {
@@ -11,7 +11,7 @@ const uploadFiles = () => {
       const upload = multer({
         storage,
         limits: { fileSize: 5 * 1024 * 1024 }
-      }).array('files', 199);
+      }).fields([{ name: 'document_file' }]);
       multer().none();
       upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
