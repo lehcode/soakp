@@ -11,7 +11,7 @@ const uploadFiles = () => {
       const upload = multer({
         storage,
         limits: { fileSize: 5 * 1024 * 1024 }
-      }).fields([{ name: 'document_file' }]);
+      }).array('files', 199);
       multer().none();
       upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
