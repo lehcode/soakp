@@ -2,12 +2,9 @@ import { SoakpServer } from '../SoakpServer';
 import { createServer } from 'net';
 import { KeyStorage } from '../KeyStorage';
 import { storageConfig, serverConfig } from '../configs';
+import { Timer } from '../lib/Timer';
 
 jest.mock('../KeyStorage');
-
-function wait(delay: number): Promise<unknown> {
-  return new Promise((resolve) => setTimeout(resolve, delay));
-}
 
 describe('SoakpServer', () => {
   let server: SoakpServer;
@@ -79,7 +76,7 @@ export async function waitForPort(port: number, timeout = 50, retryDelay = 10): 
           } else {
             // Retry after the specified delay
             server.close();
-            wait(retryDelay).then(checkPort);
+            Timer.wait(retryDelay).then(checkPort);
           }
         } else {
           // Other error occurred, reject the promise
