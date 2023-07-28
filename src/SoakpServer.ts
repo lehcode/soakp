@@ -30,6 +30,7 @@ export interface ServerConfigInterface {
   httpAuthPass: string;
   dataDir: string;
   openAI: OpenAIConfigInterface;
+  validFiles: RegExp;
 }
 
 
@@ -37,9 +38,9 @@ export interface ServerConfigInterface {
  * @class SoakpServer
  */
 export class SoakpServer {
-  private appService: Express;
+  protected appService: Express;
   private readonly keyStorageService: KeyStorage;
-  private readonly config: ServerConfigInterface;
+  readonly config: ServerConfigInterface;
   private readonly chat: OpenaiChatApi;
   private readonly models: OpenaiModelsApi;
   private readonly files: OpenaiFilesApi;

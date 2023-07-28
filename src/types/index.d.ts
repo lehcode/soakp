@@ -7,11 +7,10 @@ declare global {
   namespace Express {
     interface Request {
       user: UserInterface;
-      proxy: SoakpProxy;
-      file: Record<string, any>;
-      // Whether to convert uploaded file to JSONL format
-      convert: boolean;
+      proxy?: SoakpProxy;
+      files?: Express.Multer.File[],
       openaiFileId: string;
+      titles: string[];
     }
   }
 }
