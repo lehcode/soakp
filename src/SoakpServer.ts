@@ -10,7 +10,7 @@ import { createHash } from 'crypto';
 import { StatusMessage } from './enums/StatusMessage.enum';
 import { SoakpProxy } from './SoakpProxy';
 import { appConfig } from './configs';
-import { Responses } from './http/Responses';
+import { Responses } from './lib/Responses';
 import { DbSchemaInterface, KeyStorage } from './KeyStorage';
 import https from 'https';
 import path from 'path';
@@ -30,6 +30,7 @@ export interface ServerConfigInterface {
   httpAuthPass: string;
   dataDir: string;
   openAI: OpenAIConfigInterface;
+  validFiles: RegExp;
 }
 
 
@@ -37,9 +38,9 @@ export interface ServerConfigInterface {
  * @class SoakpServer
  */
 export class SoakpServer {
-  private appService: Express;
+  protected appService: Express;
   private readonly keyStorageService: KeyStorage;
-  private readonly config: ServerConfigInterface;
+  readonly config: ServerConfigInterface;
   private readonly chat: OpenaiChatApi;
   private readonly models: OpenaiModelsApi;
   private readonly files: OpenaiFilesApi;

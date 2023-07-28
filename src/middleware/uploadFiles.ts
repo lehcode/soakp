@@ -1,17 +1,17 @@
 import multer from 'multer';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 
-const uploadFile = () => {
+const uploadFiles = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const storage = multer.memoryStorage();
       const upload = multer({
         storage,
-        limits: { files: 1, fileSize: 5 * 1024 * 1024 }
-      }).single('document_file');
+        limits: { fileSize: 5 * 1024 * 1024 }
+      }).array('files', 199);
       multer().none();
       upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -31,4 +31,4 @@ const uploadFile = () => {
   };
 };
 
-export default uploadFile;
+export default uploadFiles;

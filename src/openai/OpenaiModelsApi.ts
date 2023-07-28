@@ -1,6 +1,6 @@
 import express from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import validateToken from '../middleware/validateToken';
 import getProxyInstance from '../middleware/getProxyInstance';

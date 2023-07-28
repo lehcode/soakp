@@ -1,7 +1,7 @@
 import express from 'express';
 import { ChatRole } from '../enums/ChatRole.enum';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { SoakpServer } from '../SoakpServer';
 import validateToken from '../middleware/validateToken';
 import getProxyInstance from '../middleware/getProxyInstance';

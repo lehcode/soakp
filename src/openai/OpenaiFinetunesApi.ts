@@ -4,7 +4,7 @@ import getProxyInstance from '../middleware/getProxyInstance';
 import { SoakpProxy } from '../SoakpProxy';
 import express from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
+import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 
 export class OpenaiFinetunesApi {
