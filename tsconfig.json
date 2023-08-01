@@ -7,11 +7,11 @@
       // compilerOptions specified here will override those declared below,
       // but *only* in ts-node.  Useful if you want ts-node and tsc to use
       // different options with a single tsconfig.json.
-      "target": "es2018",
+      "target": "es2022",
       "module": "Node16",
       "declaration": true,
       "declarationMap": true,
-      "allowJs": true
+      "allowJs": false
     }
   },
   "module": "node",

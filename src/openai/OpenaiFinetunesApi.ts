@@ -6,7 +6,15 @@ import express from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
+import { CreateFineTuneRequest } from 'openai';
+import { Project } from 'ts-morph';
 
+/**
+ * `OpenaiFinetunesApi` class provides a set of methods that work with the OpenAI API to handle fine-tuning related jobs.
+ * The methods provided allow to create, list, retrieve details, list events, and cancel fine-tuning jobs.
+ * Each method corresponds to an API endpoint, and uses an Express application service and a proxy instance to communicate with OpenAI.
+ * This class must be instantiated with a `SoakpServer` context which provides access to application services and utilities.
+ */
 export class OpenaiFinetunesApi {
   /**
    * Express application
@@ -55,7 +63,9 @@ export class OpenaiFinetunesApi {
   }
 
   /**
-   * Creates a job that fine-tunes a specified model from a given dataset.
+   * `createJob` method initiates a fine-tuning job on the specified model using a given dataset.
+   * It expects the incoming request body to include `training_file` (ID of the file to be used for training)
+   * and `model` (model to be fine-tuned) parameters. It communicates with the OpenAI API via SoakpProxy.
    *
    * @param req
    * @param res
@@ -65,7 +75,12 @@ export class OpenaiFinetunesApi {
   async createJob(req: express.Request, res: express.Response) {
     try {
       const fileId = String(req.body.training_file);
-      const response = await this.proxy.createFineTune(fileId);
+      const model = String(req.body.model);
+      const request: CreateFineTuneRequest = {
+        training_file: fileId,
+        model
+      };
+      const response = await this.proxy.createFineTune(request);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -73,7 +88,7 @@ export class OpenaiFinetunesApi {
       // @ts-ignore
     } catch (err: Error) {
       if (err.response.status === StatusCode.BAD_REQUEST) {
-        Responses.error( res, err.message, StatusCode.BAD_REQUEST );
+        Responses.error( res, err.response.data.error.message, StatusCode.BAD_REQUEST );
       } else {
         Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
       }
@@ -81,7 +96,8 @@ export class OpenaiFinetunesApi {
   }
 
   /**
-   * List your organization's fine-tuning jobs
+   * `listFineTunes` method retrieves a list of all fine-tuning jobs of the organization.
+   * It does not require any specific parameters and fetches the data from OpenAI API via SoakpProxy.
    *
    * @param req
    * @param res
@@ -100,7 +116,9 @@ export class OpenaiFinetunesApi {
   }
 
   /**
-   * Retrieve fine-tune. Gets info about the fine-tune job.
+   * `getJob` method retrieves detailed information about a specific fine-tuning job.
+   * It expects a `fine_tune_id` parameter in the request URL that specifies the ID of the fine-tuning job to fetch.
+   * The method communicates with the OpenAI API via proxy.
    *
    * @param req
    * @param res
@@ -120,7 +138,9 @@ export class OpenaiFinetunesApi {
   }
 
   /**
-   * List fine-tune events. Get fine-grained status updates for a fine-tune job.
+   * `listEvents` method retrieves a list of all events related to a specific fine-tuning job.
+   * It expects a `fine_tune_id` parameter in the request URL that specifies the ID of the fine-tuning job.
+   * The method communicates with the OpenAI API via proxy.
    *
    * @param req
    * @param res
@@ -140,7 +160,9 @@ export class OpenaiFinetunesApi {
   }
 
   /**
-   * Cancel fine-tune. Immediately cancel a fine-tune job.
+   * `cancelJob` method cancels a currently running fine-tuning job.
+   * It expects a `fine_tune_id` parameter in the request URL that specifies the ID of the fine-tuning job to be cancelled.
+   * The method communicates with the OpenAI API via proxy.
    *
    * @param req
    * @param res
