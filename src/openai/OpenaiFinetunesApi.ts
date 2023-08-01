@@ -4,6 +4,8 @@ import getProxyInstance from '../middleware/getProxyInstance';
 import { SoakpProxy } from '../SoakpProxy';
 import express from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
+import { Responses } from '../http/Responses';
+import { StatusMessage } from '../enums/StatusMessage.enum';
 import { Responses } from '../lib/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import { CreateFineTuneRequest } from 'openai';
@@ -75,12 +77,7 @@ export class OpenaiFinetunesApi {
   async createJob(req: express.Request, res: express.Response) {
     try {
       const fileId = String(req.body.training_file);
-      const model = String(req.body.model);
-      const request: CreateFineTuneRequest = {
-        training_file: fileId,
-        model
-      };
-      const response = await this.proxy.createFineTune(request);
+      const response = await this.proxy.createFineTune(fileId);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -88,7 +85,7 @@ export class OpenaiFinetunesApi {
       // @ts-ignore
     } catch (err: Error) {
       if (err.response.status === StatusCode.BAD_REQUEST) {
-        Responses.error( res, err.response.data.error.message, StatusCode.BAD_REQUEST );
+        Responses.error( res, err.message, StatusCode.BAD_REQUEST );
       } else {
         Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
       }

@@ -2,6 +2,7 @@
  * Author: Lehcode
  * Copyright: (C)2023
  */
+import { Configuration, CreateChatCompletionRequest, CreateFineTuneRequest, OpenAIApi } from 'openai';
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 import fs, { promises } from 'fs';
 import path from 'path';
@@ -13,6 +14,8 @@ import readline from 'readline';
 import { LineParser } from './lib/LineParser';
 import { mergeMap, toArray } from 'rxjs/operators';
 import { from, Observable, bindNodeCallback } from 'rxjs';
+import { AxiosPromise } from 'axios';
+import { FineTune } from 'openai/api';
 
 /**
  * @class SoakpProxy
