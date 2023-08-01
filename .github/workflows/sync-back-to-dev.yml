@@ -34,7 +34,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
+
+      # Check if the pull request already exists
+      - name: Check existing pull request
+        id: pr-check
+        run: |
+          pr_number=$(gh pr list -B develop -H master --json number --state all | jq '.[0].number')
+          if [ -n "$pr_number" ]; then
+            echo "::set-output name=pr_number::$pr_number"
+          fi
+        continue-on-error: true # This step will continue even if the pull request check fails
+
+      # Create the pull request only if it does not exist
       - name: Opening pull request
+        if: steps.pr-check.outputs.pr_number == '' # Only run this step if pr_number is not set (i.e., no existing PR)
         run: gh pr create -B develop -H master --title 'Sync master back into develop' --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.DH_PR }}
