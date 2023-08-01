@@ -3,6 +3,7 @@
  * Copyright: (C)2023
  */
 import { Configuration, CreateChatCompletionRequest, CreateFineTuneRequest, OpenAIApi } from 'openai';
+import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 import fs, { promises } from 'fs';
 import path from 'path';
 import { serverConfig } from './configs';

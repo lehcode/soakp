@@ -54,5 +54,6 @@ export const serverConfig: ServerConfigInterface = {
   httpAuthUser: String(process.env.AUTH_USER),
   httpAuthPass: String(process.env.AUTH_PASS),
   dataDir: String(process.env.DATA_DIR),
-  openAI: openaiConfig
+  openAI: openaiConfig,
+  validFiles: /\.txt|\.(t|c)sv|\.log|\.xml|\.jsonl?|\.ya?ml|\.md|\.rtf|\.html?|\.tsx?|\.jsx|\.py?$/i
 };

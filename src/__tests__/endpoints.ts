@@ -11,7 +11,7 @@ import { CreateChatCompletionRequest } from 'openai';
 import { ChatRole } from '../enums/ChatRole.enum';
 
 jest.mock('../SoakpProxy');
-jest.mock('../http/Responses');
+jest.mock('../lib/Responses');
 jest.mock('../KeyStorage');
 
 describe('SoakpServer', () => {
