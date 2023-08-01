@@ -22,6 +22,7 @@ import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
 import { StatusCode } from './enums/StatusCode.enum';
 import { UserInterface } from './interfaces/User.interface';
 import { OpenaiFinetunesApi } from './openai/OpenaiFinetunesApi';
+import rateLimit from 'express-rate-limit';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -47,6 +48,7 @@ export class SoakpServer {
   private user: UserInterface;
   proxy: SoakpProxy;
   private readonly finetunes: OpenaiFinetunesApi;
+  private rateLimit: RateLimit;
 
 
   /**
@@ -59,6 +61,11 @@ export class SoakpServer {
     this.keyStorageService = storage;
     this.user = { token: undefined, apiKey: undefined, orgId: undefined };
     this.proxy = new SoakpProxy();
+    this.rateLimit = rateLimit({
+      // 1 minute
+      windowMs: 60*1000,
+      max: 5
+    });
 
     this.initializeExpressApp();
 
@@ -96,6 +103,8 @@ export class SoakpServer {
     this.appService.use(cors());
     this.appService.use(express.json());
     this.appService.use(express.urlencoded({ extended: true }));
+
+    this.appService.use(this.rateLimit);
   }
 
   /**
