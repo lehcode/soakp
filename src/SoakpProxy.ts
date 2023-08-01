@@ -2,14 +2,19 @@
  * Author: Lehcode
  * Copyright: (C)2023
  */
-import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
-import * as readline from 'readline';
+import { Configuration, CreateChatCompletionRequest, CreateFineTuneRequest, OpenAIApi } from 'openai';
 import fs, { promises } from 'fs';
 import path from 'path';
-import jsonlines from 'jsonlines';
-import { Stream } from 'stream';
 import { serverConfig } from './configs';
 import { StatusMessage } from './enums/StatusMessage.enum';
+import Stream, { Readable } from 'stream';
+import jsonlines from 'jsonlines';
+import readline from 'readline';
+import { LineParser } from './lib/LineParser';
+import { mergeMap, toArray } from 'rxjs/operators';
+import { from, Observable, bindNodeCallback } from 'rxjs';
+import { AxiosPromise } from 'axios';
+import { FineTune } from 'openai/api';
 
 /**
  * @class SoakpProxy
@@ -78,15 +83,23 @@ export class SoakpProxy {
    * @param purpose
    */
   async uploadFile(file: any, purpose?: string) {
-    return await this.openai.createFile(file, purpose);
+    try {
+      return await this.openai.createFile(file, purpose);
+    } catch (err: any) {
+      console.log(err);
+      if (err instanceof TypeError) {
+        throw new Error(err.message);
+      }
+    }
+
   }
 
   /**
    *
    * @param txtFile
-   * @param title
+   * @param completion
    */
-  async txt2jsonl(txtFile: Record<string, any>, title: string): Promise<string> {
+  async txt2Jsonlines(txtFile: Record<string, any>, completion: string): Promise<Record<string, string>> {
     return new Promise((resolve, reject) => {
       try {
         const buffer = Buffer.from(txtFile.buffer);
@@ -107,11 +120,19 @@ export class SoakpProxy {
 
         stringify.pipe(process.stdout);
         stringify.pipe(writeStream);
+        let lineNumber = 0;
 
         readStream.on('line', (line) => {
+          lineNumber++;
           if (line !== '') {
+            const cleanLine = line.replace(/^\s+/, '');
+
             // Convert the line to a JSON object
-            stringify.write({ prompt: `${line}\\n\\n###\\n\\n`, completion: ` ${title} END` });
+            stringify.write({ prompt: `${cleanLine}\\n\\n###\\n\\n`, completion: ` ${completion} END` }, (err) => {
+              if (err) {
+                reject(err);
+              }
+            });
           }
         });
 
@@ -124,14 +145,119 @@ export class SoakpProxy {
           console.log('Done converting buffer to .jsonl');
 
           new Promise(async () => {
-            await fs.promises.readFile(jsonlFilePath, 'utf8');
-            resolve(jsonlFilePath);
+            const jsonlData = await fs.promises.readFile(jsonlFilePath, 'utf8');
+            resolve({
+              file: jsonlFilePath,
+              data: jsonlData
+            });
           });
         });
       } catch (err: any) {
         reject(err);
       }
     });
+  }
+
+  /**
+   * Concatenate array of files into single JSONL file suitable for OpenAI mdodel fine-tuning
+   *
+   * @param txtFiles
+   * @param completions
+   * @param concatBaseName?
+   */
+  async concatTxt2Jsonlines(
+    txtFiles: Express.Multer.File[] | { [p: string]: Express.Multer.File[] },
+    completions: string[],
+    concatBaseName?: string
+  ) {
+    return new Promise<Express.Multer.File>((resolve, reject) => {
+      try {
+        const jsonlFileName = concatBaseName || `concatenated-${Date.now()}.jsonl`;
+        const jsonlFilePath = path.resolve(
+          `${serverConfig.dataDir}/jsonl/${jsonlFileName}.jsonl`
+        );
+        const writeStream = fs.createWriteStream(jsonlFilePath);
+        const stringify = jsonlines.stringify();
+
+        stringify.pipe(writeStream);
+
+        const txtFilesArray = Array.isArray(txtFiles) ? txtFiles : Object.values(txtFiles);
+
+        from(txtFilesArray).pipe(
+          // @ts-ignore
+          mergeMap((txtFile: Express.Multer.File, index: number) => {
+            const buffer = Buffer.from(txtFile.buffer);
+            const readableStream = new Readable();
+            readableStream.push(buffer);
+            readableStream.push(null);
+
+            return this.readableStreamToObservable(readableStream).pipe(
+              mergeMap((lineBuffer: Buffer) => {
+                const line = lineBuffer.toString('utf8');
+                if (line.trim() !== '') {
+                  const cleanedLine = LineParser.cleanup(line);
+                  return bindNodeCallback(stringify.write.bind(stringify))({
+                    prompt: `${cleanedLine}\n\n###\n\n`,
+                    completion: ` ${completions[index]} END`
+                  });
+                }
+              })
+            );
+          })
+        )
+          .subscribe({
+            complete: () => {
+              stringify.end();
+            },
+            error: (err) => {
+              console.log(err);
+              reject(err);
+            }
+          });
+
+        writeStream.on('finish', async () => {
+          console.log(`Done concatenating files to ${jsonlFileName}`);
+
+          try {
+            const jsonlData = await fs.promises.readFile(jsonlFilePath);
+            // @ts-ignore
+            const concatenatedFile: Express.Multer.File = {
+              ...txtFilesArray[0],
+              mimetype: 'application/json',
+              originalname: jsonlFileName,
+              buffer: jsonlData,
+              path: jsonlFilePath
+            };
+            resolve(concatenatedFile);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      } catch (err: any) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   *
+   * @param readStream
+   */
+  readableStreamToObservable(readStream: NodeJS.ReadableStream): Observable<Buffer> {
+    return from(readStream).pipe(
+      mergeMap((chunk: Buffer | string | null) => {
+        if (chunk === null) {
+          // Signal the end of the stream
+          return;
+        } else if (Buffer.isBuffer(chunk)) {
+          return [chunk];
+        } else if (typeof chunk === 'string') {
+          return [Buffer.from(chunk, 'utf8')];
+        } else {
+          throw new Error('Unsupported chunk type.');
+        }
+      })
+    );
   }
 
   /**
@@ -148,7 +274,7 @@ export class SoakpProxy {
         // Split the jsonl string into lines
         const lines = jsonl.split('\n');
 
-        lines.forEach(line => {
+        lines.forEach((line) => {
           // Parse each line to a JavaScript object and add it to the dataObj array
           try {
             const data = JSON.parse(line);
