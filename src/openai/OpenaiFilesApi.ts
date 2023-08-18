@@ -386,4 +386,14 @@ export class OpenaiFilesApi {
     }
     return buffer;
   }
+
+  /**
+   * Convert a file to JSONL format.
+   *
+   * @param file
+   */
+  async convertToJSONL(file: any) {
+    // Python code to convert the file to JSONL format goes here
+    // This is a placeholder as the actual implementation depends on the specific requirements and the Python library used
+  }
 }
