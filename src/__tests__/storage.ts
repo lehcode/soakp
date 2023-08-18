@@ -30,19 +30,19 @@ describe('KeyStorage', () => {
     expect(keyStorageInstance).toBeInstanceOf(KeyStorage);
   });
 
-  // it('saveToken should return CREATED status code on success', async () => {
-  //   const keyStorageInstance = await KeyStorage.getInstance(config);
-  //   keyStorageInstance['backend'].insert = jest.fn().mockResolvedValue(null);
-  //   const result = await keyStorageInstance.saveToken('test_token');
-  //   expect(result).toBe(StatusCode.CREATED);
-  // });
+  it('saveToken should return CREATED status code on success', async () => {
+    const keyStorageInstance = await KeyStorage.getInstance(config);
+    keyStorageInstance['backend'].insert = jest.fn().mockResolvedValue(null);
+    const result = await keyStorageInstance.saveToken('test_token');
+    expect(result).toBe(StatusCode.CREATED);
+  });
   //
-  // it('saveToken should return false on error', async () => {
-  //   const keyStorageInstance = await KeyStorage.getInstance(config);
-  //   keyStorageInstance['backend'].insert = jest.fn().mockRejectedValue(new Error('Test error'));
-  //   const result = await keyStorageInstance.saveToken('test_token');
-  //   expect(result).toBe(false);
-  // });
+  it('saveToken should return false on error', async () => {
+    const keyStorageInstance = await KeyStorage.getInstance(config);
+    keyStorageInstance['backend'].insert = jest.fn().mockRejectedValue(new Error('Test error'));
+    const result = await keyStorageInstance.saveToken('test_token');
+    expect(result).toBe(false);
+  });
   //
   // it('fetchToken should return the token if found', async () => {
   //   const keyStorageInstance = await KeyStorage.getInstance(config);
