@@ -392,6 +392,17 @@ export class SoakpProxy {
    * @param jobId
    */
   async cancelFineTuneJob(jobId: string) {
-    return await this.openai.cancelFineTune(jobId);
-  }
+      async uploadFineTuneFile(file: any, purpose: string = 'fine-tune') {
+        try {
+          // Add error handling for other types of errors
+          return await this.openai.createFile(file, purpose);
+        } catch (err: any) {
+          console.log(err);
+          if (err instanceof TypeError) {
+            throw new Error(err.message);
+          } else {
+            throw err;
+          }
+        }
+      }
 }
