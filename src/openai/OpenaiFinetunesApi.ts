@@ -199,14 +199,14 @@ export class OpenaiFinetunesApi {
         return;
       }
 
-      const response = await this.proxy.uploadFineTuneFile(file, purpose);
+      const response = await this.proxy.uploadFile(file, purpose);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success(res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE);
       } else {
         Responses.error(res, 'An error occurred during file upload.', StatusCode.INTERNAL_ERROR);
       }
-    } catch (err: Error) {
+    } catch (err: any) {
       Responses.error(res, err.message, StatusCode.INTERNAL_ERROR);
     }
   }
