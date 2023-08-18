@@ -306,7 +306,7 @@ id, token, created_at, updated_at, last_access, archived
    *
    * @param tokenId
    */
-  async deleteToken(tokenId: string) {
-    return await this.delete(`token ='${tokenId}'`);
+  public deleteToken(tokenId: string) {
+    return this.delete(`token =${tokenId}`);
   }
 }

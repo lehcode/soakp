@@ -24,18 +24,18 @@ export class OpenaiModelsApi {
    * @param ctx
    */
   constructor(ctx: SoakpServer) {
-    this.appService = ctx.app;
+    this.appService = ctx.getApp();
 
     this.appService.get('/openai/models',
-                        validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                         getProxyInstance(ctx),
                         this.getModels.bind(ctx));
     this.appService.get('/openai/models/:model_id',
-                        validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                         getProxyInstance(ctx),
                         this.getModel.bind(ctx));
     this.appService.delete('/openai/models/:model_id',
-                           validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+                           validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                            getProxyInstance(ctx),
                            this.deleteFineTuneModel.bind(ctx));
   }

@@ -47,7 +47,6 @@
     "form-data": "^4.0.0",
     "jsonlines": "^0.1.1",
     "jsonwebtoken": "^9.0.0",
-    "lodash": "^4.17.21",
     "lodash": "^4.14.2",
     "multer": "^1.4.5-lts.1",
     "openai": "^3.3.0",
@@ -55,7 +54,6 @@
     "sqlite3": "^5.1.6",
     "stringify": "^5.2.0",
     "ts-morph": "^19.0.0",
-    "typescript-parser": "^2.6.1",
     "winston": "^3.9.0"
   },
   "devDependencies": {

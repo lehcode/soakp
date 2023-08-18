@@ -6,20 +6,20 @@ import { StatusCode } from '../enums/StatusCode.enum';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import { openaiConfig } from '../configs';
 
-const getProxyInstance = (ctx: SoakpServer) => {
+const getProxyInstance = (server: SoakpServer) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!ctx.proxy) {
-        ctx.proxy = new SoakpProxy();
+      if (!server.proxy) {
+        server.proxy = new SoakpProxy();
       }
 
-      ctx.proxyService.initOpenai({
-        apiKey: ctx.getUser().apiKey,
+      server.proxy.initOpenai({
+        apiKey: server.getUser().apiKey,
         organization: openaiConfig.orgId
       } as Configuration);
 
       next();
-    } catch (error: any) {
+    } catch (error) {
       // console.error(error);
       next(error);
     }

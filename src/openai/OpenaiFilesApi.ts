@@ -3,20 +3,18 @@ import { Responses } from '../lib/Responses';
 import { StatusCode } from '../enums/StatusCode.enum';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import path from 'path';
-import fs from 'fs';
+import { serverConfig } from '../configs';
+import fs, { createReadStream, PathLike } from 'fs';
 import { ServerConfigInterface, SoakpServer } from '../SoakpServer';
 import validateToken from '../middleware/validateToken';
 import getProxyInstance from '../middleware/getProxyInstance';
 import uploadFiles from '../middleware/uploadFiles';
 import extractFileId from '../middleware/extractFileId';
 import { SoakpProxy } from '../SoakpProxy';
-import { from, Observable, bindNodeCallback, map, mergeAll, of, tap } from 'rxjs';
-import { mergeMap, toArray } from 'rxjs/operators';
-import { JSONL, JsonlLineInterface } from '../lib/JSONL';
-import jsonlines from 'jsonlines';
-import readline from 'readline';
-import { serverConfig } from '../configs';
-import { Readable } from 'stream';
+import { Readable, Stream, Duplex } from 'stream';
+import { from, Observer } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { Timer } from '../lib/Timer';
 
 export class OpenaiFilesApi {
   /**
@@ -31,21 +29,14 @@ export class OpenaiFilesApi {
    *
    * @private
    */
-  private proxyService: SoakpProxy;
+  private proxy: SoakpProxy;
 
   /**
    * Server configuration
    *
    * @protected
    */
-  protected serverConfig: ServerConfigInterface;
-
-  /**
-   * JSONL parsing and generation
-   *
-   * @protected
-   */
-  jsonlService: JSONL;
+  protected config: ServerConfigInterface;
 
   /**
    * OpenaiFilesApi
@@ -54,45 +45,104 @@ export class OpenaiFilesApi {
    * @param ctx
    */
   constructor(ctx: SoakpServer) {
-    this.appService = ctx.app;
-    this.serverConfig = ctx.config;
-    this.jsonlService = ctx.jsonl;
+    this.appService = ctx.getApp();
+    this.proxy = ctx.proxy;
+    this.config = ctx.config;
 
     this.appService.post(
       '/openai/files',
-      validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+      validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
       getProxyInstance(ctx),
       uploadFiles(),
       this.sendFiles.bind(ctx)
     );
     this.appService.get(
       '/openai/files',
-      validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+      validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
       getProxyInstance(ctx),
       this.listFiles.bind(ctx)
     );
     this.appService.delete(
       '/openai/files/:file_id',
-      validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+      validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
       getProxyInstance(ctx),
       this.deleteFile.bind(ctx)
     );
     this.appService.get(
       '/openai/files/:file_id',
-      validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+      validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
       getProxyInstance(ctx),
       extractFileId(),
       this.getFile.bind(ctx)
     );
     this.appService.get(
       '/openai/files/:file_id/content',
-      validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
+      validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
       getProxyInstance(ctx),
       extractFileId(),
       this.getFileData.bind(ctx)
     );
   }
 
+  /**
+   * Send uploaded file to OpenAI API
+   *
+   * @param req
+   * @param res
+   */
+  private async sendFile(req: express.Request, res: express.Response) {
+    try {
+      const title = String(req.body.title);
+      if (title === '') {
+        return Responses.error(res, 'Invalid document title', StatusCode.BAD_REQUEST, StatusMessage.BAD_REQUEST);
+      }
+
+      req.body.convert = req.body.convert === 'true' || false;
+
+      const docName = String(req.body.document_title);
+      const purpose = 'fine-tune';
+      const ext = path.extname(req.file.originalname);
+      let response;
+
+      if (ext === '.jsonl') {
+        const file = `${serverConfig.dataDir}/jsonl/${req.file.filename}.jsonl`;
+        await fs.promises.writeFile(file, req.file.buffer);
+        // @ts-ignore
+        response = await this.proxy.uploadFile(fs.createReadStream(file), purpose);
+      } else {
+        if (req.body.convert === true) {
+          // Code to handle conversion if `convert` input field exists and is `true`
+          const validExtensions = this.config.validFiles;
+
+          if (validExtensions.test(req.file.originalname)) {
+            // @ts-ignore
+            const jsonlFile = await this.proxy.txt2jsonl(req.file, docName);
+            // @ts-ignore
+            const formFile = fs.createReadStream(jsonlFile);
+            response = await this.proxy.uploadFile(formFile, purpose);
+          }
+        } else {
+          return Responses.error(
+            res,
+            'Provided file is not JSONL and `convert` was not specified.',
+            StatusCode.UNSUPPORTED_MEDIA_TYPE,
+            StatusMessage.WRONG_FILE_TYPE
+          );
+        }
+      }
+
+      if (response.status === StatusCode.SUCCESS) {
+        return Responses.success(
+          res,
+          { response: response.data, responseConfig: response.config.data },
+          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      return Responses.serverError(res);
+    }
+  }
 
   /**
    * Process uploaded files. Create JSONL file from uploaded files and upload it to OpenAI API.
@@ -100,16 +150,34 @@ export class OpenaiFilesApi {
    * @param req
    * @param res
    */
-  protected async sendFiles(req: Express.Request, res: express.Response): Promise<void> {
+  protected async sendFiles(req: express.Request, res: express.Response): Promise<void> {
     try {
       if (!req.files || !(req.files instanceof Array)) {
         Responses.error(res, 'File(s) not specified.', StatusCode.INTERNAL_ERROR, StatusMessage.UPLOAD_ERROR);
-        return;
       }
 
       const files: Express.Multer.File[] = req.files as Express.Multer.File[];
 
-      if (files.some((file: Express.Multer.File) => !this.serverConfig.validFiles.test(file.originalname))) {
+      // Check titles
+      if (req.files.length === 1 && !req.body.titles) {
+        Responses.error(
+          res,
+          'File needs a title which was not specified.',
+          StatusCode.INTERNAL_ERROR,
+          StatusMessage.UPLOAD_ERROR
+        );
+        return;
+      } else if (parseInt(String(req.files.length)) > 1 && !(req.body.titles instanceof Array)) {
+        Responses.error(
+          res,
+          'Each file needs its corresponding title.',
+          StatusCode.INTERNAL_ERROR,
+          StatusMessage.UPLOAD_ERROR
+        );
+        return;
+      }
+
+      if (files.map((file: Express.Multer.File) => this.config.validFiles.test(file.originalname)).length !== parseInt(String(req.files.length))) {
         Responses.error(
           res,
           'Mixing of JSONL and non-JSONL files not allowed.',
@@ -119,23 +187,39 @@ export class OpenaiFilesApi {
         return;
       }
 
-      const processedFiles = await this.jsonlService.encodeFiles(files);
+      if (files.filter((file: Express.Multer.File) => path.extname(file.originalname) === '.jsonl').length === 0) {
+        // Convert files to JSONL, then concatenate and upload to OpenAI API
+        const concatTxt2Jsonlines$ = from(this.proxy.concatTxt2Jsonlines(files, req.body.titles));
 
-      const concatenatedFilesReadStream = processedFiles.map((file: any) =>
-        fs.createReadStream(file.path, { encoding: 'utf8' }));
+        concatTxt2Jsonlines$.pipe(
+          mergeMap((concatenatedFile: Express.Multer.File) => {
+            const jsonlDataReadStream = fs.createReadStream(concatenatedFile.path, { encoding: 'utf8' });
+            return this.proxy.uploadFile(jsonlDataReadStream, 'fine-tune');
+          })
+        ).subscribe({
+          next: (response) => {
+            console.log('Received `uploadFile()` response');
 
-      const response = await this.proxyService.uploadFile(concatenatedFilesReadStream, 'fine-tune');
-
-      console.log('Received `uploadFiles()` response');
-
-      if (response.status === StatusCode.SUCCESS) {
-        Responses.success(
-          res,
-          { response: response.data, responseConfig: response.config.data },
-          StatusMessage.RECEIVED_OPENAI_API_RESPONSE
-        );
+            if (response.status === StatusCode.SUCCESS) {
+              Responses.success(
+                res,
+                { response: response.data, responseConfig: response.config.data },
+                StatusMessage.RECEIVED_OPENAI_API_RESPONSE
+              );
+            } else {
+              Responses.error(res, 'Upload error', response.status, StatusMessage.GATEWAY_ERROR);
+            }
+          },
+          error: (err) => {
+            console.log(err);
+            if (err instanceof Error) {
+              Responses.error(res, err.message, StatusCode.INTERNAL_ERROR, StatusMessage.BAD_REQUEST);
+            }
+          },
+          complete: () => console.log('Complete')
+        });
       } else {
-        Responses.error(res, 'Upload error', response.status, StatusMessage.GATEWAY_ERROR);
+        // Concatenate uploaded files into single JSONL file and upload to OpenAI API
       }
     } catch (err: any) {
       console.log(err);
@@ -144,8 +228,6 @@ export class OpenaiFilesApi {
       }
     }
   }
-
-
 
   /**
    * A list of files that belong to the user's organization
@@ -214,17 +296,18 @@ export class OpenaiFilesApi {
    */
   protected async getFile(req: express.Request, res: express.Response) {
     const fileId = String(req.openaiFileId);
+    let response;
 
     try {
-      const response = await this.proxyService.getFileInfo(fileId);
+      // @ts-ignore
+      response = await this.proxy.getFileInfo(fileId);
 
       if (response.status === StatusCode.SUCCESS) {
-        Responses.success(
+        return Responses.success(
           res,
           { response: response.data, responseConfig: response.config.data },
           StatusMessage.RECEIVED_OPENAI_API_RESPONSE
         );
-        return;
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -245,22 +328,62 @@ export class OpenaiFilesApi {
     const fileId = String(req.openaiFileId);
 
     try {
-      const response = await this.proxyService.getFileData(fileId);
+      // @ts-ignore
+      const response = await this.proxy.getFileData(fileId);
 
       if (response.status === StatusCode.SUCCESS) {
-        const parsed = await this.jsonlService.parseJSONL(response.data);
+        const parsed = await this.proxy.parseJSONL(response.data);
 
-        Responses.success(
+        return Responses.success(
           res,
           { response: parsed, responseConfig: response.config.data },
           StatusMessage.RECEIVED_OPENAI_API_RESPONSE
         );
-        return;
       }
     } catch (err) {
       if (err instanceof Error) {
         throw new Error(err.message);
       }
     }
+  }
+
+  /**
+   * Method to concatenate multiple Buffer objects
+   *
+   * @param buffers
+   * @private
+   */
+  private concatenateBuffers(buffers: Buffer[]): Buffer {
+    let totalLength = 0;
+    for (const buffer of buffers) {
+      totalLength += buffer.length;
+    }
+
+    const concatenatedBuffer = Buffer.alloc(totalLength);
+    let offset = 0;
+    for (const buffer of buffers) {
+      buffer.copy(concatenatedBuffer, offset);
+      offset += buffer.length;
+    }
+
+    return concatenatedBuffer;
+  }
+
+  static toArrayBuffer(buffer: Buffer) {
+    const arrayBuffer = new ArrayBuffer(buffer.length);
+    const view = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < buffer.length; ++i) {
+      view[i] = buffer[i];
+    }
+    return arrayBuffer;
+  }
+
+  static toBuffer(arrayBuffer: ArrayBuffer) {
+    const buffer = Buffer.alloc(arrayBuffer.byteLength);
+    const view = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < buffer.length; ++i) {
+      buffer[i] = view[i];
+    }
+    return buffer;
   }
 }
