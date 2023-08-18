@@ -35,7 +35,6 @@ describe('SoakpServer', () => {
     console.error = jest.fn();
     console.log = jest.fn();
 
-
     keyStorage = new KeyStorage(storageConfig);
     server = new SoakpServer(serverConfig, keyStorage);
   });
