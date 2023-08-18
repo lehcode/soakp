@@ -177,4 +177,27 @@ export class OpenaiFinetunesApi {
       Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
     }
   }
+
+  /**
+   * `uploadFineTuneFile` method uploads a file for fine-tuning a model.
+   * It expects a file and a purpose in the request body. The purpose should be 'fine-tune'.
+   * The method communicates with the OpenAI API via proxy.
+   *
+   * @param req
+   * @param res
+   */
+  async uploadFineTuneFile(req: express.Request, res: express.Response) {
+    try {
+      const file = req.body.file;
+      const purpose = req.body.purpose || 'fine-tune';
+      const response = await this.proxy.uploadFineTuneFile(file, purpose);
+
+      if (response.status === StatusCode.SUCCESS) {
+        Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
+      }
+      // @ts-ignore
+    } catch (err: Error) {
+      Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
+    }
+  }
 }
