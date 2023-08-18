@@ -52,6 +52,19 @@ export class Responses {
    * @param res
    * @param token
    */
+  static tokenReplaced(res: express.Response, oldToken: string, newToken: string) {
+    return res.status(StatusCode.SUCCESS).json({
+      status: StatusMessage.SUCCESS,
+      message: StatusMessage.JWT_UPDATED,
+      data: { oldJWT: oldToken, newJWT: newToken }
+    });
+  }
+
+  /**
+   *
+   * @param res
+   * @param token
+   */
   static tokenAccepted(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
       status: StatusCode.ACCEPTED,
