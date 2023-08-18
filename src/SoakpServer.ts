@@ -22,6 +22,10 @@ import { OpenaiFilesApi } from './openai/OpenaiFilesApi';
 import { StatusCode } from './enums/StatusCode.enum';
 import { UserInterface } from './interfaces/User.interface';
 import { OpenaiFinetunesApi } from './openai/OpenaiFinetunesApi';
+import { CreateChatCompletionRequest, CreateCompletionRequest } from 'openai';
+import { ChatRole } from './enums/ChatRole.enum';
+import rateLimit from 'express-rate-limit';
+import { JSONL } from './lib/JSONL';
 
 export interface ServerConfigInterface {
   httpPort: number;
@@ -38,15 +42,33 @@ export interface ServerConfigInterface {
  * @class SoakpServer
  */
 export class SoakpServer {
+  /**
+   * Express application service
+   * @protected
+   */
   protected appService: Express;
+  /**
+   * JWT storage service
+   *
+   * @private
+   */
   private readonly keyStorageService: KeyStorage;
-  readonly config: ServerConfigInterface;
+  /**
+   * Server configuration
+   */
+  private readonly serverConfig: ServerConfigInterface;
   private readonly chat: OpenaiChatApi;
   private readonly models: OpenaiModelsApi;
   private readonly files: OpenaiFilesApi;
   private user: UserInterface;
-  proxy: SoakpProxy;
+  proxyService: SoakpProxy;
   private readonly finetunes: OpenaiFinetunesApi;
+  /**
+   * JSONL parsing and generation
+   *
+   * @protected
+   */
+  protected jsonlService: JSONL;
 
 
   /**
@@ -55,10 +77,10 @@ export class SoakpServer {
    * @param storage
    */
   constructor(configuration: ServerConfigInterface, storage: KeyStorage) {
-    this.config = { ...configuration };
+    this.serverConfig = { ...configuration };
     this.keyStorageService = storage;
     this.user = { token: undefined, apiKey: undefined, orgId: undefined };
-    this.proxy = new SoakpProxy();
+    this.jsonlService = new JSONL();
 
     this.initializeExpressApp();
 
@@ -67,13 +89,13 @@ export class SoakpServer {
     this.files = new OpenaiFilesApi(this);
     this.finetunes = new OpenaiFinetunesApi(this);
 
-    console.log(this.config);
+    console.log(this.serverConfig);
 
     try {
       if (this.basicAuthCredentialsValid()) {
         this.appService.post(
           '/jwt/generate',
-          basicAuth({ users: { [this.config.httpAuthUser]: this.config.httpAuthPass }}),
+          basicAuth({ users: { [this.serverConfig.httpAuthUser]: this.serverConfig.httpAuthPass }}),
           this.generateJwt.bind(this)
         );
       }
@@ -96,6 +118,12 @@ export class SoakpServer {
     this.appService.use(cors());
     this.appService.use(express.json());
     this.appService.use(express.urlencoded({ extended: true }));
+
+    this.appService.use(rateLimit({
+      // 1 minute
+      windowMs: 2*1000,
+      max: 10
+    }));
   }
 
   /**
@@ -165,7 +193,7 @@ export class SoakpServer {
         });
 
         if (existingTokens.length) {
-          return Responses.tokenAccepted(res, existingTokens.pop().token);
+          return Responses.success(res, { data: existingTokens.pop().token }, '');
         }
       }
     } catch (err: any) {
@@ -178,7 +206,7 @@ export class SoakpServer {
    * @public
    */
   public async start() {
-    this.appService.listen(this.config.httpPort);
+    this.appService.listen(this.serverConfig.httpPort);
     this.initSSL(this.appService);
   }
 
@@ -235,16 +263,7 @@ export class SoakpServer {
 
     // @ts-ignore
     this.appService = https.createServer({ key: privateKey, cert: certificate }, app);
-    this.appService.listen(this.config.sslPort);
-  }
-
-  /**
-   * User properties setter
-   *
-   * @param value
-   */
-  setUser(value: UserInterface) {
-    this.user = value;
+    this.appService.listen(this.serverConfig.sslPort);
   }
 
   /**
@@ -257,14 +276,44 @@ export class SoakpServer {
   /**
    * Expose key storage
    */
-  getKeyStorage() {
+  get keyStorage() {
     return this.keyStorageService;
   }
 
   /**
    * Expose ExpressJS application
    */
-  getApp() {
+  get app() {
     return this.appService;
+  }
+
+  /**
+   * Getter for proxy service
+   */
+  get proxy() {
+    return this.proxyService;
+  }
+
+  /**
+   * Setter for proxy service
+   * 
+   * @param value
+   */
+  set proxy(value: SoakpProxy) {
+    this.proxyService = value;
+  }
+
+  /**
+   * SOAKP server configuration getter
+   */
+  get config() {
+    return this.serverConfig;
+  }
+
+  /**
+   * JSONL service getter
+   */
+  get jsonl() {
+    return this.jsonlService;
   }
 }
