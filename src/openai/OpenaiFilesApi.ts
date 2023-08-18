@@ -393,7 +393,8 @@ export class OpenaiFilesApi {
    * @param file
    */
   async convertToJSONL(file: any) {
-    // Python code to convert the file to JSONL format goes here
-    // This is a placeholder as the actual implementation depends on the specific requirements and the Python library used
+    // Implement the Python code to convert the file to JSONL format
+    // This code will depend on the specific requirements and the Python library used
+    // ...
   }
 }
