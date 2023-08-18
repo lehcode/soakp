@@ -2,17 +2,14 @@
  * Author: Lehcode
  * Copyright: (C)2023
  */
-import { Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
-import fs, { promises } from 'fs';
-import path from 'path';
-import { serverConfig } from './configs';
+import {
+  Configuration,
+  CreateChatCompletionRequest,
+  CreateCompletionRequest,
+  CreateFineTuneRequest,
+  OpenAIApi
+} from 'openai';
 import { StatusMessage } from './enums/StatusMessage.enum';
-import Stream, { Readable } from 'stream';
-import jsonlines from 'jsonlines';
-import readline from 'readline';
-import { LineParser } from './lib/LineParser';
-import { mergeMap, toArray } from 'rxjs/operators';
-import { from, Observable, bindNodeCallback } from 'rxjs';
 
 /**
  * @class SoakpProxy
@@ -55,10 +52,16 @@ export class SoakpProxy {
    *
    * Make OpenAI API call
    */
-  async chatRequest(request: CreateChatCompletionRequest) {
+  async chatRequest(request: CreateChatCompletionRequest | CreateCompletionRequest, legacy= false) {
     try {
-      return await this.openai.createChatCompletion(request);
-    } catch (error) {
+      if (request) {
+        if (legacy) {
+          return await this.openai.createCompletion(request as CreateCompletionRequest);
+        } else {
+          return await this.openai.createChatCompletion(request as CreateChatCompletionRequest);
+        }
+      }
+    } catch (error: any) {
       throw error;
     }
   }
@@ -90,204 +93,6 @@ export class SoakpProxy {
       }
     }
 
-  }
-
-  /**
-   *
-   * @param txtFile
-   * @param completion
-   */
-  async txt2Jsonlines(txtFile: Record<string, any>, completion: string): Promise<Record<string, string>> {
-    return new Promise((resolve, reject) => {
-      try {
-        const buffer = Buffer.from(txtFile.buffer);
-        const basename = path.basename(txtFile.originalname);
-        const readableStream = new Stream.Readable();
-        readableStream.push(buffer);
-        readableStream.push(null);
-
-        const jsonlFilePath = path.resolve(`${serverConfig.dataDir}/jsonl/${basename}.jsonl`);
-        const writeStream = fs.createWriteStream(jsonlFilePath);
-        const stringify = jsonlines.stringify();
-
-        const readStream = readline.createInterface({
-          input: readableStream,
-          output: process.stdout,
-          terminal: false
-        });
-
-        stringify.pipe(process.stdout);
-        stringify.pipe(writeStream);
-        let lineNumber = 0;
-
-        readStream.on('line', (line) => {
-          lineNumber++;
-          if (line !== '') {
-            const cleanLine = line.replace(/^\s+/, '');
-
-            // Convert the line to a JSON object
-            stringify.write({ prompt: `${cleanLine}\\n\\n###\\n\\n`, completion: ` ${completion} END` }, (err) => {
-              if (err) {
-                reject(err);
-              }
-            });
-          }
-        });
-
-        readStream.on('close', () => {
-          // Signal the end of the stringify stream
-          stringify.end();
-        });
-
-        writeStream.on('finish', () => {
-          console.log('Done converting buffer to .jsonl');
-
-          new Promise(async () => {
-            const jsonlData = await fs.promises.readFile(jsonlFilePath, 'utf8');
-            resolve({
-              file: jsonlFilePath,
-              data: jsonlData
-            });
-          });
-        });
-      } catch (err: any) {
-        reject(err);
-      }
-    });
-  }
-
-  /**
-   * Concatenate array of files into single JSONL file suitable for OpenAI mdodel fine-tuning
-   *
-   * @param txtFiles
-   * @param completions
-   * @param concatBaseName?
-   */
-  async concatTxt2Jsonlines(
-    txtFiles: Express.Multer.File[] | { [p: string]: Express.Multer.File[] },
-    completions: string[],
-    concatBaseName?: string
-  ) {
-    return new Promise<Express.Multer.File>((resolve, reject) => {
-      try {
-        const jsonlFileName = concatBaseName || `concatenated-${Date.now()}.jsonl`;
-        const jsonlFilePath = path.resolve(
-          `${serverConfig.dataDir}/jsonl/${jsonlFileName}.jsonl`
-        );
-        const writeStream = fs.createWriteStream(jsonlFilePath);
-        const stringify = jsonlines.stringify();
-
-        stringify.pipe(writeStream);
-
-        const txtFilesArray = Array.isArray(txtFiles) ? txtFiles : Object.values(txtFiles);
-
-        from(txtFilesArray).pipe(
-          // @ts-ignore
-          mergeMap((txtFile: Express.Multer.File, index: number) => {
-            const buffer = Buffer.from(txtFile.buffer);
-            const readableStream = new Readable();
-            readableStream.push(buffer);
-            readableStream.push(null);
-
-            return this.readableStreamToObservable(readableStream).pipe(
-              mergeMap((lineBuffer: Buffer) => {
-                const line = lineBuffer.toString('utf8');
-                if (line.trim() !== '') {
-                  const cleanedLine = LineParser.cleanup(line);
-                  return bindNodeCallback(stringify.write.bind(stringify))({
-                    prompt: `${cleanedLine}\n\n###\n\n`,
-                    completion: ` ${completions[index]} END`
-                  });
-                }
-              })
-            );
-          })
-        )
-          .subscribe({
-            complete: () => {
-              stringify.end();
-            },
-            error: (err) => {
-              console.log(err);
-              reject(err);
-            }
-          });
-
-        writeStream.on('finish', async () => {
-          console.log(`Done concatenating files to ${jsonlFileName}`);
-
-          try {
-            const jsonlData = await fs.promises.readFile(jsonlFilePath);
-            // @ts-ignore
-            const concatenatedFile: Express.Multer.File = {
-              ...txtFilesArray[0],
-              mimetype: 'application/json',
-              originalname: jsonlFileName,
-              buffer: jsonlData,
-              path: jsonlFilePath
-            };
-            resolve(concatenatedFile);
-          } catch (err) {
-            reject(err);
-          }
-        });
-      } catch (err: any) {
-        reject(err);
-      }
-    });
-  }
-
-  /**
-   *
-   * @param readStream
-   */
-  readableStreamToObservable(readStream: NodeJS.ReadableStream): Observable<Buffer> {
-    return from(readStream).pipe(
-      mergeMap((chunk: Buffer | string | null) => {
-        if (chunk === null) {
-          // Signal the end of the stream
-          return;
-        } else if (Buffer.isBuffer(chunk)) {
-          return [chunk];
-        } else if (typeof chunk === 'string') {
-          return [Buffer.from(chunk, 'utf8')];
-        } else {
-          throw new Error('Unsupported chunk type.');
-        }
-      })
-    );
-  }
-
-  /**
-   * Parse JSON file to JSON object
-   *
-   * @param jsonl
-   */
-  async parseJSONL(jsonl: string): Promise<any[]> {
-    return new Promise((resolve, reject) => {
-      try {
-        // const jsonlParser = jsonlines.parse();
-        const dataObj: any[] = [];
-
-        // Split the jsonl string into lines
-        const lines = jsonl.split('\n');
-
-        lines.forEach((line) => {
-          // Parse each line to a JavaScript object and add it to the dataObj array
-          try {
-            const data = JSON.parse(line);
-            dataObj.push(data);
-          } catch (err) {
-            console.log('Invalid JSON line:', line);
-          }
-        });
-
-        resolve(dataObj);
-      } catch (err) {
-        console.log(`Error parsing JSONL: ${err}`);
-        reject(err);
-      }
-    });
   }
 
   /**
@@ -329,25 +134,10 @@ export class SoakpProxy {
   /**
    * Create model fine-tune job
    *
-   * @param fileId
+   * @param request
    */
-  async createFineTune(fileId: string) {
-    return await this.openai.createFineTune({
-      /**
-       * The ID of an uploaded file that contains training data.
-       *
-       * @type {string}
-       */
-      training_file: fileId,
-      /**
-       * The name of the base model to fine-tune.
-       * You can select one of "ada", "babbage","curie", "davinci",
-       * or a fine-tuned model created after 2022-04-21.
-       *
-       * @type {string}
-       */
-      model: 'davinci'
-    });
+  async createFineTune(request: CreateFineTuneRequest) {
+    return await this.openai.createFineTune(request);
   }
 
   /**
