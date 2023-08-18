@@ -190,14 +190,26 @@ export class OpenaiFinetunesApi {
     try {
       const file = req.body.file;
       const purpose = req.body.purpose || 'fine-tune';
+
+      if (!file) {
+        Responses.error(res, 'File is required.', StatusCode.BAD_REQUEST);
+        return;
+      }
+
+      if (!this.proxy) {
+        Responses.error(res, 'Invalid proxy object.', StatusCode.INTERNAL_ERROR);
+        return;
+      }
+
       const response = await this.proxy.uploadFineTuneFile(file, purpose);
 
       if (response.status === StatusCode.SUCCESS) {
-        Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
+        Responses.success(res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE);
+      } else {
+        Responses.error(res, 'An error occurred during file upload.', StatusCode.INTERNAL_ERROR);
       }
-      // @ts-ignore
     } catch (err: Error) {
-      Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
+      Responses.error(res, err.message, StatusCode.INTERNAL_ERROR);
     }
   }
 }
