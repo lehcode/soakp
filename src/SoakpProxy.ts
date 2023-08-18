@@ -16,7 +16,9 @@ import { mergeMap, toArray } from 'rxjs/operators';
 import { from, Observable, bindNodeCallback } from 'rxjs';
 import { AxiosPromise } from 'axios';
 import { FineTune } from 'openai/api';
+import { TypeError } from 'openai'; // Added import
 
+...
 /**
  * @class SoakpProxy
  */
@@ -404,12 +406,18 @@ export class SoakpProxy {
    */
   async uploadFineTuneFile(file: any, purpose: string = 'fine-tune') {
     try {
+      if (!file) {
+        throw new TypeError('File is required.'); // Added validation for file parameter
+      }
       return await this.openai.createFile(file, purpose);
     } catch (err: any) {
-      console.log(err);
+      // Replace console.log(err) with proper logging mechanism or error handling strategy
+      console.error(err);
       if (err instanceof TypeError) {
         throw new Error(err.message);
       }
+      // Add additional error handling for other potential errors
+      throw new Error('An error occurred during file upload.');
     }
   }
 }
