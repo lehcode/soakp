@@ -148,18 +148,21 @@ export class SoakpServer {
 
     try {
       const existingTokens = await this.keyStorageService.getActiveTokens();
-      let signed: string;
+      const signed = this.keyStorageService.generateSignedJWT(this.user.apiKey, this.jwtHash);
 
       if (((existingTokens instanceof Array) && existingTokens.length === 0) || (existingTokens instanceof Error)) {
         // No saved JWTs found, generate and save a new one
         console.log('No matching tokens found. Generating a new one.');
-        signed = this.keyStorageService.generateSignedJWT(this.user.apiKey, this.jwtHash);
         await this.keyStorageService.saveToken(signed);
 
-        return Responses.tokenAdded(res, signed);
+        Responses.tokenAdded(res, signed);
+        return;
       } else {
+        let currentToken: string;
+
         existingTokens.filter(async (row: DbSchemaInterface) => {
           try {
+            currentToken = row.token;
             jwt.verify(row.token, this.jwtHash);
             console.log(StatusMessage.JWT_ACCEPTED);
 
@@ -167,18 +170,20 @@ export class SoakpServer {
           } catch (err: any) {
             if (err.message === 'jwt expired') {
               console.log(`${StatusMessage.JWT_EXPIRED}: '${row.token.substring(0, 64)}...'`);
+              if (!currentToken) {
+                return Responses.serverError(res);
+              }
+              await this.keyStorageService.updateToken(currentToken, signed);
             }
 
-            return false;
+            Responses.tokenAdded(res, signed);
+            return;
           }
         });
-
-        if (existingTokens.length) {
-          return Responses.tokenAccepted(res, existingTokens.pop().token);
-        }
       }
     } catch (err: any) {
-      return Responses.unknownServerError(res, err.message);
+      Responses.unknownServerError(res, err.message);
+      return;
     }
   }
 
