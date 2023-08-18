@@ -234,14 +234,14 @@ export class KeyStorage {
    *
    * @param token
    */
-  deleteJwt(token: string) {
+  async deleteJwt(token: string) {
     try {
-      this.backend.deleteToken(token);
+      await this.backend.deleteToken(token);
     } catch (err: any) {
+      console.error(err);
+
       if (err instanceof Error) {
         throw err;
-      } else {
-        console.error(err);
       }
     }
   }

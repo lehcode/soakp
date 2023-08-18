@@ -54,8 +54,8 @@ export class Responses {
    */
   static tokenAccepted(res: express.Response, token: string) {
     return res.status(StatusCode.ACCEPTED).json({
-      status: StatusCode.ACCEPTED,
-      message: StatusMessage.JWT_ACCEPTED,
+      status: StatusMessage.OPENAI_API_KEY_ACCEPTED,
+      message: StatusMessage.OPENAI_API_KEY_IS_VALID,
       data: { jwt: token }
     });
   }

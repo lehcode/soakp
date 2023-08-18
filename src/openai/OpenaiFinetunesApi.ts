@@ -26,11 +26,11 @@ export class OpenaiFinetunesApi {
   private appService: express.Application;
 
   /**
-   * Proxy instance
+   * SOAKP proxy service instance
    *
    * @private
    */
-  private proxy: SoakpProxy;
+  private proxyService: SoakpProxy;
 
   /**
    * OpenaiFinetunesApi constructor
@@ -39,27 +39,27 @@ export class OpenaiFinetunesApi {
    * @param ctx
    */
   constructor(ctx: SoakpServer) {
-    this.appService = ctx.getApp();
-    this.proxy = ctx.proxy;
+    this.appService = ctx.app;
+    this.proxyService = ctx.proxyService;
 
     this.appService.post('/openai/fine-tunes',
-                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                         validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
                          getProxyInstance(ctx),
                          this.createJob.bind(ctx));
     this.appService.get('/openai/fine-tunes',
-                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
                         getProxyInstance(ctx),
                         this.listFineTunes.bind(ctx));
     this.appService.get('/openai/fine-tunes/:fine_tune_id',
-                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
                         getProxyInstance(ctx),
                         this.getJob.bind(ctx));
     this.appService.get('/openai/fine-tunes/:fine_tune_id/events',
-                        validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                        validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
                         getProxyInstance(ctx),
                         this.listEvents.bind(ctx));
     this.appService.post('/openai/fine-tunes/:fine_tune_id/cancel',
-                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                         validateToken(ctx.jwtHash, ctx.keyStorage, ctx.getUser()),
                          getProxyInstance(ctx),
                          this.cancelJob.bind(ctx));
   }
@@ -77,7 +77,12 @@ export class OpenaiFinetunesApi {
   async createJob(req: express.Request, res: express.Response) {
     try {
       const fileId = String(req.body.training_file);
-      const response = await this.proxy.createFineTune(fileId);
+      const model = String(req.body.model);
+      const request: CreateFineTuneRequest = {
+        training_file: fileId,
+        model
+      };
+      const response = await this.proxyService.createFineTune(request);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -85,7 +90,7 @@ export class OpenaiFinetunesApi {
       // @ts-ignore
     } catch (err: Error) {
       if (err.response.status === StatusCode.BAD_REQUEST) {
-        Responses.error( res, err.message, StatusCode.BAD_REQUEST );
+        Responses.error( res, err.response.data.error.message, StatusCode.BAD_REQUEST );
       } else {
         Responses.error( res, err.message, StatusCode.INTERNAL_ERROR );
       }
@@ -101,7 +106,7 @@ export class OpenaiFinetunesApi {
    */
   async listFineTunes(req: express.Request, res: express.Response) {
     try {
-      const response = await this.proxy.listFineTunes();
+      const response = await this.proxyService.listFineTunes();
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -123,7 +128,7 @@ export class OpenaiFinetunesApi {
   async getJob(req: express.Request, res: express.Response) {
     try {
       const jobId = String(req.params.fine_tune_id);
-      const response = await this.proxy.getFineTuneJob(jobId);
+      const response = await this.proxyService.getFineTuneJob(jobId);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -145,7 +150,7 @@ export class OpenaiFinetunesApi {
   async listEvents(req: express.Request, res: express.Response) {
     try {
       const jobId = String(req.params.fine_tune_id);
-      const response = await this.proxy.getFineTuneJobEvents(jobId);
+      const response = await this.proxyService.getFineTuneJobEvents(jobId);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
@@ -167,7 +172,7 @@ export class OpenaiFinetunesApi {
   async cancelJob(req: express.Request, res: express.Response) {
     try {
       const jobId = String(req.params.fine_tune_id);
-      const response = await this.proxy.cancelFineTuneJob(jobId);
+      const response = await this.proxyService.cancelFineTuneJob(jobId);
 
       if (response.status === StatusCode.SUCCESS) {
         Responses.success( res, { response: response.data, responseConfig: response.config.data }, StatusMessage.RECEIVED_OPENAI_API_RESPONSE );
