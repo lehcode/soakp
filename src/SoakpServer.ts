@@ -48,7 +48,7 @@ export class SoakpServer {
   private user: UserInterface;
   proxy: SoakpProxy;
   private readonly finetunes: OpenaiFinetunesApi;
-  private rateLimit: RateLimit;
+  private rateLimit: any;
 
 
   /**

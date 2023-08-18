@@ -4,10 +4,8 @@ import getProxyInstance from '../middleware/getProxyInstance';
 import { SoakpProxy } from '../SoakpProxy';
 import express from 'express';
 import { StatusCode } from '../enums/StatusCode.enum';
-import { Responses } from '../http/Responses';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import { Responses } from '../lib/Responses';
-import { StatusMessage } from '../enums/StatusMessage.enum';
 import { CreateFineTuneRequest } from 'openai';
 import { Project } from 'ts-morph';
 
