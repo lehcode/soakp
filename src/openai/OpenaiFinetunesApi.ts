@@ -60,6 +60,11 @@ export class OpenaiFinetunesApi {
                          validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
                          getProxyInstance(ctx),
                          this.cancelJob.bind(ctx));
+  
+    this.appService.post('/openai/fine-tunes/upload',
+                         validateToken(ctx.jwtHash, ctx.getKeyStorage(), ctx.getUser()),
+                         getProxyInstance(ctx),
+                         this.uploadFineTuneFile.bind(ctx));
   }
 
   /**
