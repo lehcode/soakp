@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusMessage } from '../enums/StatusMessage.enum';
 import { DbSchemaInterface, KeyStorage } from '../KeyStorage';
 import { StatusCode } from '../enums/StatusCode.enum';
-import jwt, { TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { UserInterface } from '../interfaces/User.interface';
-import { Responses } from '../lib/Responses';
 
 const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -45,19 +44,17 @@ const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface
 
             user.token = row.token;
           } catch (err: any) {
-            if (err instanceof Error) {
-              if (err instanceof TokenExpiredError) {
-                if (process.env.NODE_ENV === 'production') {
-                  console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '[scrubbed]'`);
-                } else {
-                  const sub = row.token.substring(0, row.token.length/2);
-                  console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '${sub}[scrubbed]'`);
-                }
-
-                await storage.updateToken(row.token, signed);
-                console.log(StatusMessage.JWT_UPDATED);
-                await expiredTokenCleanup(row.token);
+            if ((err instanceof Error) && err.message === 'jwt expired') {
+              if (process.env.NODE_ENV === 'production') {
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '[scrubbed]'`);
+              } else {
+                const sub = row.token.substring(0, row.token.length/2);
+                console.log(`${StatusMessage.JWT_EXPIRED}.\nReplacing JWT '${sub}[scrubbed]'`);
               }
+
+              await storage.updateToken(row.token, signed);
+              console.log(StatusMessage.JWT_UPDATED);
+              await expiredTokenCleanup(row.token);
             }
           }
         });
@@ -65,12 +62,9 @@ const validateToken = (jwtHash: string, storage: KeyStorage, user: UserInterface
 
       next();
     } catch (err: any) {
-      if (err instanceof TokenExpiredError) {
-        if (err.message === 'jwt expired') {
-          await storage.deleteJwt(user.token);
-          next(err.message);
-        }
-      }
+      if (err instanceof Error) {
+        throw new Error(err.message);
+      };
     }
   };
 };
